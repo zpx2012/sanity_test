@@ -72,7 +72,7 @@ if __name__ == '__main__':
         sys.exit(-1)
     test_url = sys.argv[1]
 
-    os.system("mkdir results")
+    os.system("mkdir ~/results")
     output_file_name = expanduser("~") + "/results/" + socket.gethostname().replace("-","_") + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
     with open(output_file_name,"w") as f:
         f.writelines("test: %s\nUsing: %s\n localtime\t  speed\n" % (test_url, sys.argv[3]))
