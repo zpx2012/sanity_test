@@ -5,10 +5,14 @@ from os.path import expanduser
 
 if __name__ == '__main__':
     if len(sys.argv) < 5:
-        print("Usage:\n\tpython curl_downloader.py [URL] [Mode] [Tool] [Mirror]\n\nOptions:\n\tMode:0:regular, 1:proxy mode\n\tTool: ss, vpn, ssh, from which server\n\tMirror: mirror source, 163 or mit or so")
+        print("Usage:\n\tpython curl_downloader.py [URL] [Mode] [Tool] [Site]\n\nOptions:\n\tMode:0:regular, 1:proxy mode\n\tTool: ss, vpn, ssh, from which server\n\tSite: download source, 163 or mit or so")
         sys.exit(-1)
 
-    print '********************************\nWelcome to curl downloader\n\nCtrl-C to terminate the program\n********************************\n'
+    decorator = '********************************\n'
+    print decorator
+    print 'Welcome to curl downloader\n\nCtrl-C to terminate the program\n'
+    print decorator
+
     os.system("mkdir ~/results")
     output_file_name = expanduser("~") + "/results/" + socket.gethostname().replace("-","_") + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
     
@@ -19,11 +23,11 @@ if __name__ == '__main__':
 
     num_tasks = 1 
     while True:
-        try:
+        with open(output_file_name,"a") as f:
             s = '%s Task : %d\n' % (datetime.datetime.now().strftime(("%Y-%m-%d %H:%M:%S")), num_tasks)
             print s
-            with open(output_file_name,"a") as f:
-                f.writelines(s)
+            f.writelines(s)
+        try:
             p = Popen(cmd, shell=True)
             p.communicate()
             num_tasks += 1
@@ -32,6 +36,4 @@ if __name__ == '__main__':
             if input == 'y':
                 p.terminate()
                 os._exit(-1)
-
-#cat 
 
