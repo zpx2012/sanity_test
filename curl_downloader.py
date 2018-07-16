@@ -8,9 +8,9 @@ if __name__ == '__main__':
         print("Usage:\n\tpython curl_downloader.py [URL] [Mode] [Tool] [Site]\n\nOptions:\n\tMode:0:regular, 1:proxy mode\n\tTool: ss, vpn, ssh, from which server\n\tSite: download source, 163 or mit or so")
         sys.exit(-1)
 
-    decorator = '********************************\n'
+    decorator = '********************************'
     print decorator
-    print 'Welcome to curl downloader\n\nCtrl-C to terminate the program\n'
+    print 'Welcome to curl downloader\n\nCtrl-C to terminate the program'
     print decorator
 
     os.system("mkdir ~/results")
