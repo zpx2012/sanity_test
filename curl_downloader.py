@@ -23,7 +23,7 @@ if __name__ == '__main__':
     num_tasks = 1 
     while True:
         with open(output_file_name,"a") as f:
-            s = '%s Task : %d\n' % (datetime.datetime.now().strftime(("%Y-%m-%d %H:%M:%S")), num_tasks)
+            s = '%s Task : %d\n URL:%s\n Method:%s' % (datetime.datetime.now().strftime(("%Y-%m-%d %H:%M:%S")), num_tasks, sys.argv[1], sys.argv[3])
             print s
             f.writelines(s)
         try:
