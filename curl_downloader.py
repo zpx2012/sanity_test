@@ -8,13 +8,12 @@ if __name__ == '__main__':
         print("Usage:\n\tpython curl_downloader.py [URL] [Mode] [Tool] [Site]\n\nOptions:\n\tMode:0:regular, 1:proxy mode\n\tTool: ss, vpn, ssh, from which server\n\tSite: download source, 163 or mit or so")
         sys.exit(-1)
 
-    decorator = '********************************'
-    print decorator
-    print 'Welcome to curl downloader\n\nCtrl-C to terminate the program'
-    print decorator
-
     os.system("mkdir ~/results")
-    output_file_name = expanduser("~") + "/results/" + socket.gethostname().replace("-","_") + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+    output_file_name = expanduser("~") + "/results/" + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+
+    decorator = '********************************'
+    print decorator + '\nWelcome to curl downloader\n\nCtrl-C to terminate the program\n' + decorator + '\n\n'
+
     
     if(sys.argv[2] == '0'):
         cmd = 'curl -o /dev/null --limit-rate 1000k %s 2>&1 | tee -a %s' % (sys.argv[1], output_file_name)
