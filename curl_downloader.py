@@ -30,6 +30,7 @@ if __name__ == '__main__':
             p = Popen(cmd, shell=True)
             p.communicate()
             num_tasks += 1
+            sleep(10)
         except KeyboardInterrupt:
             input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
             if input == 'y':
