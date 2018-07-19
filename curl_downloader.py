@@ -12,7 +12,7 @@ if __name__ == '__main__':
     output_file_name = expanduser("~") + "/results/" + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
     decorator = '\n********************************\n'
-    print decorator + 'Welcome to curl downloader\n\nCtrl-C to terminate the program' + decorator + '\n'
+    print decorator + 'Curl Downloader 1.0.0\nCtrl-C to terminate the program' + decorator + '\n'
 
     
     if(sys.argv[2] == '0'):
