@@ -20,6 +20,7 @@ if __name__ == '__main__':
         try:
             p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
             sout, serr = p.communicate()
+            print 'stout %s\n sterr: %s' % (sout, serr)
             if not sout:
                 print '#######\n empty stdout'
             with open(output_file_name,"a") as f:
