@@ -13,19 +13,17 @@ if __name__ == '__main__':
     decorator = '\n********************************\n'
     print decorator + 'Mtr Runner 1.0.0\nCtrl-C to terminate the program' + decorator + '\n'
 
-    cmd = 'mtr --tcp -c 1 --report ' + sys.argv[1]
+    cmd = 'mtr --tcp -c 60 --report ' + sys.argv[1]
 
     num_tasks = 1 
     while True:
-        # with open(output_file_name,"a") as f:
-        #     s = '%s Task : %d\n URL:%s\n Method:%s' % (datetime.datetime.now().strftime(("%Y-%m-%d %H:%M:%S")), num_tasks, sys.argv[1], sys.argv[3])
-        #     print s
-        #     f.writelines(s)
         try:
             p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
             sout, serr = p.communicate()
-            print 'stdout:\n %s' % sout
-            print 'sterr:\n %s ' % serr
+            if not sout:
+                print '#######\n empty stdout'
+            with open(output_file_name,"a") as f:
+                f.writelines(sout)            
             num_tasks += 1
             sleep(10)
         except KeyboardInterrupt:
