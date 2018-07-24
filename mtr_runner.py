@@ -8,7 +8,7 @@ if __name__ == '__main__':
         print("Usage:\n\tpython mtr_runner.py [URL] [URL Nickname for Output]")
         sys.exit(-1)
 
-    output_file_name = expanduser("~") + "/results/mtr" + socket.gethostname() + "_" + sys.argv[2] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+    output_file_name = expanduser("~") + "/results/mtr_" + socket.gethostname() + "_" + sys.argv[2] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
     decorator = '\n********************************\n'
     print decorator + 'Mtr Runner 1.0.0\nCtrl-C to terminate the program' + decorator + '\n'
