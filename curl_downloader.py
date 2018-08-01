@@ -29,6 +29,7 @@ if __name__ == '__main__':
         try:
             p = Popen(cmd, shell=True)
             p.communicate()
+            f.write('\n')
             num_tasks += 1
             sleep(10)
         except KeyboardInterrupt:
