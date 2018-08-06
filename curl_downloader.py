@@ -26,14 +26,15 @@ if __name__ == '__main__':
             s = '%s Task : %d\n URL:%s\n Method:%s' % (datetime.datetime.now().strftime(("%Y-%m-%d %H:%M:%S")), num_tasks, sys.argv[1], sys.argv[3])
             print s
             f.writelines(s)
-        try:
-            p = Popen(cmd, shell=True)
-            p.communicate()
-            num_tasks += 1
-            sleep(10)
-        except KeyboardInterrupt:
-            input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
-            if input == 'y':
-                p.terminate()
-                os._exit(-1)
+            try:
+                p = Popen(cmd, shell=True)
+                p.communicate()
+                f.write('\n')
+                num_tasks += 1
+                sleep(10)
+            except KeyboardInterrupt:
+                input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
+                if input == 'y':
+                    p.terminate()
+                    os._exit(-1)
 
