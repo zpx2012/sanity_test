@@ -13,7 +13,7 @@ if __name__ == '__main__':
     decorator = '\n********************************\n'
     print decorator + 'Mtr Runner 1.0.5\nCtrl-C to terminate the program' + decorator + '\n'
 
-    cmd = 'mtr -zwnr --tcp -c 60 ' + sys.argv[1]
+    cmd = 'mtr -zwnr --tcp ' + sys.argv[1]
 
     num_tasks = 1 
     while True:
