@@ -12,7 +12,7 @@ if __name__ == '__main__':
     output_file_name = expanduser("~") + "/results/" + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
     decorator = '\n********************************\n'
-    print decorator + 'Curl Downloader 1.0.0\nCtrl-C to terminate the program' + decorator + '\n'
+    print decorator + 'Curl Downloader 1.0.1\nCtrl-C to terminate the program' + decorator + '\n'
 
     
     if(sys.argv[2] == '0'):
@@ -36,5 +36,6 @@ if __name__ == '__main__':
             input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
             if input == 'y':
                 p.terminate()
+                os.system('dos2unix -c mac %s' % output_file_name)
                 os._exit(-1)
 
