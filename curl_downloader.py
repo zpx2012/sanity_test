@@ -8,11 +8,13 @@ if __name__ == '__main__':
         print("Usage:\n\tpython curl_downloader.py [URL] [Mode] [Tool] [Site]\n\nOptions:\n\tMode:0:regular, 1:proxy mode\n\tTool: ss, vpn, ssh, from which server\n\tSite: download source, 163 or mit or so")
         sys.exit(-1)
 
-    os.system("mkdir ~/results")
-    output_file_name = expanduser("~") + "/results/" + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+    out_dir = expanduser('~/sanity_test_results/')
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    output_file_name = out_dir + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
     decorator = '\n********************************\n'
-    print decorator + 'Curl Downloader 1.0.1\nCtrl-C to terminate the program' + decorator + '\n'
+    print decorator + 'Curl Downloader 1.0.2\nCtrl-C to terminate the program' + decorator + '\n'
 
     
     if(sys.argv[2] == '0'):
