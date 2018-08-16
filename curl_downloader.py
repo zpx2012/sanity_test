@@ -17,9 +17,9 @@ if __name__ == '__main__':
     print decorator + 'Curl Downloader 1.0.3\nCtrl-C to terminate the program' + decorator + '\n'
 
     if(sys.argv[2] == '0'):
-        cmd = 'curl -o /dev/null --limit-rate 1000k -speed-time 1800 -LJ \'%s\' 2>&1 | tee -a %s' % (sys.argv[1], output_file_name)
+        cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJ \'%s\' 2>&1 | tee -a %s' % (sys.argv[1], output_file_name)
     else:
-        cmd = 'curl -o /dev/null --limit-rate 1000k -speed-time 1800 -LJ --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (sys.argv[1], output_file_name)
+        cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJ --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (sys.argv[1], output_file_name)
 
     num_tasks = 1 
     while True:
