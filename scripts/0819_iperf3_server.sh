@@ -1,0 +1,1 @@
+screen -dmS test bash -c 'iperf3 -s -4 --logfile iperf3.log;exec bash' 
