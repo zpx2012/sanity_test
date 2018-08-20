@@ -1,1 +1,1 @@
-screen -dmS test bash -c 'iperf3 -s -4 --logfile iperf3.log;exec bash' 
+screen -dmS test bash -c 'sudo iperf3 -s -p 80 -4 --logfile iperf3.log;exec bash' 
