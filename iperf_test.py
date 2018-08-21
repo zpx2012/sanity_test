@@ -6,8 +6,6 @@ results_dir_abs_path = expanduser("~") + "/sanity_test_results/"
 output_file_name = results_dir_abs_path + "iperf3_" + socket.gethostname() + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
 while True:
-    with open(output_file_name,"a") as f:
-        f.writelines(datetime.datetime.now().strftime(("Time: %Y-%m-%d %H:%M:%S")) + '\n')
     p = subprocess.Popen('iperf3 -c 169.235.31.181 -p 80 -f kbits -b 1M -t 5 -4RV --logfile {}'.format(output_file_name),stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
     stdoutdata, stderrdata = p.communicate()
     print stdoutdata
