@@ -3,11 +3,11 @@ from os.path import expanduser
 
 results_dir_abs_path = expanduser("~") + "/results"
 os.system("mkdir %s" % results_dir_abs_path)
-output_file_name = results_dir_abs_path + "/" + "iperf_" + socket.gethostname().replace("-","_") + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+output_file_name = results_dir_abs_path + "/" + "iperf3_" + socket.gethostname().replace("-","_") + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 with open(output_file_name,"w") as f:
     f.writelines("localtime\t  speed\n")
 while True:
-    p = subprocess.Popen('iperf -c 169.235.31.181 -p 80 -f kbits',stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
+    p = subprocess.Popen('iperf3 -c 169.235.31.181 -p 80 -f kbits -b 1M -t 5 -4',stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
     stdoutdata, stderrdata = p.communicate()
     print stdoutdata
     lines = stdoutdata.split('\n')
