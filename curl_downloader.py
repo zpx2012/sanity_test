@@ -25,7 +25,7 @@ if __name__ == '__main__':
     else:
         port = 80
     if sys.argv[3] in nonproxy_modes:
-        cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJv4 --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (urlparse.urlparse(url), port, ip, url, output_file_name)
+        cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJv4 --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (urlparse.urlparse(url).hostname, port, ip, url, output_file_name)
     else:
         cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJ --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (url, output_file_name)
 
