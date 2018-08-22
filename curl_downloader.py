@@ -11,12 +11,10 @@ if __name__ == '__main__':
     ip = sys.argv[2]
 
     out_dir = expanduser('~/sanity_test_results/')
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
     output_file_name = out_dir + 'curl_' + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
     decorator = '\n********************************\n'
-    print decorator + 'Curl Downloader 1.1.1\nCtrl-C to terminate the program' + decorator + '\n'
+    print decorator + 'Curl Downloader 1.1.2\nCtrl-C to terminate the program' + decorator + '\n'
 
     #traceroute
     os.system('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')))
@@ -36,6 +34,7 @@ if __name__ == '__main__':
         with open(output_file_name,"a") as f:
             s = '%s Task : %d\n URL:%s\n Method:%s' % (datetime.datetime.now().strftime(("%Y-%m-%d %H:%M:%S")), num_tasks, url, sys.argv[3])
             print s
+            print cmd
             f.writelines(s)
         try:
             p = Popen(cmd, shell=True)
