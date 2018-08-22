@@ -13,10 +13,4 @@ screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'http://mirror
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 
 'https://mirror.tuna.tsinghua.edu.cn/ubuntu-releases/ubuntu-core/16/ubuntu-core-16-pi2.img.xz' '101.6.8.193' clean tsinghua"
 
-traceroute -A dms.licdn.com > /dev/null
-traceroute -A dms.licdn.com > ~/sanity_test_results/tr_licdn.log
-traceroute -A upload.wikimedia.org > ~/sanity_test_results/tr_wiki.log
-traceroute -A m.media-amazon.com > ~/sanity_test_results/tr_amazon.log
-traceroute -A video-http.media-imdb.com > ~/sanity_test_results/tr_imdb.log
-traceroute -A github.com > ~/sanity_test_results/tr_github.log
 screen -dmS test bash -c "python ~/sanity_test/mtr_runner.py '192.30.255.112' github; exec bash"
