@@ -14,7 +14,7 @@ if __name__ == '__main__':
     output_file_name = out_dir + 'curl_' + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
     decorator = '\n********************************\n'
-    print decorator + 'Curl Downloader 1.1.2\nCtrl-C to terminate the program' + decorator + '\n'
+    print decorator + 'Curl Downloader 1.1.3\nCtrl-C to terminate the program' + decorator + '\n'
 
     #traceroute
     os.system('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')))
