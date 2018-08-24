@@ -14,9 +14,9 @@ if __name__ == '__main__':
     output_file_name = out_dir + "mtr_" + socket.gethostname() + "_" + sys.argv[2] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 
     decorator = '\n********************************\n'
-    print decorator + 'Mtr Runner 1.0.5\nCtrl-C to terminate the program' + decorator + '\n'
+    print decorator + 'Mtr Runner 1.0.6\nCtrl-C to terminate the program' + decorator + '\n'
 
-    cmd = 'mtr -zwnr --tcp ' + sys.argv[1]
+    cmd = 'mtr -zwnr --port 80 --tcp ' + sys.argv[1]
 
     num_tasks = 1 
     while True:
