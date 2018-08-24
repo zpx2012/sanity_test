@@ -17,7 +17,7 @@ if __name__ == '__main__':
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
 
     #traceroute
-    t = threading.Thread(target=os.system, args=('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr'))))
+    t = threading.Thread(target=os.system, args=('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')),))
     t.start()
 
     nonproxy_modes = ['clean','https']

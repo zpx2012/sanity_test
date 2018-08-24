@@ -8,4 +8,4 @@ screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://holdi
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://obssr.od.nih.gov/wp-content/uploads/2018/03/OBSSR_Festival_Report_2017.pdf' '137.187.172.42' https nih.gov;exec bash"
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://noaanhc.files.wordpress.com/2017/07/outreach1.jpg' '192.0.72.24' https wordpress;exec bash"
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://link.springer.com/content/pdf/10.1007%2Fs10853-018-2650-4.pdf' '151.101.24.95' https springer;exec bash"
-screen -dmS test bash -c "python ~/sanity_test/mtr_runner.py upload.wikimedia.org wiki'' github; exec bash"
+screen -dmS test bash -c "python ~/sanity_test/mtr_runner.py upload.wikimedia.org wiki; exec bash"
