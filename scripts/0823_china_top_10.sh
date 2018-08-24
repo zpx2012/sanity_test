@@ -7,6 +7,5 @@ screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://www.a
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://holdings.sciencedirect.com/holdings/report.url?_acctId=228598&_prodId=3&_platform=SD&_site=science&_env=SD&_userId=12975512&md5=38bcda18353d6407ac5ef9343f7d82a5&format=CSV&downloadId=1535062952790' '52.3.105.19' https sciencedirect;exec bash"
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://obssr.od.nih.gov/wp-content/uploads/2018/03/OBSSR_Festival_Report_2017.pdf' '137.187.172.42' https nih.gov;exec bash"
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://noaanhc.files.wordpress.com/2017/07/outreach1.jpg' '192.0.72.24' https wordpress;exec bash"
-screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'http://graphics8.nytimes.com/packages/flash/nyregion/20110424_guastavino/panaa057Panorama.jpg' '151.101.1.164' https nytimes;exec bash"
 screen -dmS test bash -c "python ~/sanity_test/curl_downloader.py 'https://link.springer.com/content/pdf/10.1007%2Fs10853-018-2650-4.pdf' '151.101.24.95' https springer;exec bash"
 screen -dmS test bash -c "python ~/sanity_test/mtr_runner.py upload.wikimedia.org wiki'' github; exec bash"
