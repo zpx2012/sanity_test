@@ -17,7 +17,7 @@ if __name__ == '__main__':
     decorator = '\n********************************\n'
     print decorator + 'Mtr Runner 1.1.0\nCtrl-C to terminate the program' + decorator + '\n'
 
-    cmd = 'mtr -zwnr4 --report-cycles 2 --port 80 --tcp '
+    base_cmd = 'mtr -zwnr4 --report-cycles 2 --port 80 --tcp %s'
 
     infile_name = sys.argv[1]
     
@@ -32,7 +32,7 @@ if __name__ == '__main__':
         while True:
             try:
                 for line in domain_ip_list:
-                    cmd += line[1]
+                    cmd = base_cmd % line[1]
                     print cmd
                     p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
                     sout, serr = p.communicate()
