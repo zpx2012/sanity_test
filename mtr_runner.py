@@ -33,6 +33,7 @@ if __name__ == '__main__':
             try:
                 for line in domain_ip_list:
                     cmd += line[1]
+                    print cmd
                     p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
                     sout, serr = p.communicate()
                     print 'stout %s\n sterr: %s' % (sout, serr)
