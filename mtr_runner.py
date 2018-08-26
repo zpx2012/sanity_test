@@ -40,7 +40,7 @@ if __name__ == '__main__':
                     if not sout:
                         print '#######\n empty stdout'
                     with open(output_filename_dict[line[0]],"a") as f:
-                        f.writelines(sout)            
+                        f.writelines(cmd+'\n'+sout)            
                     num_tasks += 1
             except KeyboardInterrupt:
                 input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
