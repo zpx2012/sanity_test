@@ -4,7 +4,7 @@ from time import sleep
 from os.path import expanduser
 
 if __name__ == '__main__':
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 6:
         print("Usage:\n\tpython curl_downloader.py [URL] [IP] [Tool] [Site]\n\nOptions:\n\tTool: ss, vpn, ssh, from which server\n\tSite: download source, 163 or mit or so")
         sys.exit(-1)
     url = sys.argv[1]
@@ -17,7 +17,8 @@ if __name__ == '__main__':
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
 
     #traceroute
-    os.system('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')),)
+    if sys.argv[5] == 1:
+        os.system('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')),)
 
     nonproxy_modes = ['clean','https']
     if 'https' in url:
