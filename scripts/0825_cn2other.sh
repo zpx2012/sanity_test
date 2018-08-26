@@ -7,3 +7,4 @@ screen -dmS test python ~/sanity_test/curl_downloader.py 'https://smrmembers-smr
 screen -dmS test python ~/sanity_test/curl_downloader.py 'https://www.canada.ca/content/dam/pch/images/services/royal-portraits/queen-pic14x16-eng.jpg' '184.25.234.183' https canada.ca 1
 screen -dmS test python ~/sanity_test/curl_downloader.py 'http://data.inspire.landregistry.gov.uk/Abertawe_-_Swansea.zip' '52.218.53.27' clean gov.uk 1
 screen -dmS test python ~/sanity_test/curl_downloader.py 'https://www.comp.nus.edu.sg/~nlp/sw/one-million-sense-tagged-instances-wn30.tar.gz' '137.132.84.218' https nus.edu.sg 1
+screen -dmS test python ~/sanity_test/mtr_runner.py ~/sanity_test/scripts/0825_cn2other.csv
