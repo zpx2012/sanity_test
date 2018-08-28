@@ -1,9 +1,8 @@
-yahoo.jp,183.79.225.32,https://yvpub-bucket001-west.west.edge.storage-yahoo.jp/contents/yvpub-content-2290034fb4efe155ef379d2408e636ea/hls/70bc06ea1e625cf456e718f0edbe2847/5M/output_00005.ts
-u-tokyo.ac.jp,210.152.243.234,https://www.u-tokyo.ac.jp/content/400076572.pdf
-yandex.ru,87.250.247.182,https://avatars.mds.yandex.net/get-yablogs/41243/file_1514634880218/orig
-vk.com,87.240.137.134,https://psv4.userapi.com/c610019/u1708231/docs/1077a72f30b8/VK_3_6_dlya_starykh_ustroystv.apk?extra=qZRcC8n_SLc6qJLXmTyV-fcqzXjn8OpohqeGDH8kplOd9-sLQxPcc11dpnYO934PoSRkXM1fYn-Deevm5J3UBqPGLyedPYt71siewTi4ev4KtdjW7xzoskFtyisKXt0
-naver.com,175.158.11.209,http://update.whale.naver.net/downloads/installers/naver-whale-stable_amd64.deb
-daum.net,182.162.108.100,https://smrmembers-smr.smartmediarep.com/smc/smrmembers/single/eng/0/smr/contents/video/2018/08/14/0e179e8df8a6dfb8c425235e16dc5e7a_t34.mp4
-canada.ca,184.25.234.183,https://www.canada.ca/content/dam/pch/images/services/royal-portraits/queen-pic14x16-eng.jpg
-gov.uk,52.218.53.27,http://data.inspire.landregistry.gov.uk/Abertawe_-_Swansea.zip
-nus.edu.sg,137.132.84.218,https://www.comp.nus.edu.sg/~nlp/sw/one-million-sense-tagged-instances-wn30.tar.gz 
+yahoo.jp,183.79.225.32,443,https://yvpub-bucket001-west.west.edge.storage-yahoo.jp/contents/yvpub-content-2290034fb4efe155ef379d2408e636ea/hls/70bc06ea1e625cf456e718f0edbe2847/5M/output_00005.ts
+u-tokyo.ac.jp,210.152.243.234,443,https://www.u-tokyo.ac.jp/content/400076572.pdf
+yandex.ru,87.250.247.182,443,https://avatars.mds.yandex.net/get-yablogs/41243/file_1514634880218/orig
+naver.com,175.158.11.209,80,http://update.whale.naver.net/downloads/installers/naver-whale-stable_amd64.deb
+daum.net,182.162.108.100,443,https://smrmembers-smr.smartmediarep.com/smc/smrmembers/single/eng/0/smr/contents/video/2018/08/14/0e179e8df8a6dfb8c425235e16dc5e7a_t34.mp4
+canada.ca,184.25.234.183,443,https://www.canada.ca/content/dam/pch/images/services/royal-portraits/queen-pic14x16-eng.jpg
+gov.uk,52.218.53.27,80,http://data.inspire.landregistry.gov.uk/Abertawe_-_Swansea.zip
+nus.edu.sg,137.132.84.218,443,https://www.comp.nus.edu.sg/~nlp/sw/one-million-sense-tagged-instances-wn30.tar.gz 
