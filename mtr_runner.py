@@ -35,7 +35,7 @@ if __name__ == '__main__':
         os.makedirs(out_dir)
     output_filename_dict = {} 
 
-    version_dict = {'old':'mtr','new':'~/mtr-modified/mtr'}
+    version_dict = {'old':'/usr/local/sbin/mtr','new':'~/mtr-modified/mtr'}
     base_cmd = 'sudo {} -zwnr4 -f {} --report-cycles {} --port %s --tcp %s'.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
 
     infile_name = sys.argv[4]
