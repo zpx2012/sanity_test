@@ -17,7 +17,7 @@ if __name__ == '__main__':
     decorator = '\n********************************\n'
     print decorator + 'Mtr Runner 1.1.0\nCtrl-C to terminate the program' + decorator + '\n'
 
-    base_cmd = 'sudo ~/mtr-modified/mtr -zwnr4 --report-cycles %d --port %s --tcp %s'
+    base_cmd = 'sudo ~/mtr-modified/mtr -zwnr4 --report-cycles %s --port %s --tcp %s'
 
     infile_name = sys.argv[1]
     
