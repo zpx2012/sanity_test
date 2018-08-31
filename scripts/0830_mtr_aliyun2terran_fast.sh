@@ -1,0 +1,1 @@
+screen -dmS mtr_terran bash -c 'while true; do sudo ~/mtr-modified/mtr -zwnr4T -f 6 --port 80 -i 0.01 -c 1000 169.235.31.181 2>&1 | tee -a ~/sanity_test_results/mtr_old_$(hostname)2terran_tcp_0.01_1000_08311234.txt;done;exec bash'
