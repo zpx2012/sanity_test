@@ -1,0 +1,1 @@
+ps aux | grep mtr | awk '{print $2}' | xargs kill -9
