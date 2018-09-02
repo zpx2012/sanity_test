@@ -36,7 +36,7 @@ if __name__ == '__main__':
     output_filename_dict = {} 
 
     version_dict = {'old':'mtr','new':'~/mtr-modified/mtr'}
-    base_cmd = 'sudo {} -zwnr4T -i {} -c {} --port %s %s'.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
+    base_cmd = 'sudo {} -zwnr4T -i {} -c {} --port 80 %s'.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
 
     infile_name = sys.argv[4]
     
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         num_tasks = 1 
         while True:
                 for line in domain_ip_list:
-                    cmd = base_cmd % (line[2],line[1])
+                    cmd = base_cmd % (line[1])
                     print cmd
                     run_cmd_log(cmd,output_filename_dict[line[0]])
                     num_tasks += 1
