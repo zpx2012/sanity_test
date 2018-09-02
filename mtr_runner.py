@@ -36,7 +36,7 @@ if __name__ == '__main__':
     output_filename_dict = {} 
 
     version_dict = {'old':'mtr','new':'~/mtr-modified/mtr'}
-    base_cmd = 'sudo {} -zwnr4 -f {} --report-cycles {} --port %s --tcp %s'.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
+    base_cmd = 'sudo {} -zwnr4T -i {} -c {} --port %s %s'.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
 
     infile_name = sys.argv[4]
     
@@ -46,7 +46,7 @@ if __name__ == '__main__':
         with open(infile_name,'rb') as f:         
             domain_ip_list = list(csv.reader(f))
         for line in domain_ip_list:
-            output_filename_dict[line[0]] = out_dir + "mtr_" + sys.argv[1] + '_' + socket.gethostname() + "2" + line[0] + "_" + sys.argv[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+            output_filename_dict[line[0]] = out_dir + "mtr_" + sys.argv[1] + '_' + socket.gethostname() + "2" + line[0] + "_" + sys.argv[2] + '_' + sys.argv[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt"
         num_tasks = 1 
         while True:
                 for line in domain_ip_list:
