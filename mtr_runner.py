@@ -48,7 +48,7 @@ if __name__ == '__main__':
         for i,line in enumerate(domain_ip_list):
             output_filename_list.append(out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt")
         num_tasks = 1 
-        while true:
+        while True:
                 for i,line in enumerate(domain_ip_list):
                     cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],line[5],output_filename_list[i])
                     print cmd
