@@ -20,6 +20,20 @@ def run_cmd_log(cmd,outfile):
             p.terminate()
             os._exit(-1)
 
+def run_cmd(cmd):
+    try:
+        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        sout, serr = p.communicate()
+        print 'stout:\n %s\n sterr:\n %s\n' % (sout, serr)
+        if not sout:
+            print '#######\n empty stdout' 
+
+    except KeyboardInterrupt:
+        input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
+        if input == 'y':
+            p.terminate()
+            os._exit(-1)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 1:
@@ -35,7 +49,7 @@ if __name__ == '__main__':
         os.makedirs(out_dir)
     output_filename_list = []
 
-    version_dict = {'old':'mtr','new':'~/mtr-modified/mtr'}
+    version_dict = {'old':'mtr','1':'~/mtr-modified-1.0/mtr','2':'~/mtr-modified-2.0/mtr'}
     base_cmd = 'sudo %s -zwnr4%s -i %s -c %s -f %s --port 80 %s 2>&1 | tee -a %s'#.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
 
     infile_name = sys.argv[1]
@@ -53,7 +67,7 @@ if __name__ == '__main__':
                     cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],line[5],output_filename_list[i])
                     print cmd
                     os.system('echo %s >> %s'%(cmd,output_filename_list[i]))
-                    os.system(cmd)
+                    run_cmd(cmd)
                     # run_cmd_log(cmd,output_filename_dict[line[0]])
                     num_tasks += 1
 
