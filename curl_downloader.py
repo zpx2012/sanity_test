@@ -43,7 +43,6 @@ if __name__ == '__main__':
             num_tasks += 1
             with open(output_file_name,"a") as f:
                 f.write('\n')
-            sleep(30)
         except KeyboardInterrupt:
             input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
             if input == 'y':
