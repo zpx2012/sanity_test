@@ -42,7 +42,7 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     decorator = '\n********************************\n'
-    print decorator + 'Mtr Runner 1.3.0\nCtrl-C to terminate the program' + decorator + '\n'
+    print decorator + 'Mtr Runner 1.4.0\nCtrl-C to terminate the program' + decorator + '\n'
 
     out_dir = expanduser('~/sanity_test_results/')
     if not os.path.exists(out_dir):
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     output_filename_list = []
 
     version_dict = {'old':'mtr','1':'~/mtr-modified-1.0/mtr','2':'~/mtr-modified-2.0/mtr'}
-    base_cmd = 'sudo %s -zwnr4%s -i %s -c %s -f %s --port 80 %s 2>&1 | tee -a %s'#.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
+    base_cmd = 'sudo %s -zwnre4%s -i %s -c %s -f %s %s %s 2>&1 | tee -a %s'#.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
 
     infile_name = sys.argv[1]
     
@@ -64,7 +64,10 @@ if __name__ == '__main__':
         num_tasks = 1 
         while True:
                 for i,line in enumerate(domain_ip_list):
-                    cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],line[5],output_filename_list[i])
+                    port_str = ''
+                    if line[8] != '0':
+                        port_str = '--port %s' % line[8]
+                    cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],port_str,line[5],output_filename_list[i])
                     print cmd
                     os.system('echo %s >> %s'%(cmd,output_filename_list[i]))
                     run_cmd(cmd)
