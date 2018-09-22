@@ -9,6 +9,7 @@ if __name__ == '__main__':
         sys.exit(-1)
     url = sys.argv[1]
     ip = sys.argv[2]
+    speed_limit = sys.argv[6]
 
     out_dir = expanduser('~/sanity_test_results/')
     output_file_name = out_dir + 'curl_' + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     else:
         port = 80
     if sys.argv[3] in nonproxy_modes:
-        cmd = 'curl -o /dev/null --limit-rate 750k --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (urlparse.urlparse(url).hostname, port, ip, url, output_file_name)
+        cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, port, ip, url, output_file_name)
     else:
         cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJ --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (url, output_file_name)
 
