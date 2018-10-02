@@ -2,6 +2,8 @@ import os,sys,time,datetime,socket,urlparse,threading
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
+from utils import run_cmd
+import curl_poll
 
 if __name__ == '__main__':
     if len(sys.argv) < 6:
@@ -9,45 +11,32 @@ if __name__ == '__main__':
         sys.exit(-1)
     url = sys.argv[1]
     ip = sys.argv[2]
-    speed_limit = sys.argv[6]
-
-    out_dir = expanduser('~/sanity_test_results/')
-    output_file_name = out_dir + 'curl_' + socket.gethostname() + "_" + sys.argv[3] + "_" + sys.argv[4] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+    sitename = sys.argv[3]
+    run_tr = sys.argv[4]
+    speed_limit = sys.argv[5]
+    run_inter = sys.argv[6]
 
     decorator = '\n********************************\n'
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
 
-    #traceroute
-    if sys.argv[5] == 1:
-        os.system('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')),)
+    out_dir = expanduser('~/sanity_test_results/')
+    output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, '443' if 'https' in url else '80', ip, url, output_file_name)
 
-    nonproxy_modes = ['clean','https']
-    if 'https' in url:
-        port = 443
-    else:
-        port = 80
-    if sys.argv[3] in nonproxy_modes:
-        cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, port, ip, url, output_file_name)
-    else:
-        cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJ --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (url, output_file_name)
+    #traceroute
+    if run_tr == 1:
+        os.system('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')),)
 
     num_tasks = 1 
     while True:
-        with open(output_file_name,"a") as f:
-            s = '%s Task : %d\n URL:%s\n Method:%s' % (datetime.datetime.now().strftime(("%Y-%m-%d %H:%M:%S")), num_tasks, url, sys.argv[3])
-            print s
-            print cmd
-            f.writelines(s)
-        try:
-            p = Popen(cmd, shell=True)
-            p.communicate()
-            num_tasks += 1
-            with open(output_file_name,"a") as f:
-                f.write('\n')
-        except KeyboardInterrupt:
-            input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
-            if input == 'y':
-                p.terminate()
-                os.system('dos2unix -c mac %s' % output_file_name)
-                os._exit(-1)
+        with open(output_file_name,'a') as f:
+            f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
+        run_cmd(cmd)
+        if run_inter:
+            curl_poll.visit_cn_websites_sleep(10,1)
+        num_tasks += 1
 
+    # nonproxy_modes = ['clean','https']
+    # if sys.argv[3] in nonproxy_modes:
+    # else:
+    #     cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJ --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (url, output_file_name)

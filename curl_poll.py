@@ -2,7 +2,7 @@ import os,sys,time,datetime,socket,urlparse,threading,csv
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
-from mtr_runner import run_cmd
+from utils import run_cmd
 from random import randint
 
 FIX_WEBSITES = [
@@ -48,8 +48,25 @@ RAMDON_WEBSITES = [
     'https://item.taobao.com/item.htm?spm=a21bo.2017.201867-rmds-0.1.5af911d9prbsPs&scm=1007.12807.84406.100200300000004&id={}&pvid=7b82484c-7bd7-4b37-8eaf-b854d374d62f'
 ]
 
-NUM_FIX_WEBSITE = 8
 ID_LEN = 12
+
+def visit_cn_websites_sleep(visit_times,sec):
+    for i in range(visit_times):
+        run_cmd('set -x;curl -s https://%s > /dev/null' % FIX_WEBSITES[randint(0,len(FIX_WEBSITES)-1)])
+        sleep(sec)
+    for i in range(len(RAMDON_WEBSITES)):
+        rand = randint(10**(ID_LEN-1),(10**ID_LEN)-1)
+        run_cmd('set -x;curl -s -o /dev/null \'%s\'' % RAMDON_WEBSITES[i].format(str(rand)))
+        sleep(sec)
+
+def visit_cn_websites_continuous(visit_times):
+    for i in range(visit_times):
+        run_cmd('set -x;curl -s https://%s > /dev/null' % FIX_WEBSITES[randint(0,len(FIX_WEBSITES)-1)])
+
+    for i in range(len(RAMDON_WEBSITES)):
+        rand = randint(10**(ID_LEN-1),(10**ID_LEN)-1)
+        run_cmd('set -x;curl -s -o /dev/null \'%s\'' % RAMDON_WEBSITES[i].format(str(rand)))
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -81,9 +98,5 @@ if __name__ == '__main__':
                 with open(output_filename_list[i],'a') as f:
                     f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
                 run_cmd(cmd)
+                visit_cn_websites(8)
                 num_tasks += 1
-                for i in range(NUM_FIX_WEBSITE):
-                    os.system('set -x;curl -s https://%s > /dev/null' % FIX_WEBSITES[randint(0,len(FIX_WEBSITES)-1)])
-                for i in range(len(RAMDON_WEBSITES)):
-                    rand = randint(10**(ID_LEN-1),(10**ID_LEN)-1)
-                    os.system('set -x;curl -s -o /dev/null \'%s\'' % RAMDON_WEBSITES[i].format(str(rand)))
