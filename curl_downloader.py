@@ -32,7 +32,7 @@ if __name__ == '__main__':
         with open(output_file_name,'a') as f:
             f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
         run_cmd(cmd)
-        if run_inter:
+        if run_inter == 1:
             curl_poll.visit_cn_websites_sleep(10,1)
         num_tasks += 1
 
