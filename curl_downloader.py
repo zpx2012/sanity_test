@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     out_dir = expanduser('~/sanity_test_results/')
     output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
-    cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, '443' if 'https' in url else '80', ip, url, output_file_name)
+    cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
 
     #traceroute
     if run_tr == 1:
