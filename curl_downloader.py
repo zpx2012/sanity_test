@@ -35,6 +35,7 @@ if __name__ == '__main__':
         if run_inter == 1:
             curl_poll.visit_cn_websites_sleep(10,1)
         num_tasks += 1
+        sleep(120)
 
     # nonproxy_modes = ['clean','https']
     # if sys.argv[3] in nonproxy_modes:
