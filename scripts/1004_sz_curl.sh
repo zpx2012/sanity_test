@@ -1,0 +1,9 @@
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://108.160.139.201/ubuntu-core-16-pi2.img.xz' '108.160.139.201' tokyo-vultr 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://149.28.153.244/ubuntu-core-16-pi2.img.xz' '149.28.153.244' singapore-vultr 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://108.61.135.89/ubuntu-core-16-pi2.img.xz' '108.61.135.89' newjersey-vultr 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://149.28.250.185/ubuntu-core-16-pi2.img.xz' '149.28.250.185' dallas-vultr 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://45.77.211.249/ubuntu-core-16-pi2.img.xz' '45.77.211.249' seattle-vultr 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://149.28.76.152/ubuntu-core-16-pi2.img.xz' '149.28.76.152' losangeles-vultr 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://18.212.68.44/ubuntu-core-16-pi2.img.xz' '18.212.68.44' vg-aws 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://172.31.35.51/ubuntu-core-16-pi2.img.xz' '172.31.35.51' or-aws 1 400k 0
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py "http://169.235.31.181/terran_server_0822.pcap" "169.235.31.181" terran 0 400k 0 
