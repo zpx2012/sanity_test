@@ -7,4 +7,4 @@ screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://45.77.194
 screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://45.32.221.43/my.pcap' 45.32.221.43 atlanta-vultr 1 400k 0
 screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://108.160.139.201/my.pcap' '108.160.139.201' tokyo-vultr 1 400k 0
 screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://149.28.153.244/my.pcap' '149.28.153.244' singapore-vultr 1 400k 0
-screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://108.160.139.201/my.pcap' '108.160.139.201' tokyo-vultr 1 400k
+screen -dmS curl_vultr python ~/sanity_test/curl_downloader.py 'http://45.76.117.159/my.pcap' '45.76.117.159' sydney-vultr 1 400k 0
