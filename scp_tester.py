@@ -11,7 +11,7 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     decorator = '\n********************************\n'
-    print decorator + 'scp tester 0.0.1\nCtrl-C to terminate the program' + decorator + '\n'
+    print (decorator + 'scp tester 0.0.1\nCtrl-C to terminate the program' + decorator + '\n')
     
     out_dir = expanduser('~/sanity_test_results/')
     if not os.path.exists(out_dir):
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     base_cmd = 'script -q -c "scp -i %s ~/my.pcap %s@%s:/dev/null" > %s'
     
     if not os.path.isfile(infile_name):
-        print 'File does not exist.'
+        print('File does not exist.')
     else:
         with open(infile_name,'rb') as f:         
             domain_ip_list = list(csv.reader(f))
