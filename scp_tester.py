@@ -1,4 +1,4 @@
-import os,sys,time,datetime,socket,urlparse,threading,csv
+import os,sys,time,datetime,socket,threading,csv
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     if not os.path.isfile(infile_name):
         print('File does not exist.')
     else:
-        with open(infile_name,'rb') as f:         
+        with open(infile_name,'r') as f:         
             domain_ip_list = list(csv.reader(f))
         for i,line in enumerate(domain_ip_list):
             output_filename_list.append(out_dir + '_'.join(['scp_upload',socket.gethostname()+'2'+line[3],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt')
