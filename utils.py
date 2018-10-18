@@ -1,5 +1,5 @@
 import os,sys,time,datetime,socket,urlparse,threading,csv
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 from time import sleep
 from os.path import expanduser
 
