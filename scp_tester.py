@@ -19,7 +19,7 @@ if __name__ == '__main__':
     output_filename_list = []
 
     infile_name = sys.argv[1]
-    base_cmd = 'script /dev/stdout -c "scp -oStrictHostKeyChecking=no -i %s ~/my.pcap %s@%s:/dev/null" | tee -a %s'
+    base_cmd = 'script -q /dev/stdout -c "scp -oStrictHostKeyChecking=no -l 4000 -i %s ~/my.pcap %s@%s:/dev/null" | tee -a %s'
     
     if not os.path.isfile(infile_name):
         print('File does not exist.')
