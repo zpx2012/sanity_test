@@ -24,7 +24,8 @@ if __name__ == '__main__':
     cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
 
     #traceroute
-    if run_tr == 1:
+    if run_tr == '1':
+        print 'traceroute'
         os.system('traceroute -A {} > {}'.format(ip,output_file_name.replace('curl','tr')),)
 
     num_tasks = 1 
@@ -32,11 +33,13 @@ if __name__ == '__main__':
         with open(output_file_name,'a') as f:
             f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
         run_cmd(cmd)
-        if run_inter == 1:
+        if run_inter == '1':
+            print 'xxxxxx'
             curl_poll.visit_cn_websites_sleep(10,1)
         num_tasks += 1
+        print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         sleep(120)
-
+        print 'sleep after:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     # nonproxy_modes = ['clean','https']
     # if sys.argv[3] in nonproxy_modes:
     # else:

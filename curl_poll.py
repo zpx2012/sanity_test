@@ -2,7 +2,7 @@ import os,sys,time,datetime,socket,urlparse,threading,csv
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
-from utils import run_cmd
+from utils import run_cmd_wtimer
 from random import randint
 
 FIX_WEBSITES = [
@@ -97,6 +97,6 @@ if __name__ == '__main__':
                 cmd = base_cmd % (line[3],line[1], 443 if line[0].split(':')[0] == 'https' else 80,line[1],line[0],output_filename_list[i])
                 with open(output_filename_list[i],'a') as f:
                     f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
-                run_cmd(cmd)
-                visit_cn_websites(8)
+                run_cmd_wtimer(cmd,10)
+                #visit_cn_websites(8)
                 num_tasks += 1
