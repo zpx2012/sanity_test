@@ -15,7 +15,7 @@ def server_tcpdump():
 def client_curl():
     print('client_curl: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     time.sleep(20)
-    run_cmd_wtimer('curl -o /dev/null --limit-rate 750k --speed-time 120 -LJv4k http://169.235.31.181/my.pcap',600)
+    run_cmd_wtimer('script -aqf -c \'curl -o /dev/null --limit-rate 750k --speed-time 120 -LJv4k http://169.235.31.181/my.pcap\' curl_terran_loss_test.txt',600)
     print('client_curl: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
 
 if __name__ == '__main__':
