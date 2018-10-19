@@ -38,11 +38,12 @@ def run_cmd_wtimer(cmd,sec):
 def run_cmd_shell_wtimer(cmd,sec):
 
     try:
-        p = Popen(cmd,shell=True, preexec_fn=os.setsid) 
+        p = Popen('exec '+cmd,shell=True, preexec_fn=os.setpgrp) 
         p.communicate(timeout=sec)
 
     except TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
+        p.kill()
         os.killpg(os.getpgid(p.pid), signal.SIGTERM)
         while not p.poll():
             print('p not killed')
