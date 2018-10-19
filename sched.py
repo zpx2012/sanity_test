@@ -9,7 +9,7 @@ def client_tcpdump():
 
 def server_tcpdump():
     print('server_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
-    run_cmd_shell_wtimer('sudo tcpdump -w ~/packet_trace/terran_http_server_calculate_loss_rate_%s.pcap -i eth1 -n host 39.104.139.16 ' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),800)
+    run_cmd_shell_wtimer('sudo tcpdump -w ~/packet_trace/terran_http_server_calculate_loss_rate_%s.pcap -i eth1 -n host 39.104.139.16 ' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),5)
     print('server_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
 
 def client_curl():
