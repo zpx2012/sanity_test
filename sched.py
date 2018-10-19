@@ -4,7 +4,7 @@ from utils import run_cmd_wtimer
 
 def client_tcpdump():
     print('client_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
-    run_cmd_wtimer('tcpdump -i eth0 -n host 169.235.31.181 -w ~/packet_trace/hhht_http_client_calculate_loss_rate_%s.pcap' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),800)
+    run_cmd_wtimer('tcpdump -w ~/packet_trace/hhht_http_client_calculate_loss_rate_%s.pcap -i eth0 -n host 169.235.31.181 ' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),800)
     print('client_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
 
 def server_tcpdump():
