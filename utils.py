@@ -1,4 +1,4 @@
-import os,sys,time,datetime,socket,threading,csv,shlex
+import os,sys,time,datetime,socket,threading,csv,shlex,signal
 from subprocess import Popen, PIPE, TimeoutExpired,call
 from time import sleep
 from os.path import expanduser
@@ -35,6 +35,23 @@ def run_cmd_wtimer(cmd,sec):
         if inp == 'y':
             os._exit(-1)
 
+def run_cmd_shell_wtimer(cmd,sec):
+
+    try:
+        p = Popen(cmd,shell=True, preexec_fn=os.setsid) 
+        p.communicate(timeout=sec)
+
+    except TimeoutExpired:
+        print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
+        os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+        while not p.poll():
+            print('p not killed')
+        print('%d killed' % p.pid)
+
+    except KeyboardInterrupt:
+        inp = input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
+        if inp == 'y':
+            os._exit(-1)
 
 # def run_cmd_wtimer(cmd,sec):
 #     try:

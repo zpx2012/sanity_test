@@ -4,12 +4,12 @@ from utils import run_cmd_wtimer
 
 def client_tcpdump():
     print('client_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
-    run_cmd_wtimer('tcpdump -w ~/packet_trace/hhht_http_client_calculate_loss_rate_%s.pcap -i eth0 -n host 169.235.31.181 ' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),800)
+    run_cmd_shell_wtimer('sudo tcpdump -w ~/packet_trace/hhht_http_client_calculate_loss_rate_%s.pcap -i eth0 -n host 169.235.31.181 ' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),800)
     print('client_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
 
 def server_tcpdump():
     print('server_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
-    run_cmd_wtimer('sudo tcpdump -w ~/packet_trace/terran_http_server_calculate_loss_rate_%s.pcap -i eth1 -n host 39.104.139.16 ' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),800)
+    run_cmd_shell_wtimer('sudo tcpdump -w ~/packet_trace/terran_http_server_calculate_loss_rate_%s.pcap -i eth1 -n host 39.104.139.16 ' % datetime.datetime.utcnow().strftime('%m%d%H%Mutc'),800)
     print('server_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
 
 def client_curl():
