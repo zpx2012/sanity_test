@@ -22,7 +22,7 @@ if __name__ == '__main__':
     side = sys.argv[1]
 
     sched = BlockingScheduler(timezone=pytz.utc)
-    start = datetime.datetime.utcnow()
+    start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
     # start = datetime.datetime.strptime('2018-10-19 07:50:00','%Y-%m-%d %H:%M:%S')
     end   = start + datetime.timedelta(days=1)
     if side == 'c':
