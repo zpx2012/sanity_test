@@ -19,8 +19,9 @@ if __name__ == '__main__':
     output_filename_list = []
 
     infile_name = sys.argv[1]
-    base_cmd = 'script -q /dev/stdout -c "scp -oStrictHostKeyChecking=no -l 4000 -i %s ~/my.pcap %s@%s:/dev/null" | tee -a %s'
-    
+    # base_cmd = 'script -q /dev/stdout -c "scp -oStrictHostKeyChecking=no -l 4000 -i %s ~/my.pcap %s@%s:/dev/null" | tee -a %s'
+    base_cmd = 'script -aqf -c "scp -oStrictHostKeyChecking=no -l 4000 -i %s ~/my.pcap %s@%s:/dev/null" %s'
+
     if not os.path.isfile(infile_name):
         print('File does not exist.')
     else:
@@ -32,6 +33,7 @@ if __name__ == '__main__':
         while True:
             for i,line in enumerate(domain_ip_list):
                 cmd = base_cmd % (line[0],line[1],line[2],output_filename_list[i])
+                print(cmd)
                 with open(output_filename_list[i],'a') as f:
                     f.writelines('\n\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
                 run_cmd_wtimer(cmd,10)
