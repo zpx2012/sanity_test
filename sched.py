@@ -22,7 +22,8 @@ if __name__ == '__main__':
     side = sys.argv[1]
 
     sched = BlockingScheduler(timezone=pytz.utc)
-    start = datetime.datetime.strptime('2018-10-19 07:50:00','%Y-%m-%d %H:%M:%S')
+    start = datetime.datetime.utcnow()
+    # start = datetime.datetime.strptime('2018-10-19 07:50:00','%Y-%m-%d %H:%M:%S')
     end   = start + datetime.timedelta(days=1)
     if side == 'c':
         # Schedule job_function to be called every two hours
