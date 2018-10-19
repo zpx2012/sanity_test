@@ -1,6 +1,6 @@
 import datetime,time,sys,pytz
 from apscheduler.schedulers.blocking import BlockingScheduler
-from utils import run_cmd_shell_wtimer
+from utils import run_cmd_shell_wtimer,run_cmd_wtimer
 
 def client_tcpdump():
     print('client_tcpdump'+datetime.datetime.utcnow().strftime('%m%d%H%M'))
