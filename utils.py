@@ -1,4 +1,4 @@
-import os,sys,time,datetime,socket,threading,csv
+import os,sys,time,datetime,socket,threading,csv,shlex
 from subprocess import Popen, PIPE, TimeoutExpired,call
 from time import sleep
 from os.path import expanduser
@@ -25,10 +25,10 @@ def run_cmd(cmd):
 def run_cmd_wtimer(cmd,sec):
 
     try:
-        call('exec ' + cmd, shell=True,timeout=sec)
+        call(shlex.split(cmd),timeout=sec)
 
     except TimeoutExpired:
-        print('\ncatch TimeoutExpired. Killed')
+        print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
 
     except KeyboardInterrupt:
         inp = input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
