@@ -22,7 +22,7 @@ def client_curl():
 if __name__ == '__main__':
     side = sys.argv[1]
 
-    out_dir = os.path.expanduser('~/packet_trace/') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
+    out_dir = os.path.expanduser('~/packet_trace/sched_loss_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
