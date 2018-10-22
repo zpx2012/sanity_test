@@ -8,7 +8,7 @@ def run_cmd_log(cmd,outfile):
     with open(outfile,'a') as f:
         f.writelines(cmd+'\n'+sout+'\n'+serr) 
 
-def run_cmd(cmd):
+def run_cmd_shell(cmd):
     try:
         p = Popen(cmd, shell=True)
         p.communicate()
