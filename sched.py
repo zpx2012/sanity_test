@@ -16,7 +16,7 @@ def tcpdump_tshark(out_dir,out_filename,target_ip):
 def client_curl():
     print('client_curl: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     time.sleep(20)
-    run_cmd_wtimer('script -aqf -c \'while true;do; curl -o /dev/null --limit-rate 500k --speed-time 120 -LJv4k http://169.235.31.181/sdk-tools-linux-3859397.zip; done\' %s/curl_terran_loss_test_%s.txt'%(out_dir,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')),600)
+    run_cmd_wtimer('script -aqf -c \'while true;do curl -o /dev/null --limit-rate 500k --speed-time 120 -LJv4k http://169.235.31.181/sdk-tools-linux-3859397.zip; done\' %s/curl_terran_loss_test_%s.txt'%(out_dir,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')),600)
     print('client_curl: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
 
 if __name__ == '__main__':
