@@ -33,7 +33,7 @@ if __name__ == '__main__':
     start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
     end   = start + datetime.timedelta(days=1)
     # Schedule job_function to be called every two hours     
-    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hm,role],hours=1,start_date=start,end_date=end)
+    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],hours=1,start_date=start,end_date=end)
     if side == 'client':    
         sched.add_job(client_curl, 'interval', hours=1,start_date=start+datetime.timedelta(seconds=10),end_date=end)
     
