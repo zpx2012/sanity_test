@@ -20,11 +20,10 @@ def client_curl():
     print('client_curl: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
 if __name__ == '__main__':
-    side = sys.argv[1]
-    intf = sys.argv[2]
-    rem_ip = sys.argv[3]
-    rem_hn = sys.argv[4]
-    role = sys.argv[5]
+    intf = sys.argv[1]
+    rem_ip = sys.argv[2]
+    rem_hn = sys.argv[3]
+    role = sys.argv[4]
 
     out_dir = os.path.expanduser('~/packet_trace/sched_loss_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
     if not os.path.exists(out_dir):
