@@ -36,7 +36,7 @@ int main(int argc , char *argv[])
     int max_pkt_intvl_index = 5;
 //    float pkt_intvl_array[12] = {0.001,0.004,0.007,0.01,0.04,0.07,};
     
-    set_timeval(&ses_intvl_tv,600.0);
+    set_timeval(&ses_intvl_tv,10.0);
 
     //Create socket
     sock = socket(AF_INET , SOCK_STREAM , 0);
