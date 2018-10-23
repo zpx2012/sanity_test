@@ -92,8 +92,8 @@ int main(int argc , char *argv[])
             gettimeofday(&pkt_this_tv, NULL);
             if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){
                 pkt_last_tv = pkt_this_tv;
-                if((bytes = send(client_sock, message, strlen(message)+1, MSG_DONTWAIT)) < 0) {
-                    perror("Error on sendto()");
+                if((bytes = send(client_sock, message, strlen(message)+1, 0)) < 0) {
+                    perror("Error on send");
                     return -1;
                 }
                 //printf("Success! Sent %d bytes.\n", bytes);
