@@ -25,7 +25,7 @@ void set_timeval(struct timeval* tv,const float ftime){
 
 int main(int argc , char *argv[])
 {
-    int sock, client_sock, readsize, bytes = 0, i, client_socklen;
+    int sock, client_sock, readsize, bytes = 0, i, m, client_socklen;
     struct sockaddr_in server, client;
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
     struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
@@ -84,6 +84,7 @@ int main(int argc , char *argv[])
 
     gettimeofday(&ses_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
+    for(m = 0; m < 2; m++){
     for(i = 0; i < max_pkt_intvl_index; i++){
         set_timeval(&pkt_intvl_tv,pkt_intvl_array[i]);
         gettimeofday(&ses_this_tv, NULL);
@@ -95,16 +96,15 @@ int main(int argc , char *argv[])
                     perror("Error on sendto()");
                     return -1;
                 }
-                printf("Success! Sent %d bytes.\n", bytes);
+                //printf("Success! Sent %d bytes.\n", bytes);
             }
             gettimeofday(&ses_this_tv,NULL);
         }
         ses_last_tv = ses_this_tv;
-        printf("reached session interval\n");
+        printf("reached session interval:%d\n",pkt_intvl_array[i]);
         printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
-        break;
     }
-         
+    }     
     close(sock);
     return 0;
 }
