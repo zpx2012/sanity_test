@@ -30,6 +30,7 @@ if __name__ == '__main__':
     rem_ip = sys.argv[2]
     rem_hn = sys.argv[3]
     role = sys.argv[4]
+    hour = sys.argv[5]
 
     out_dir = os.path.expanduser('~/packet_trace/sched_sender_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
     if not os.path.exists(out_dir):
@@ -46,11 +47,11 @@ if __name__ == '__main__':
     #     sched.add_job(server_sender, 'interval', hours=1,start_date=start+datetime.timedelta(seconds=10),end_date=end)
 
     #Schedule job_function to be called every two hours     
-    sched.add_job(tcpdump_tshark, 'date', run_date='2018-10-24 14:00:00', args=[out_dir,intf,rem_ip,rem_hn,role])
+    sched.add_job(tcpdump_tshark, 'date', run_date='2018-10-24 %s:00:00' % hour, args=[out_dir,intf,rem_ip,rem_hn,role])
     if role == 'client':    
-        sched.add_job(client_sender, 'date', run_date='2018-10-24 14:00:10')
+        sched.add_job(client_sender, 'date', run_date='2018-10-24 %s:00:10' % hour)
     elif role == 'server':
-        sched.add_job(server_sender, 'date', run_date='2018-10-24 14:00:00')
+        sched.add_job(server_sender, 'date', run_date='2018-10-24 %s:00:00' % hour)
     
     sched.start()
 
