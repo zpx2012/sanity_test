@@ -37,20 +37,20 @@ if __name__ == '__main__':
 
     sched = BlockingScheduler(timezone=pytz.utc)
     # start = datetime.datetime.strptime('2018-10-23 14:00:00','%Y-%m-%d %H:%M:%S')    
-    start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
-    end   = start + datetime.timedelta(hours=2)
-    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],hours=1,start_date=start,end_date=end)
-    if role == 'client':    
-        sched.add_job(client_sender, 'interval', hours=1,start_date=start+datetime.timedelta(seconds=20),end_date=end)
-    elif role == 'server':
-        sched.add_job(server_sender, 'interval', hours=1,start_date=start+datetime.timedelta(seconds=10),end_date=end)
-
-    # Schedule job_function to be called every two hours     
-    # sched.add_job(tcpdump_tshark, 'date', run_date='2018-10-23 14:00:00', args=[out_dir,intf,rem_ip,rem_hn,role])
+    # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
+    # end   = start + datetime.timedelta(hours=2)
+    # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],hours=1,start_date=start,end_date=end)
     # if role == 'client':    
-    #     sched.add_job(client_sender, 'date', run_date='2018-10-23 14:00:10')
+    #     sched.add_job(client_sender, 'interval', hours=1,start_date=start+datetime.timedelta(seconds=20),end_date=end)
     # elif role == 'server':
-    #     sched.add_job(server_sender, 'date', run_date='2018-10-23 14:00:00')
+    #     sched.add_job(server_sender, 'interval', hours=1,start_date=start+datetime.timedelta(seconds=10),end_date=end)
+
+    #Schedule job_function to be called every two hours     
+    sched.add_job(tcpdump_tshark, 'date', run_date='2018-10-24 14:00:00', args=[out_dir,intf,rem_ip,rem_hn,role])
+    if role == 'client':    
+        sched.add_job(client_sender, 'date', run_date='2018-10-24 14:00:10')
+    elif role == 'server':
+        sched.add_job(server_sender, 'date', run_date='2018-10-24 14:00:00')
     
     sched.start()
 
