@@ -36,7 +36,7 @@ int main(int argc , char *argv[])
     int max_pkt_intvl_index = 5;
 //    float pkt_intvl_array[12] = {0.001,0.004,0.007,0.01,0.04,0.07,};
     
-    set_timeval(&ses_intvl_tv,10.0);
+    set_timeval(&ses_intvl_tv,600.0);
 
     //Create socket
     sock = socket(AF_INET , SOCK_STREAM , 0);
@@ -85,7 +85,7 @@ int main(int argc , char *argv[])
     gettimeofday(&ses_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
     for(m = 0; m < 2; m++){
-    for(i = 0; i < max_pkt_intvl_index; i++){
+    for(i = max_pkt_intvl_index-1; i >= 0; i--){
         set_timeval(&pkt_intvl_tv,pkt_intvl_array[i]);
         gettimeofday(&ses_this_tv, NULL);
         while(!reach_interval(&ses_this_tv,&ses_last_tv,&ses_intvl_tv)){
