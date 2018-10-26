@@ -58,9 +58,9 @@ if __name__ == '__main__':
 
     sched = BlockingScheduler(timezone=pytz.utc)
     seq = 0
-    #start = datetime.datetime.strptime('2018-10-26 %s:00:00' % hour,'%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-10-26 %s:00:00' % hour,'%Y-%m-%d %H:%M:%S') 
     start_str = '1026%s00' % hour   
-    start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
+    #start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
     end   = start + datetime.timedelta(hours=2)
     sched.add_job(tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=602,start_date=start,end_date=end)
     if role == 'client':    
