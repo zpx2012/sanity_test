@@ -4,6 +4,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from utils import run_cmd_shell_wtimer,run_cmd_wtimer,run_cmd_shell
 
 def tshark(out_dir,interface,remote_ip,remote_hostname,role):
+    global seq
     print('tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     out_filename = 'loss_%s_%s_%s_%d_%s.tshark' % (socket.gethostname(),role,remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     tshark_cmd = 'sudo tshark -i %s -f \'host %s  and tcp port %s\' -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval > %s'
@@ -29,6 +30,7 @@ def loss_test(out_dir,interface,remote_ip,remote_hostname,role,seq):
     os.killpg(os.getpgid(p.pid), signal.SIGTERM)
 
 def client_curl():
+    global start_str
     print('client_curl: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     run_cmd_shell_wtimer('script -aqf -c \'while true;do curl -o /dev/null --limit-rate 500k --speed-time 120 -LJv4k http://169.235.31.181:20000/my.pcap; sleep 10;done\' %s/curl_%s_terran_loss_test_%s.txt'% (out_dir,socket.gethostname(),start_str),7200)
     print('client_curl: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
