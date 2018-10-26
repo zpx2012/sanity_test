@@ -32,8 +32,8 @@ int main(int argc , char *argv[])
     char client_message[2000];
     char message[] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\npadingpadingpadingpadingpadingpadingpadingpading\n";
     
-    float pkt_intvl_array[5] = {0.001,0.01,0.1,1,10};
-    int max_pkt_intvl_index = 5;
+    float pkt_intvl_array[10] = {0.01,0.03,0.05,0.07,0.1,0.3,0.5,0.7,1,5,10};
+    int max_pkt_intvl_index = 10;
 //    float pkt_intvl_array[12] = {0.001,0.004,0.007,0.01,0.04,0.07,};
     
     set_timeval(&ses_intvl_tv,600.0);
@@ -84,7 +84,7 @@ int main(int argc , char *argv[])
 
     gettimeofday(&ses_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
-    for(m = 0; m < 2; m++){
+
     for(i = max_pkt_intvl_index-1; i >= 0; i--){
         set_timeval(&pkt_intvl_tv,pkt_intvl_array[i]);
         gettimeofday(&ses_this_tv, NULL);
@@ -101,9 +101,9 @@ int main(int argc , char *argv[])
             gettimeofday(&ses_this_tv,NULL);
         }
         ses_last_tv = ses_this_tv;
+        sleep(2)
         printf("reached session interval:%f\n",pkt_intvl_array[i]);
         printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
-    }
     }     
     close(sock);
     return 0;

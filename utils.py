@@ -43,7 +43,6 @@ def run_cmd_shell_wtimer(cmd,sec):
 
     except TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
-        p.kill()
         os.killpg(os.getpgid(p.pid), signal.SIGTERM)
         while not p.poll():
             print('p not killed')

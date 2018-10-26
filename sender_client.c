@@ -32,10 +32,10 @@ int main(int argc , char *argv[])
     server.sin_port = htons(80);
  
     //Connect to remote server
-    if (connect(sock, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0)
+    while (connect(sock, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0)
     {
-        perror("connect failed. Error");
-        return -1;
+        perror("connect failed. Retry");
+       
     }     
     printf("Connected\n");     
 
