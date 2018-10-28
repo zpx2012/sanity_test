@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
     end   = start + datetime.timedelta(minutes=119)
     intvl = 3300
-    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=620,start_date=start,end_date=start+datetime.timedelta(housr=1))
+    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=620,start_date=start,end_date=start+datetime.timedelta(hours=1))
     sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=620,start_date=start+datetime.timedelta(seconds=intvl),end_date=start+datetime.timedelta(hours=2))
     if role == 'client':    
         sched.add_job(client_sender, 'interval', seconds=intvl, start_date=start+datetime.timedelta(seconds=1), end_date=end)
