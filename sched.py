@@ -20,7 +20,7 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,role):
 def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,role):
     print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     out_filename = 'loss_%s_%s_%s_http_%s.pcap' % (socket.gethostname(),role,remote_hostname,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
-    run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),interface,remote_ip),7200)
+    run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),interface,remote_ip),610)
     tshark(out_dir,out_filename)    
     print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
