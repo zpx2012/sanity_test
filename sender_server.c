@@ -399,7 +399,7 @@ int main(int argc , char *argv[])
                 gettimeofday(&ses_this_tv,NULL);
             }
             ses_last_tv = ses_this_tv;
-            sleep(10);
+            sleep(20);
             printf("reached session interval:%f\n",pkt_intvl_array[i]);
             printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
         }
