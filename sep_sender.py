@@ -19,9 +19,11 @@ if __name__ == '__main__':
     sizes = [500,1448]
     seq = 0
     for size in sizes:
+        print('size: %d' % size)
         for intvl in intvls:
             if intvl == 10 and sizes == 500:
                 continue
+            print('intvl: %d' % intvl)
             seq += 1
             print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             out_filename = 'loss_%s_%s_%s_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
