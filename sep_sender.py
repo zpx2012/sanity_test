@@ -19,15 +19,17 @@ if __name__ == '__main__':
     sizes = [500,1448]
     for size in sizes:
         for intvl in intvls:
+            if intvl == 10 and sizes == 500:
+                continue
             print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             out_filename = 'loss_%s_%s_%s_http_%s.pcap' % (socket.gethostname(),role,rem_hn,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
             p = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),intf,rem_ip)))
             if role == 'client':
-                sp.call('cd ~/sanity_test;./sender_client 169.235.31.181',shell=True)
+                run_cmd_wtimer('~/sanity_test/sender_client 169.235.31.181',601)
             elif role == 'server':
-                sp.call('cd ~/sanity_test;sudo ./sender_server %d 1 %f' % (size,intvl), shell=True)
+                run_cmd_wtimer('~/sanity_test/sender_server %d 1 %f' % (size,intvl),601)
             tshark(out_dir,out_filename) 
-            p.kill()
+            p.terminate()
             sp.call('set -v;ps -ef | grep tcpdump',shell=True)
             time.sleep(120)   
  
