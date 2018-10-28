@@ -21,7 +21,7 @@ if __name__ == '__main__':
     for size in sizes:
         print('size: %d' % size)
         for intvl in intvls:
-            if intvl == 10 and sizes == 500:
+            if intvl == 10 and size == 500:
                 continue
             print('intvl: %d' % intvl)
             seq += 1
