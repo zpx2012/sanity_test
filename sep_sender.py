@@ -25,9 +25,9 @@ if __name__ == '__main__':
             out_filename = 'loss_%s_%s_%s_http_%s.pcap' % (socket.gethostname(),role,rem_hn,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
             p = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),intf,rem_ip)))
             if role == 'client':
-                run_cmd_wtimer('~/sanity_test/sender_client 169.235.31.181',601)
+                run_cmd_wtimer('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~'),601)
             elif role == 'server':
-                run_cmd_wtimer('~/sanity_test/sender_server %d 1 %f' % (size,intvl),601)
+                run_cmd_wtimer('%s/sanity_test/sender_server %d 1 %f' % (os.path.expanduser('~'),size,intvl),601)
             tshark(out_dir,out_filename) 
             p.terminate()
             sp.call('set -v;ps -ef | grep tcpdump',shell=True)
