@@ -30,6 +30,6 @@ if __name__ == '__main__':
                 run_cmd_wtimer('%s/sanity_test/sender_server %d 1 %f' % (os.path.expanduser('~'),size,intvl),601)
             tshark(out_dir,out_filename) 
             p.terminate()
-            sp.call('set -v;ps -ef | grep tcpdump',shell=True)
+            sp.call('ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
             time.sleep(120)   
  
