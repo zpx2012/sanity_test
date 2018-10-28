@@ -30,7 +30,7 @@ def run_cmd_wtimer(cmd,sec):
 
     except TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
-        call(shlex.split('set -v;ps -ef | grep %s' % cmds[0]),shell=True)
+        call('set -v;ps -ef | grep %s' % cmds[0],shell=True)
 
     except KeyboardInterrupt:
         inp = input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
