@@ -15,7 +15,7 @@ if __name__ == '__main__':
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    while datetime.datetime.now() < datetime.datetime(2018, 10, 28, 8, 15, 0, 0):
+    while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 28, 15, 15, 0, 0):
         pass
     print('start: '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
 
