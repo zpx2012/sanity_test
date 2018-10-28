@@ -1,5 +1,5 @@
 import os,sys,time,datetime,socket,threading,csv,shlex,signal
-from subprocess import Popen, PIPE, TimeoutExpired,call
+from subprocess import Popen, PIPE, TimeoutExpired,call,check_output
 from time import sleep
 from os.path import expanduser
 
@@ -43,15 +43,17 @@ def run_cmd_shell_wtimer(cmd,sec):
 
     except TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
-        os.killpg(os.getpgid(p.pid), signal.SIGTERM)
-        while not p.poll():
-            print('p not killed')
+        os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+        cmds = shlex.split(cmd)
+        os.system('set -v;sudo killall -9 %s' % cmds[1] if cmds[0] == 'sudo' else cmds[0])
         print('%d killed' % p.pid)
 
     except KeyboardInterrupt:
         inp = input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
         if inp == 'y':
             os._exit(-1)
+
+
 
 # def run_cmd_wtimer(cmd,sec):
 #     try:
