@@ -17,12 +17,14 @@ if __name__ == '__main__':
 
     intvls = [10,5,1,0.1,0.01,0.001]
     sizes = [500,1448]
+    seq = 0
     for size in sizes:
         for intvl in intvls:
             if intvl == 10 and sizes == 500:
                 continue
+            seq += 1
             print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-            out_filename = 'loss_%s_%s_%s_http_%s.pcap' % (socket.gethostname(),role,rem_hn,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+            out_filename = 'loss_%s_%s_%s_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
             p = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),intf,rem_ip)))
             if role == 'client':
                 run_cmd_wtimer('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~'),601)
@@ -30,6 +32,7 @@ if __name__ == '__main__':
                 run_cmd_wtimer('%s/sanity_test/sender_server %d 1 %f' % (os.path.expanduser('~'),size,intvl),601)
             tshark(out_dir,out_filename) 
             p.terminate()
-            sp.call('ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
+            p.kill()
+            sp.call('killall tcpdump;ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
             time.sleep(120)   
  
