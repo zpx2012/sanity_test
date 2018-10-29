@@ -23,20 +23,21 @@ if __name__ == '__main__':
     sizes = [500,1448]
     seq = 0
 
-    for intvl in intvls:
-        print('intvl: %f' % intvl)
-        seq += 1
-        print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-        out_filename = 'loss_%s_%s_%s_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
-        p = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),intf,rem_ip)))
-        if role == 'client':
-            sp.call('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~'))
-        elif role == 'server':
-            sp.call('%s/sanity_test/sender_server 1440 1 %f' % (os.path.expanduser('~'),intvl))
-        #tshark(out_dir,out_filename) 
-        time.sleep(2)
-        p.terminate()
-        p.kill()
-        sp.call('ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
-        time.sleep(120)   
+    for size in sizes:
+        for intvl in intvls:
+            print('intvl: %f' % intvl)
+            seq += 1
+            print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+            out_filename = 'loss_%s_%s_%s_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+            p = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),intf,rem_ip)))
+            if role == 'client':
+                sp.call(shlex.split('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~')))
+            elif role == 'server':
+                sp.call(shlex.split('%s/sanity_test/sender_server %d 1 %f' % (size,os.path.expanduser('~'),intvl)))
+            #tshark(out_dir,out_filename) 
+            time.sleep(2)
+            p.terminate()
+            p.kill()
+            sp.call('ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
+            time.sleep(120)   
  
