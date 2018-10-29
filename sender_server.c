@@ -424,7 +424,14 @@ int main(int argc , char *argv[])
     else
         perror("wrong mode");
 
+    if((bytes = send(client_sock, msg, 500, 0)) < 0) {
+        perror("Error on sendto()");
+        return -1;
+    }
+
+    shutdown(client_sock);
     close(client_sock);
+    shutdown(client_sock);
     close(sock);
     return 0;
 }
