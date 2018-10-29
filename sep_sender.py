@@ -33,7 +33,7 @@ if __name__ == '__main__':
             if role == 'client':
                 sp.call(shlex.split('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~')))
             elif role == 'server':
-                sp.call(shlex.split('%s/sanity_test/sender_server %d 1 %f' % (size,os.path.expanduser('~'),intvl)))
+                sp.call(shlex.split('%s/sanity_test/sender_server %d 1 %f' % (os.path.expanduser('~'),size,intvl)))
             #tshark(out_dir,out_filename) 
             time.sleep(2)
             p.terminate()
