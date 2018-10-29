@@ -15,13 +15,14 @@ if __name__ == '__main__':
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 28, 15, 15, 0, 0):
-        pass
+    # while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 28, 15, 15, 0, 0):
+    #     pass
     print('start: '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
 
-    intvls = [10,5,1,0.1,0.01,0.001]
+    intvls = [10,5,1]
     sizes = [500,1448]
     seq = 0
+
     for intvl in intvls:
         print('intvl: %f' % intvl)
         seq += 1
@@ -29,12 +30,13 @@ if __name__ == '__main__':
         out_filename = 'loss_%s_%s_%s_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
         p = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),intf,rem_ip)))
         if role == 'client':
-            run_cmd_wtimer('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~'),610)
+            sp.call('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~'))
         elif role == 'server':
-            run_cmd_wtimer('%s/sanity_test/sender_server 1440 1 %f' % (os.path.expanduser('~'),intvl),610)
+            sp.call('%s/sanity_test/sender_server 1440 1 %f' % (os.path.expanduser('~'),intvl))
         #tshark(out_dir,out_filename) 
+        time.sleep(2)
         p.terminate()
         p.kill()
-        sp.call('killall tcpdump;ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
+        sp.call('ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
         time.sleep(120)   
  

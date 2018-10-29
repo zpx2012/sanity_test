@@ -378,7 +378,7 @@ int main(int argc , char *argv[])
     struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
 
-    set_timeval(&ses_intvl_tv,10.0);
+    set_timeval(&ses_intvl_tv,1800.0);
     gettimeofday(&ses_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
 
@@ -428,7 +428,7 @@ int main(int argc , char *argv[])
         perror("Error on sendto()");
         return -1;
     }
-    
+
     printf("Closing\n");
     close(raw_sock_rx);
     close(raw_sock_tx);
