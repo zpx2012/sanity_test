@@ -46,22 +46,23 @@ int main(int argc , char *argv[])
     printf("Success! Sent %d bytes.\n", bytes);
 
     //Receive a message from client
-    while( (bytes = recv(sock , client_message , 2000 , 0)) > 0 )
-    {
-        //Send the message back to client
-        printf("Received %d bytes.\n", bytes);
+    while(1){
+        bytes = recv(sock, client_message, 2000, 0)) > 0);
+        if(bytes == 0)
+        {
+            puts("Client disconnected");
+            fflush(stdout);
+            break;
+        }
+        else if(bytes == -1)
+        {
+            perror("recv failed");
+            break;
+        } else{
+            printf("Received %d bytes.\n", bytes);
+        }
     }
-
-    if(bytes == 0)
-    {
-        puts("Client disconnected");
-        fflush(stdout);
-    }
-    else if(bytes == -1)
-    {
-        perror("recv failed");
-    }
-    
+        
     close(sock);
 
     return 0;

@@ -428,6 +428,7 @@ int main(int argc , char *argv[])
     //     perror("Error on sendto()");
     //     return -1;
     // }
+    printf("Closing\n");
     close(raw_sock_rx);
     close(raw_sock_tx);
     shutdown(client_sock,2);
