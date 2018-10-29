@@ -428,10 +428,11 @@ int main(int argc , char *argv[])
     //     perror("Error on sendto()");
     //     return -1;
     // }
-
-    shutdown(client_sock);
+    close(raw_sock_rx);
+    close(raw_sock_tx);
+    shutdown(client_sock,2);
     close(client_sock);
-    shutdown(client_sock);
+    shutdown(client_sock),2;
     close(sock);
     return 0;
 }

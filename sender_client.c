@@ -61,6 +61,8 @@ int main(int argc , char *argv[])
     {
         perror("recv failed");
     }
+    
+    close(sock);
 
     return 0;
 }
