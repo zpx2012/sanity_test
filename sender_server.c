@@ -432,7 +432,7 @@ int main(int argc , char *argv[])
     close(raw_sock_tx);
     shutdown(client_sock,2);
     close(client_sock);
-    shutdown(client_sock),2;
+    shutdown(client_sock,2);
     close(sock);
     return 0;
 }
