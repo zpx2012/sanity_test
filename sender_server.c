@@ -102,6 +102,8 @@ char msg[] = "\x48\x54\x54\x50\x2f\x31\x2e\x31\x20\x32\x30\x30\x20\x4f \
 \x41\x66\x38\x2f\x39\x68\x41\x41\x41\x41\x47\x58\x52\x46\x57\x48 \
 \x52\x54\x62\x32\x5a\x30\x64\x32\x46\x79";
 
+unsigned int seed;
+
 //Calculate the TCP header checksum of a string (as specified in rfc793)
 //Function from http://www.binarytides.com/raw-sockets-c-code-on-linux/
 unsigned short csum(unsigned short *ptr,int nbytes) {
@@ -198,7 +200,7 @@ int send_raw_tcp_packet(int sock,
     ipHdr->version = 4; // ipv4
     ipHdr->tos = 0;// //tos = [0:5] DSCP + [5:7] Not used, low delay
     ipHdr->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(data); //total lenght of packet. len(data) = 0
-    ipHdr->id = htons(rand()%65535); // 0x00; //16 bit id
+    ipHdr->id = htons(seed++); // 0x00; //16 bit id
     ipHdr->frag_off = 0x40; //16 bit field = [0:2] flags + [3:15] offset = 0x0
     ipHdr->ttl = 64; //16 bit time to live (or maximal number of hops)
     ipHdr->protocol = IPPROTO_TCP; //TCP protocol
@@ -380,6 +382,7 @@ int main(int argc , char *argv[])
     gettimeofday(&ses_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
 
+    seed = 0;
     if(mode == 0){
  
         // float pkt_intvl_array[11] = {0.01,0.03,0.05,0.07,0.1,0.3,0.5,0.7,1,5,10};
