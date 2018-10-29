@@ -15,8 +15,12 @@ if __name__ == '__main__':
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    # while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 28, 15, 15, 0, 0):
-    #     pass
+    if role == 'client':
+        while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 29, 16, 10, 0, 0):
+            pass
+    elif role == 'server':
+        while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 29, 16, 0, 0, 0):
+            pass
     print('start: '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
 
     intvls = [10,5,1]
