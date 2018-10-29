@@ -16,7 +16,7 @@ if __name__ == '__main__':
         os.makedirs(out_dir)
 
     if role == 'client':
-        while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 29, 16, 10, 0, 0):
+        while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 29, 16, 0, 10, 0):
             pass
     elif role == 'server':
         while datetime.datetime.utcnow() < datetime.datetime(2018, 10, 29, 16, 0, 0, 0):
