@@ -378,7 +378,7 @@ int main(int argc , char *argv[])
     struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
 
-    set_timeval(&ses_intvl_tv,600.0);
+    set_timeval(&ses_intvl_tv,10.0);
     gettimeofday(&ses_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
 
@@ -424,10 +424,10 @@ int main(int argc , char *argv[])
     else
         perror("wrong mode");
 
-    if((bytes = send(client_sock, msg, 500, 0)) < 0) {
-        perror("Error on sendto()");
-        return -1;
-    }
+    // if((bytes = send(client_sock, msg, 500, 0)) < 0) {
+    //     perror("Error on sendto()");
+    //     return -1;
+    // }
 
     shutdown(client_sock);
     close(client_sock);
