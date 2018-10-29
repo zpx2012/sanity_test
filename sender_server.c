@@ -388,6 +388,7 @@ int main(int argc , char *argv[])
 
         int i;
         for(i = max_pkt_intvl_index-1; i >= 0; i--){
+            printf("interval:%f\n",pkt_intvl_array[i])
             gettimeofday(&ses_this_tv, NULL);
             set_timeval(&pkt_intvl_tv,pkt_intvl_array[i]);
             while(!reach_interval(&ses_this_tv,&ses_last_tv,&ses_intvl_tv)){
@@ -420,6 +421,7 @@ int main(int argc , char *argv[])
     else
         perror("wrong mode");
 
+    close(client_sock);
     close(sock);
     return 0;
 }
