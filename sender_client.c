@@ -47,7 +47,7 @@ int main(int argc , char *argv[])
 
     //Receive a message from client
     while(1){
-        bytes = recv(sock, client_message, 2000, 0)) > 0);
+        bytes = recv(sock, client_message, 2000, 0);
         if(bytes == 0)
         {
             puts("Client disconnected");
@@ -62,7 +62,7 @@ int main(int argc , char *argv[])
             printf("Received %d bytes.\n", bytes);
         }
     }
-        
+
     close(sock);
 
     return 0;
