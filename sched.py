@@ -11,7 +11,7 @@ def tshark(dir,filename):
 def tshark_capture(out_dir,interface,remote_ip,remote_hostname,role):
     global seq
     print('tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-    out_filename = 'loss_%s_%s_%s_%d_%s.tshark' % (socket.gethostname(),role,remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    # out_filename = 'loss_%s_%s_%s_%d_%s.tshark' % (socket.gethostname(),role,remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     tshark_cmd = 'sudo tshark -i %s -f \'host %s and tcp port %s\' -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval > %s'
     run_cmd_shell_wtimer(tshark_cmd % (interface,remote_ip,80,os.path.join(out_dir,out_filename)),10)
     seq += 1
@@ -32,7 +32,7 @@ def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,role,size):
 def tcpdump_icmp(out_dir,interface,remote_ip,remote_hostname):
     global seq
     print('tcpdump_icmp: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-    out_filename = 'loss_%s_%s_%s_%02d_%s_size.pcap' % (socket.gethostname(),remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    out_filename = 'loss_%s_%s_%02d_%s_size.pcap' % (socket.gethostname(),remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and icmp' % (os.path.join(out_dir,out_filename),interface,remote_ip),615)
     seq += 1
     #tshark(out_dir,out_filename)    
