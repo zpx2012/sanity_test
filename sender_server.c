@@ -280,6 +280,17 @@ void set_timeval(struct timeval* tv,const float ftime){
     tv->tv_usec = dt%mpler; 
 }
 
+void print_utc_time(time_t sec){
+    if (sec == -1) {
+        puts("The time() function failed");
+    }
+        
+    struct tm *ptm = gmtime(&sec);
+    if (ptm == NULL) {
+        puts("The gmtime() function failed");
+    }    
+    printf("UTC time: %s", asctime(ptm));
+}
 
 
 
@@ -381,7 +392,8 @@ int main(int argc , char *argv[])
 
     set_timeval(&ses_intvl_tv,sess_intvl);
     gettimeofday(&ses_last_tv, NULL);
-    printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
+    print_utc_time((time_t)ses_last_tv.tv_sec);
+    //printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
 
     seed = 0;
     if(mode == 0){
@@ -395,6 +407,7 @@ int main(int argc , char *argv[])
             printf("interval:%f\n",pkt_intvl_array[i]);
             set_timeval(&pkt_intvl_tv,pkt_intvl_array[i]);
             gettimeofday(&ses_this_tv, NULL);
+            print_utc_time((time_t)ses_this_tv.tv_sec);
             while(!reach_interval(&ses_this_tv,&ses_last_tv,&ses_intvl_tv)){
                 gettimeofday(&pkt_this_tv, NULL);
                 if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){
@@ -405,7 +418,9 @@ int main(int argc , char *argv[])
             }
             ses_last_tv = ses_this_tv;
             printf("reached session interval:%f\n",pkt_intvl_array[i]);
-            printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
+            gettimeofday(&ses_this_tv, NULL);
+            print_utc_time((time_t)ses_this_tv.tv_sec);
+            //printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
             sleep(60);
         }
     }
