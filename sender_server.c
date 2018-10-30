@@ -407,6 +407,7 @@ int main(int argc , char *argv[])
             printf("interval:%f\n",pkt_intvl_array[i]);
             set_timeval(&pkt_intvl_tv,pkt_intvl_array[i]);
             gettimeofday(&ses_this_tv, NULL);
+            gettimeofday(&ses_last_tv, NULL);
             print_utc_time((time_t)ses_this_tv.tv_sec);
             while(!reach_interval(&ses_this_tv,&ses_last_tv,&ses_intvl_tv)){
                 gettimeofday(&pkt_this_tv, NULL);
@@ -416,7 +417,6 @@ int main(int argc , char *argv[])
                 }
                 gettimeofday(&ses_this_tv,NULL);
             }
-            ses_last_tv = ses_this_tv;
             printf("reached session interval:%f\n",pkt_intvl_array[i]);
             gettimeofday(&ses_this_tv, NULL);
             print_utc_time((time_t)ses_this_tv.tv_sec);
