@@ -91,8 +91,8 @@ if __name__ == '__main__':
     rem_ip = sys.argv[2]
     rem_hn = sys.argv[3]
     role = sys.argv[4]
-    shift = sys.argv[5]
-    sess_intvl = sys.argv[6]
+    shift = int(sys.argv[5])
+    sess_intvl = int(sys.argv[6])
 
     if os.geteuid():
         print("You need root permissions to do this!")
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     sched = BlockingScheduler(timezone=pytz.utc)
     seq = 0
-    start = datetime.datetime.strptime('2018-10-30 09:12:00','%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-10-30 09:13:00','%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
     end   = start + datetime.timedelta(minutes=119)
