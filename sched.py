@@ -114,12 +114,12 @@ if __name__ == '__main__':
     if role == 'client':    
         sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=5+shift))
         sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role,500],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=shift),end_date=start+datetime.timedelta(hours=1))
-        sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=5+shift))#+datetime.timedelta(minutes=90))
+        sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=5+shift)+datetime.timedelta(minutes=90))
         # sched.add_job(client_curl, 'date', run_date=start)
     elif role == 'server':
         sched.add_job(server_sender, 'date', run_date=start+datetime.timedelta(seconds=5), args=[500,sess_intvl])
         sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role,500],seconds=sess_intvl+60,start_date=start,end_date=start+datetime.timedelta(hours=1))
-        sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5))#+datetime.timedelta(minutes=90)])
+        sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5)+datetime.timedelta(minutes=90)])
 
 #        sched.add_job(server_sender, 'date', run_date=start+datetime.timedelta(seconds=intvl), args=[1440])
 
