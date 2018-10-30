@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     sched = BlockingScheduler(timezone=pytz.utc)
     seq = 0
-    start = datetime.datetime.strptime('2018-10-30 09:11:00' % hour,'%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-10-30 09:12:00','%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
     end   = start + datetime.timedelta(minutes=119)
