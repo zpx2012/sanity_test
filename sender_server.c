@@ -290,12 +290,13 @@ int main(int argc , char *argv[])
         return -1;
     }
 
-    unsigned int msg_len, mode;
-    float interval;
+    unsigned int msg_len, sess_intvl,mode;
+    float pkt_intvl;
     msg_len = strtol(argv[1], NULL, 10);
-    mode = strtol(argv[2], NULL, 10);
+    sess_intvl = atof(argv[2]);
+    mode = strtol(argv[3], NULL, 10);
     if(argc == 4 && mode == 1)
-        interval = atof(argv[3]);
+        pkt_intvl = atof(argv[4]);
     if(msg_len > 1448) {
         perror("msg_len too large.");
         return -1;
@@ -378,7 +379,7 @@ int main(int argc , char *argv[])
     struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
 
-    set_timeval(&ses_intvl_tv,2400.0);
+    set_timeval(&ses_intvl_tv,sess_intvl);
     gettimeofday(&ses_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",ses_last_tv.tv_sec,ses_last_tv.tv_usec);
 
@@ -403,13 +404,13 @@ int main(int argc , char *argv[])
                 gettimeofday(&ses_this_tv,NULL);
             }
             ses_last_tv = ses_this_tv;
-            sleep(20);
+            sleep(60);
             printf("reached session interval:%f\n",pkt_intvl_array[i]);
             printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
         }
     }
     else if(mode == 1){
-            set_timeval(&pkt_intvl_tv,interval);
+            set_timeval(&pkt_intvl_tv,pkt_intvl);
             gettimeofday(&ses_this_tv, NULL);
             while(!reach_interval(&ses_this_tv,&ses_last_tv,&ses_intvl_tv)){
                 gettimeofday(&pkt_this_tv, NULL);
@@ -419,7 +420,7 @@ int main(int argc , char *argv[])
                 }
                 gettimeofday(&ses_this_tv,NULL);
             }
-            printf("reached session interval:%f\n",interval);
+            printf("reached session interval:%f\n",pkt_intvl);
             printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
     }     
     else
