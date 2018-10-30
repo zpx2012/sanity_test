@@ -276,7 +276,7 @@ int reach_interval(struct timeval* thistime,struct timeval* lasttime,struct time
 void set_timeval(struct timeval* tv,const float ftime){
     int mpler = 1000000;
     int dt = ftime * mpler;
-    tv->tv_sec =  dt/mpler;
+    tv->tv_sec =  (int)ftime;
     tv->tv_usec = dt%mpler; 
 }
 
