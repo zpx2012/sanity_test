@@ -392,8 +392,8 @@ int main(int argc , char *argv[])
         int i;
         for(i = max_pkt_intvl_index-1; i >= 0; i--){
             printf("interval:%f\n",pkt_intvl_array[i]);
-            gettimeofday(&ses_this_tv, NULL);
             set_timeval(&pkt_intvl_tv,pkt_intvl_array[i]);
+            gettimeofday(&ses_this_tv, NULL);
             while(!reach_interval(&ses_this_tv,&ses_last_tv,&ses_intvl_tv)){
                 gettimeofday(&pkt_this_tv, NULL);
                 if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){
@@ -410,6 +410,7 @@ int main(int argc , char *argv[])
     }
     else if(mode == 1){
             set_timeval(&pkt_intvl_tv,interval);
+            gettimeofday(&ses_this_tv, NULL);
             while(!reach_interval(&ses_this_tv,&ses_last_tv,&ses_intvl_tv)){
                 gettimeofday(&pkt_this_tv, NULL);
                 if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){

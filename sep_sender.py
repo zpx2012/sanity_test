@@ -43,5 +43,6 @@ if __name__ == '__main__':
             p.terminate()
             p.kill()
             sp.call('ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
+            print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             time.sleep(120)   
  

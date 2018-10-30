@@ -29,6 +29,17 @@ def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,role,size):
     print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
 
+def tcpdump_icmp(out_dir,interface,remote_ip,remote_hostname):
+    global seq
+    print('tcpdump_icmp: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+    out_filename = 'loss_%s_%s_%s_%02d_%s_size.pcap' % (socket.gethostname(),remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and icmp' % (os.path.join(out_dir,out_filename),interface,remote_ip),615)
+    seq += 1
+    #tshark(out_dir,out_filename)    
+    print('tcpdump_icmp: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
+
+
+
 
 def loss_test(out_dir,interface,remote_ip,remote_hostname,role,seq):
     out_filename = 'loss_%s_%s_%s_%d_%s.pcap' % (socket.gethostname(),role,remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
