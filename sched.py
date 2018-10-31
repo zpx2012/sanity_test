@@ -62,7 +62,7 @@ def server_sender(size,sess_intvl):
     sp.call(shlex.split('%s/sanity_test/sender_server %d %d 0' % (os.path.expanduser('~'),size,sess_intvl)))
 
 def sep_sender(intf,rem_ip,rem_hn,role):
-    intvls = [10,5,1]
+    intvls = [5,1]
     sizes = [500,1448]
     seq = 0
 
@@ -102,7 +102,7 @@ def sep_sender(intf,rem_ip,rem_hn,role):
                 p_dcurl.terminate()
                 p_dcurl.kill()
                 time.sleep(5)
-            sp.call('ps -ef | grep tcpdump;ls -hl %s;ls -hl %s' % os.path.join(out_dir,outfile_dcurl,outfile_dsender),shell=True)
+            sp.call('ps -ef | grep tcpdump;ls -hl %s;ls -hl %s' % (os.path.join(out_dir,outfile_dcurl),os.path.join(out_dir,outfile_dsender)),shell=True)
             print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             time.sleep(60) 
 
