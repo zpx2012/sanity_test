@@ -19,11 +19,11 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,role):
 
 intvls = [10,5,1,0.1,0.01]
 
-def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,role,size):
+def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,port,role,size):
     global seq, sess_intvl
     print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-    out_filename = 'loss_%s_%s_%s_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,remote_hostname,seq,intvls[seq],size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
-    run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),interface,remote_ip),5+sess_intvl+20)
+    out_filename = 'loss_%s_%s_%s_%d_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,remote_hostname,port,seq,intvls[seq],size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and tcp port %d' % (os.path.join(out_dir,out_filename),interface,remote_ip,port),5+sess_intvl+20)
     seq += 1
     #tshark(out_dir,out_filename)    
     print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
@@ -71,20 +71,40 @@ def sep_sender(intf,rem_ip,rem_hn,role):
         for intvl in intvls:
             print('intvl: %f' % intvl)
             seq += 1
-            print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-            out_filename = 'loss_%s_%s_%s_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,intvl,size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
-            p = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,out_filename),intf,rem_ip)))
+            if role == 'client':
+                print('tcpdump curl: client start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+                outfile_dcurl = 'loss_%s_%s_%s_http_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,intvl,size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+                p_dcurl = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 20000' % (os.path.join(out_dir,outfile_dcurl),intf,rem_ip)))
+                time.sleep(5)
+            else role == 'server':
+                time.sleep(5)
+                print('tcpdump curl: server start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+                outfile_dcurl = 'loss_%s_%s_%s_http_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,intvl,size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+                p_dcurl = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 20000' % (os.path.join(out_dir,outfile_dcurl),intf,rem_ip)))
+            print('tcpdump sender: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+            outfile_dsender = 'loss_%s_%s_%s_sender_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,rem_hn,seq,intvl,size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+            p_dsender = sp.Popen(shlex.split('tcpdump -w %s -i %s -n host %s and tcp port 80' % (os.path.join(out_dir,outfile_dsender),intf,rem_ip)))
             if role == 'client':
                 sp.call(shlex.split('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~')))
             elif role == 'server':
                 sp.call(shlex.split('%s/sanity_test/sender_server %d 2400 1 %f' % (os.path.expanduser('~'),size,intvl)))
-            #tshark(out_dir,out_filename) 
-            time.sleep(2)
-            p.terminate()
-            p.kill()
-            sp.call('ps -ef | grep tcpdump;ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
+            #tshark(out_dir,outfile) 
+            time.sleep(5)
+            p_dsender.terminate()
+            p_dsender.kill()
+            if role == 'client':
+                time.sleep(5)
+                print('tcpdump curl: client end'+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+                p_dcurl.terminate()
+                p_dcurl.kill()
+            elif role == 'server':
+                print('tcpdump curl: server end'+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+                p_dcurl.terminate()
+                p_dcurl.kill()
+                time.sleep(5)
+            sp.call('ps -ef | grep tcpdump;ls -hl %s;ls -hl %s' % os.path.join(out_dir,outfile_dcurl,outfile_dsender),shell=True)
             print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-            time.sleep(120) 
+            time.sleep(60) 
 
 if __name__ == '__main__':
     intf = sys.argv[1]
@@ -113,7 +133,7 @@ if __name__ == '__main__':
 #    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=620,start_date=start+datetime.timedelta(seconds=intvl),end_date=start+datetime.timedelta(hours=2))
     if role == 'client':    
         sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=5+shift))
-        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role,500],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=shift),end_date=start+datetime.timedelta(hours=1))
+        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=shift),end_date=start+datetime.timedelta(hours=1))
         sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=5+shift)+datetime.timedelta(minutes=90))
         # sched.add_job(client_curl, 'date', run_date=start)
     elif role == 'server':

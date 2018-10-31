@@ -306,10 +306,14 @@ int main(int argc , char *argv[])
     msg_len = strtol(argv[1], NULL, 10);
     sess_intvl = atof(argv[2]);
     mode = strtol(argv[3], NULL, 10);
-    if(argc == 4 && mode == 1)
+    if(argc > 4 && mode == 1)
         pkt_intvl = atof(argv[4]);
     if(msg_len > 1448) {
         perror("msg_len too large.");
+        return -1;
+    }
+    if(!sess_intvl || !pkt_intvl){
+        perror("interval == 0");
         return -1;
     }
 
