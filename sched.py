@@ -62,7 +62,7 @@ def server_sender(size,sess_intvl):
     sp.call(shlex.split('%s/sanity_test/sender_server %d %d 0' % (os.path.expanduser('~'),size,sess_intvl)))
 
 def sep_sender(intf,rem_ip,rem_hn,role):
-    intvls = [5,1]
+    intvls = [10,5,1]
     sizes = [500,1448]
     seq = 0
 
