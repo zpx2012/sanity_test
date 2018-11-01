@@ -59,6 +59,7 @@ def client_sender():
     sp.call(shlex.split('%s/sanity_test/sender_client 169.235.31.181' % os.path.expanduser('~')))
 
 def server_sender(size,sess_intvl):
+    print(sess_intvl)
     sp.call(shlex.split('%s/sanity_test/sender_server %d %d 0' % (os.path.expanduser('~'),size,sess_intvl)))
 
 def sep_sender(intf,rem_ip,rem_hn,role):
@@ -115,6 +116,7 @@ if __name__ == '__main__':
     sess_intvl = int(sys.argv[6])
     minute = sys.argv[7]
 
+    print(sess_intvl)
     if os.geteuid():
         print("You need root permissions to do this!")
         sys.exit(1)
