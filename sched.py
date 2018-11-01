@@ -22,7 +22,7 @@ intvls = [10,5,1,0.1,0.01]
 def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,port,role,size,duration):
     global seq, sess_intvl
     print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-    out_filename = 'loss_%s_%s_%s_%d_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,remote_hostname,port,seq,intvls[seq],size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    out_filename = 'loss_%s_%s_%s_%d_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,remote_hostname,port,seq,intvls[seq%len(intvls)],size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and tcp port %d' % (os.path.join(out_dir,out_filename),interface,remote_ip,port),duration)
     seq += 1
     #tshark(out_dir,out_filename)    
