@@ -19,15 +19,16 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,role):
 
 intvls = [10,5,1,0.1,0.01]
 
-def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,port,role,size,duration):
-    global seq, sess_intvl
+def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,port,role,size,duration,flag):
+    global seq
     print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     out_filename = 'loss_%s_%s_%s_%d_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,remote_hostname,port,seq,intvls[seq%len(intvls)],size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and tcp port %d' % (os.path.join(out_dir,out_filename),interface,remote_ip,port),duration)
-    seq += 1
+    if flag == 1:
+        seq += 1
     #tshark(out_dir,out_filename)    
+    sp.call('ls -hl %s' % os.path.join(out_dir,out_filename))
     print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
-
 
 def tcpdump_icmp(out_dir,interface,remote_ip,remote_hostname):
     global seq
@@ -36,6 +37,7 @@ def tcpdump_icmp(out_dir,interface,remote_ip,remote_hostname):
     run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and icmp' % (os.path.join(out_dir,out_filename),interface,remote_ip),615)
     seq += 1
     #tshark(out_dir,out_filename)    
+
     print('tcpdump_icmp: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
 
@@ -135,14 +137,14 @@ if __name__ == '__main__':
 #    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=620,start_date=start+datetime.timedelta(seconds=intvl),end_date=start+datetime.timedelta(hours=2))
     if role == 'client':    
         sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=shift))
-        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=shift-5),end_date=start+datetime.timedelta(hours=1))
-        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20+10],seconds=sess_intvl+60-10,start_date=start+datetime.timedelta(seconds=shift-10),end_date=start+datetime.timedelta(hours=1))
+        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20,1],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=shift-5),end_date=start+datetime.timedelta(hours=1))
+        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20+10,0],seconds=sess_intvl+60-10,start_date=start+datetime.timedelta(seconds=shift-10),end_date=start+datetime.timedelta(hours=1))
         # sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5+shift))#+datetime.timedelta(minutes=90))
         # sched.add_job(client_curl, 'date', run_date=start)
     elif role == 'server':
         sched.add_job(server_sender, 'date', run_date=start, args=[500,sess_intvl])
-        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
-        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
+        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20,1],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
+        sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20,0],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
         # sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5))#+datetime.timedelta(minutes=90))
 
 #        sched.add_job(server_sender, 'date', run_date=start+datetime.timedelta(seconds=intvl), args=[1440])
