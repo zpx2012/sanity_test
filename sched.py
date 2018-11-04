@@ -15,17 +15,18 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
     tshark_cmd = 'tshark -i %s -f \'host %s and tcp port %s\' -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval' % (interface,remote_ip,port)
     output,err = '',''
     try:
-        p = sp.Popen(shlex.split(tshark_cmd),stdout=sp.PIPE,stderr=sp.PIPE)
-        output,err = p.communicate(timeout=duration)#, stderr=sp.STDOUT
+        with open(os.path.join(out_dir,out_filename),'w') as f:
+            p = sp.Popen(shlex.split(tshark_cmd),stdout=f,stderr=f)
+            output,err = p.communicate(timeout=duration)#, stderr=sp.STDOUT
     except sp.TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
         p.terminate()
         p.kill()
-
     print('stdout:%s\nstderr:%s\n' % (output,err))
     print("output len:%d" % len(output.splitlines()))
-    with open(os.path.join(out_dir,out_filename),'w') as f:
-        f.writelines(output)
+    
+    with open(os.path.join(out_dir,out_filename),'r') as f:
+        print("f: %s" % f.readlines())
     seq += 1
     print('tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
