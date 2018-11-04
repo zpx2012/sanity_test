@@ -122,15 +122,15 @@ if __name__ == '__main__':
         print("You need root permissions to do this!")
         sys.exit(1)
 
-    out_dir = os.path.expanduser('~/packet_trace/sched_sender_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
-    if not os.path.exists(os.path.expanduser('~/packet_trace')):
+    out_dir = os.path.expanduser('~/packet_trace/sched_tshark_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
+    if not os.path.exists(os.path.expanduser('~/packet_trace')):ses
         os.makedirs(os.path.expanduser('~/packet_trace'))
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
     sched = BlockingScheduler(timezone=pytz.utc)
     seq = 0
-    start = datetime.datetime.strptime('2018-11-04 08:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-11-04 07:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
     end   = start + datetime.timedelta(days=1)
