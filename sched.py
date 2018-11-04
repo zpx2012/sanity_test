@@ -123,7 +123,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     out_dir = os.path.expanduser('~/packet_trace/sched_tshark_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
-    if not os.path.exists(os.path.expanduser('~/packet_trace')):ses
+    if not os.path.exists(os.path.expanduser('~/packet_trace')):
         os.makedirs(os.path.expanduser('~/packet_trace'))
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
