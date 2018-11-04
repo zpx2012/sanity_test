@@ -141,9 +141,9 @@ if __name__ == '__main__':
 
     sched = BlockingScheduler(timezone=pytz.utc)
     seq = 0
-    # start = datetime.datetime.strptime('2018-11-04 08:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-11-04 09:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
-    start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
+    # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
     # intvl = 3300
 #    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=620,start_date=start+datetime.timedelta(seconds=intvl),end_date=start+datetime.timedelta(hours=2))
