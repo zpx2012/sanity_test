@@ -19,7 +19,7 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
     except sp.TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
 
-    print output
+    print(output)
     print("output len:%d" % len(output.splitlines()))
     with open(os.path.join(out_dir,out_filename),'w') as f:
         f.writelines(output)
