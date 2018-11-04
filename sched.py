@@ -1,4 +1,4 @@
-import datetime,time,sys,pytz,os,socket,signal,shlex
+import datetime,time,sys,pytz,os,socket,signal,shlex,logging
 import subprocess as sp
 from apscheduler.schedulers.background import BackgroundScheduler
 from utils import run_cmd_shell_wtimer,run_cmd_wtimer,run_cmd_shell
@@ -128,6 +128,9 @@ if __name__ == '__main__':
     sess_intvl = int(sys.argv[6])
     minute = sys.argv[7]
 
+    logging.basicConfig()
+    logging.getLogger('apscheduler').setLevel(logging.DEBUG)
+    
     print(sess_intvl)
     if os.geteuid():
         print("You need root permissions to do this!")
@@ -173,7 +176,15 @@ if __name__ == '__main__':
     #     sched.add_job(server_sender, 'date', run_date='2018-10-26 %s:00:00' % hour)
     
     sched.start()
+    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
+    try:
+        # This is here to simulate application activity (which keeps the main thread alive).
+        while True:
+            time.sleep(2)
+    except (KeyboardInterrupt, SystemExit):
+        # Not strictly necessary if daemonic mode is enabled but should be done if possible
+        sched.shutdown()
 
     # def server_tcpdump():
     # print('server_tcpdump: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
