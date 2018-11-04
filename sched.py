@@ -18,10 +18,12 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
         output = sp.check_output(shlex.split(tshark_cmd) ,timeout=duration)
     except sp.TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
-    
-    print("output len:%d" % len(output.split('\n')))
+
+    print output
+    print("output len:%d" % len(output.splitlines()))
     with open(os.path.join(out_dir,out_filename),'w') as f:
         f.writelines(output)
+    seq += 1
     print('tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
 intvls = [10,5,1,0.1,0.01]
