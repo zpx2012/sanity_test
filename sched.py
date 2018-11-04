@@ -16,7 +16,7 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
     output,err = '',''
     try:
         with open(os.path.join(out_dir,out_filename),'w') as f:
-            p = sp.Popen(shlex.split(tshark_cmd),stdout=f,stderr=f)
+            p = sp.Popen(shlex.split(tshark_cmd),stdout=f)
             output,err = p.communicate(timeout=duration)#, stderr=sp.STDOUT
     except sp.TimeoutExpired:
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
