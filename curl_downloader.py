@@ -49,7 +49,7 @@ if __name__ == '__main__':
         #     curl_poll.visit_cn_websites_sleep(10,1)
         num_tasks += 1
         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-        sleep(120)
+        sleep(10)
         print 'sleep after:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     # nonproxy_modes = ['clean','https']
     # if sys.argv[3] in nonproxy_modes:

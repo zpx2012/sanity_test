@@ -12,7 +12,7 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
     global seq
     print('tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     out_filename = 'loss_%s_%s_%s_%02d_%s.tshark' % (socket.gethostname(),role,remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
-    tshark_cmd = 'tshark -i %s -f \'host %s and tcp port %s\' -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval > %s'
+    tshark_cmd = 'tshark -i %s host %s and tcp port %s -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval > %s'
     run_cmd_wtimer(tshark_cmd % (interface,remote_ip,port,os.path.join(out_dir,out_filename)),duration)
     print('tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
