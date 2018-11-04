@@ -2,7 +2,7 @@ import os,sys,time,datetime,socket,urlparse,threading
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
-import curl_poll
+#import curl_poll
 
 def run_cmd(cmd):
     try:
