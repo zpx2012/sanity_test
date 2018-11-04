@@ -1,6 +1,6 @@
 import datetime,time,sys,pytz,os,socket,signal,shlex
 import subprocess as sp
-from apscheduler.schedulers.blocking import BackgroundScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from utils import run_cmd_shell_wtimer,run_cmd_wtimer,run_cmd_shell
 
 def tshark(dir,filename):
