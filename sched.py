@@ -1,6 +1,6 @@
 import datetime,time,sys,pytz,os,socket,signal,shlex
 import subprocess as sp
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.blocking import BackgroundScheduler
 from utils import run_cmd_shell_wtimer,run_cmd_wtimer,run_cmd_shell
 
 def tshark(dir,filename):
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    sched = BlockingScheduler(timezone=pytz.utc)
+    sched = BackgroundScheduler(timezone=pytz.utc)
     seq = 0
     start = datetime.datetime.strptime('2018-11-04 09:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
