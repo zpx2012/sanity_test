@@ -23,7 +23,7 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
         print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
     
     with open(os.path.join(out_dir,out_filename),'r') as f:
-        print("f: %s" % f.readlines())
+        print("f: %d" % len(f.readlines()))
     seq += 1
     print('tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
