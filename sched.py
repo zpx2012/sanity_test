@@ -1,7 +1,8 @@
-import datetime,time,sys,pytz,os,socket,signal,shlex,logging
+import datetime,time,sys,pytz,os,socket,signal,shlex,logging,csv
 import subprocess as sp
 from apscheduler.schedulers.background import BackgroundScheduler
 from utils import run_cmd_shell_wtimer,run_cmd_wtimer,run_cmd_shell
+from curl_poll import curl_poll_csv
 
 def tshark(dir,filename):
     cmd = 'cd %s;f=%s;tshark -r $f -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval > ${f%%.*}_1.txt;sort ${f%%.*}_1.txt > ${f%%.*}.tshark;rm ${f%%.*}_1.txt' % (dir,filename)
@@ -119,62 +120,51 @@ def sep_sender(intf,rem_ip,rem_hn,role):
             print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             time.sleep(60) 
 
+def curl_vultr(infile):
+    curl_poll_csv(infile)#'~/sanity_test/scripts/1107_curl_poll.csv'
+
+
 if __name__ == '__main__':
     intf = sys.argv[1]
-    rem_ip = sys.argv[2]
-    rem_hn = sys.argv[3]
-    role = sys.argv[4]
-    shift = int(sys.argv[5])
-    sess_intvl = int(sys.argv[6])
-    minute = sys.argv[7]
+    # rem_ip = sys.argv[2]
+    # rem_hn = sys.argv[3]
+    infile = sys.argv[2]
+    role = sys.argv[3]
+    # shift = int(sys.argv[5])
+    # sess_intvl = int(sys.argv[6])
+    minute = sys.argv[4]
 
     logging.basicConfig()
     logging.getLogger('apscheduler').setLevel(logging.DEBUG)
     
-    print(sess_intvl)
     if os.geteuid():
         print("You need root permissions to do this!")
         sys.exit(1)
 
-    out_dir = os.path.expanduser('~/packet_trace/sched_tshark_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
+    out_dir = os.path.expanduser('~/packet_trace/sched_mtr_') + datetime.datetime.utcnow().strftime('%m%d%H%Mutc')
     if not os.path.exists(os.path.expanduser('~/packet_trace')):
         os.makedirs(os.path.expanduser('~/packet_trace'))
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
+    with open(infile,'r') as f:         
+        ip_hn_list = list(csv.reader(f))
+
     sched = BackgroundScheduler(timezone=pytz.utc)
     seq = 0
-    start = datetime.datetime.strptime('2018-11-04 10:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-11-07 10:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
-    # intvl = 3300
-#    sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,role],seconds=620,start_date=start+datetime.timedelta(seconds=intvl),end_date=start+datetime.timedelta(hours=2))
     if role == 'client':    
-        # sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=shift))
-        sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,2+sess_intvl+2],minutes=1,start_date=start+datetime.timedelta(seconds=shift),end_date=end)
-        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20,1],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=shift-5),end_date=end)
-        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20+10,0],seconds=sess_intvl+60-10,start_date=start+datetime.timedelta(seconds=shift-10),end_date=start+datetime.timedelta(hours=1))
-        # sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5+shift))#+datetime.timedelta(minutes=90))
-        # sched.add_job(client_curl, 'date', run_date=start)
+        sched.add_job(curl_vultr,'date', args=[infile],run_date=start)
+        for i,line in enumerate(ip_hn_list):
+            sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,line[1],line[2],80,role,2+10+2],minutes=1,start_date=start+datetime.timedelta(seconds=10*i),end_date=end)
     elif role == 'server':
-        sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,sess_intvl],minutes=1,start_date=start+datetime.timedelta(seconds=2),end_date=end)
-
-        # sched.add_job(server_sender, 'date', run_date=start, args=[500,sess_intvl])
-        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20,1],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
-        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20,0],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
-        # sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5))#+datetime.timedelta(minutes=90))
-
-#        sched.add_job(server_sender, 'date', run_date=start+datetime.timedelta(seconds=intvl), args=[1440])
-
-    #Schedule job_function to be called every two hours     
-   
-    # sched.add_job(tcpdump_tshark, 'interval', seconds=2, run_date='2018-10-26 %s:00:00' % hour, args=[out_dir,intf,rem_ip,rem_hn,role])
-    # if role == 'client':    
-    #     sched.add_job(client_sender, 'date', run_date='2018-10-26 %s:00:01' % hour)
-    # elif role == 'server':
-    #     sched.add_job(server_sender, 'date', run_date='2018-10-26 %s:00:00' % hour)
-    
+        for i,line in enumerate(ip_hn_list):
+            if socket.gethostname() == line[2]:
+                sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,'39.108.98.242','sz1-aliyun',80,role,10],minutes=1,start_date=start+datetime.timedelta(seconds=2+10*i),end_date=end)
+  
     sched.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
@@ -190,3 +180,23 @@ if __name__ == '__main__':
     # print('server_tcpdump: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     # run_cmd_shell_wtimer('sudo tcpdump -w %s/terran_http_server_calculate_loss_rate_%s.pcap -i eth1 -n host 39.104.139.16 ' % (out_dir,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')),800)
     # print('server_tcpdump: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+        # sched.add_job(server_sender, 'date', run_date=start, args=[500,sess_intvl])
+        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20,1],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
+        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20,0],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=-5),end_date=start+datetime.timedelta(hours=1))
+        # sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5))#+datetime.timedelta(minutes=90))
+
+#        sched.add_job(server_sender, 'date', run_date=start+datetime.timedelta(seconds=intvl), args=[1440])
+
+    #Schedule job_function to be called every two hours     
+   
+    # sched.add_job(tcpdump_tshark, 'interval', seconds=2, run_date='2018-10-26 %s:00:00' % hour, args=[out_dir,intf,rem_ip,rem_hn,role])
+    # if role == 'client':    
+    #     sched.add_job(client_sender, 'date', run_date='2018-10-26 %s:00:01' % hour)
+    # elif role == 'server':
+    #     sched.add_job(server_sender, 'date', run_date='2018-10-26 %s:00:00' % hour)
+  
+          # sched.add_job(client_sender, 'date', run_date=start+datetime.timedelta(seconds=shift))
+        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,80,role,500,5+sess_intvl+20,1],seconds=sess_intvl+60,start_date=start+datetime.timedelta(seconds=shift-5),end_date=end)
+        # sched.add_job(tcpdump_tshark, 'interval', args=[out_dir,intf,rem_ip,rem_hn,20000,role,500,5+sess_intvl+20+10,0],seconds=sess_intvl+60-10,start_date=start+datetime.timedelta(seconds=shift-10),end_date=start+datetime.timedelta(hours=1))
+        # sched.add_job(sep_sender, 'date', args=[intf,rem_ip,rem_hn,role], run_date=start+datetime.timedelta(seconds=5+shift))#+datetime.timedelta(minutes=90))
+        # sched.add_job(client_curl, 'date', run_date=start)
