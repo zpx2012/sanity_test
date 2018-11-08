@@ -425,7 +425,7 @@ int main(int argc , char *argv[])
             gettimeofday(&ses_this_tv, NULL);
             print_utc_time((time_t)ses_this_tv.tv_sec);
             //printf("The current local time is: %ld.%06ld\n",ses_this_tv.tv_sec,ses_this_tv.tv_usec);
-            sleep(60);
+            sleep(120);//Avoid address in use
         }
     }
     else if(mode == 1){
