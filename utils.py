@@ -30,7 +30,7 @@ def run_cmd_wtimer(cmd,sec):
         call(cmds,timeout=sec)
 
     except TimeoutExpired:
-        print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
+        print('catch TimeoutExpired. Killed.')
         # call('ps -ef | grep {0}'.format(cmds[0]),shell=True)
 
     except KeyboardInterrupt:
