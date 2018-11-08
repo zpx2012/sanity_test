@@ -38,6 +38,22 @@ def run_cmd_wtimer(cmd,sec):
         if inp == 'y':
             os._exit(-1)
 
+def run_cmd_wtimer_slient(cmd,sec):
+
+    try:
+        cmds = shlex.split(cmd)
+        print(cmds)
+        call(cmds,timeout=sec,stdout=PIPE,stderr=PIPE)
+
+    except TimeoutExpired:
+        print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
+        call('ps -ef | grep {0}'.format(cmds[0]),shell=True)
+
+    except KeyboardInterrupt:
+        inp = input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
+        if inp == 'y':
+            os._exit(-1)
+
 def run_cmd_shell_wtimer(cmd,sec):
 
     try:
