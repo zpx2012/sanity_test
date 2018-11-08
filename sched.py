@@ -155,7 +155,7 @@ if __name__ == '__main__':
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
     if role == 'client':    
-        sched.add_job(curl_vultr,'date', args=[infile],run_date=start)
+        sched.add_job(curl_vultr,'interval', hours=24,args=[infile],start_date=start, end_date=end)
         for i,line in enumerate(ip_hn_list):
             sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,line[1],line[2],80,role,2+10+2],minutes=1,start_date=start+datetime.timedelta(seconds=10*i),end_date=end)
     elif role == 'server':
