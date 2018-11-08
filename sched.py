@@ -15,7 +15,7 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
     tshark_cmd = 'tshark -i %s -f \'host %s and tcp port %s\' -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval' % (interface,remote_ip,port)
     try:
         with open(os.path.join(out_dir,out_filename),'w') as f:
-            sp.call(shlex.split(tshark_cmd),stdout=f,timeout=duration)
+            sp.call(shlex.split(tshark_cmd),stdout=f,stderr=sp.PIPE,timeout=duration)
             # p = sp.Popen(shlex.split(tshark_cmd),stdout=f)
             # output,err = p.communicate(timeout=duration)#, stderr=sp.STDOUT
     except sp.TimeoutExpired:
