@@ -67,23 +67,15 @@ from random import randint
 #         rand = randint(10**(ID_LEN-1),(10**ID_LEN)-1)
 #         run_cmd('set -x;curl -s -o /dev/null \'%s\'' % RAMDON_WEBSITES[i].format(str(rand)))
 
-
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage:\n\tpython curl_downloader.py [URL] [IP] [Tool] [Site]\n\nOptions:\n\tTool: ss, vpn, ssh, from which server\n\tSite: download source, 163 or mit or so")
-        sys.exit(-1)
-
-    decorator = '\n********************************\n'
-    print(decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n')
+def curl_poll_csv(infile_name):
+    output_filename_list = []
     
+    base_cmd = 'script -aqf -c \'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve "%s:%d:%s" "%s"\' %s'
+
     out_dir = os.path.expanduser('~/sanity_test_results/')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    output_filename_list = []
 
-    infile_name = sys.argv[1]
-    base_cmd = 'script -aqf -c \'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve "%s:%d:%s" "%s"\' %s'
-    
     if not os.path.isfile(infile_name):
         print('File does not exist.')
     else:
@@ -102,3 +94,18 @@ if __name__ == '__main__':
                 run_cmd_wtimer(cmd,int(line[4]))
                 #visit_cn_websites(8)
                 num_tasks += 1
+
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage:\n\tpython curl_downloader.py [URL] [IP] [Tool] [Site]\n\nOptions:\n\tTool: ss, vpn, ssh, from which server\n\tSite: download source, 163 or mit or so")
+        sys.exit(-1)
+
+    infile_name = os.path.expanduser(sys.argv[1])
+
+    decorator = '\n********************************\n'
+    print(decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n')
+
+    curl_poll_csv(infile_name)
+    

@@ -302,7 +302,7 @@ int main(int argc , char *argv[])
     }
 
     unsigned int msg_len, sess_intvl,mode;
-    float pkt_intvl;
+    float pkt_intvl = 0;
     msg_len = strtol(argv[1], NULL, 10);
     sess_intvl = atof(argv[2]);
     mode = strtol(argv[3], NULL, 10);
@@ -312,7 +312,7 @@ int main(int argc , char *argv[])
         perror("msg_len too large.");
         return -1;
     }
-    if(!sess_intvl || !pkt_intvl){
+    if(sess_intvl == 0 || ( mode && !pkt_intvl)){
         perror("interval == 0");
         return -1;
     }

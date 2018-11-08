@@ -26,6 +26,7 @@ def run_cmd_wtimer(cmd,sec):
 
     try:
         cmds = shlex.split(cmd)
+        print(cmds)
         call(cmds,timeout=sec)
 
     except TimeoutExpired:
