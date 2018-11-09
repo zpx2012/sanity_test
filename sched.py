@@ -1,5 +1,6 @@
 import datetime,time,sys,pytz,os,socket,signal,shlex,logging,csv
 import subprocess as sp
+from urllib.parse import urlparse
 from apscheduler.schedulers.background import BackgroundScheduler
 from utils import run_cmd_shell_wtimer,run_cmd_wtimer,run_cmd_shell
 from curl_poll import curl_poll_csv
@@ -137,8 +138,8 @@ if __name__ == '__main__':
     # sess_intvl = int(sys.argv[6])
     minute = sys.argv[4]
 
-    # logging.basicConfig()
-    # logging.getLogger('apscheduler').setLevel(logging.DEBUG)
+    logging.basicConfig()
+    logging.getLogger('apscheduler').setLevel(logging.DEBUG)
     
     if os.geteuid():
         print("You need root permissions to do this!")
