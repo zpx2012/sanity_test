@@ -121,7 +121,7 @@ def sep_sender(intf,rem_ip,rem_hn,role):
 
 def curl_vultr(line,output_file_name):
     base_cmd = 'script -aqf -c \'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve "%s:%d:%s" "%s"\' %s'
-    cmd = base_cmd % (line[3],urlparse(line[0]).netloc, 443 if line[0].split(':')[0] == 'https' else 80,line[1],line[0],output_filename_list[i])
+    cmd = base_cmd % (line[3],urlparse(line[0]).netloc, 443 if line[0].split(':')[0] == 'https' else 80,line[1],line[0],output_file_name)
     print('curl poll:start %s %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), line[1]))
     run_cmd_wtimer(cmd,int(line[4]))
     print('curl poll: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
