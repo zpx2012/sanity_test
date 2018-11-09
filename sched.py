@@ -164,7 +164,7 @@ if __name__ == '__main__':
     if role == 'client':    
         for i,line in enumerate(ip_hn_list):
             output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),line[2],line[0].split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
-            sched.add_job(curl_vultr,'interval', args=[line,output_file_name],minutes=1,start_date=start+datetime.timedelta(seconds=10*i), end_date=end)
+            sched.add_job(curl_vultr,'interval', args=[line,output_file_name],minutes=1,start_date=start+datetime.timedelta(seconds=10*i+2), end_date=end)
             sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,line[1],line[2],80,role,2+10+2],minutes=1,start_date=start+datetime.timedelta(seconds=10*i),end_date=end)
     elif role == 'server':
         for i,line in enumerate(ip_hn_list):
