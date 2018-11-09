@@ -10,7 +10,7 @@ def tshark(dir,filename):
 
 
 def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duration):
-    print('tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+    print('tshark: start %s %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),remote_ip))
     out_filename = 'loss_%s_%s_%s_%s.tshark' % (socket.gethostname(),role,remote_hostname,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     tshark_cmd = 'tshark -i %s -f \'host %s and tcp port %s\' -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval' % (interface,remote_ip,port)
     try:
@@ -118,8 +118,13 @@ def sep_sender(intf,rem_ip,rem_hn,role):
             print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             time.sleep(60) 
 
-def curl_vultr(infile):
-    curl_poll_csv(infile)#'~/sanity_test/scripts/1107_curl_poll.csv'
+def curl_vultr(line,output_file_name):
+    base_cmd = 'script -aqf -c \'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve "%s:%d:%s" "%s"\' %s'
+    cmd = base_cmd % (line[3],urlparse(line[0]).netloc, 443 if line[0].split(':')[0] == 'https' else 80,line[1],line[0],output_filename_list[i])
+    print('curl poll:start %s %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), line[1]))
+    run_cmd_wtimer(cmd,int(line[4]))
+    print('curl poll: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
+
 
 
 if __name__ == '__main__':
@@ -150,13 +155,19 @@ if __name__ == '__main__':
 
     sched = BackgroundScheduler(timezone=pytz.utc)
     seq = 0
-    start = datetime.datetime.strptime('2018-11-09 %s:00' % minute,'%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-11-10 %s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
+
     if role == 'client':    
-        sched.add_job(curl_vultr,'interval', hours=24,args=[infile],start_date=start, end_date=end)
+        output_filename_list = []
         for i,line in enumerate(ip_hn_list):
+            output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),line[2],line[0].split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+            output_filename_list.append(output_file_name)
+
+        for i,line in enumerate(ip_hn_list):
+            sched.add_job(curl_vultr,'interval', args=[line,output_filename_list[i]],minutes=1,start_date=start+datetime.timedelta(seconds=10*i), end_date=end)
             sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,line[1],line[2],80,role,2+10+2],minutes=1,start_date=start+datetime.timedelta(seconds=10*i),end_date=end)
     elif role == 'server':
         for i,line in enumerate(ip_hn_list):
