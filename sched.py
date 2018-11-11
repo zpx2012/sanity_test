@@ -1,5 +1,6 @@
 import datetime,time,sys,pytz,os,socket,signal,shlex,logging,csv
 import subprocess as sp
+from urllib.parse import urlparse
 from apscheduler.schedulers.background import BackgroundScheduler
 from utils import run_cmd_shell_wtimer,run_cmd_wtimer,run_cmd_shell
 from curl_poll import curl_poll_csv
@@ -10,22 +11,20 @@ def tshark(dir,filename):
 
 
 def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duration):
-    global seq
-    print('tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-    out_filename = 'loss_%s_%s_%s_%02d_%s.tshark' % (socket.gethostname(),role,remote_hostname,seq,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    print('tshark: start %s %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),remote_ip))
+    out_filename = 'loss_%s_%s_%s_%s.tshark' % (socket.gethostname(),role,remote_hostname,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     tshark_cmd = 'tshark -i %s -f \'host %s and tcp port %s\' -Tfields -o tcp.relative_sequence_numbers:FALSE -e ip.id -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.options.timestamp.tsecr -e tcp.options.timestamp.tsval' % (interface,remote_ip,port)
-    output,err = '',''
     try:
         with open(os.path.join(out_dir,out_filename),'w') as f:
-            sp.call(shlex.split(tshark_cmd),stdout=f,timeout=duration)
+            sp.call(shlex.split(tshark_cmd),stdout=f,stderr=sp.PIPE,timeout=duration)
             # p = sp.Popen(shlex.split(tshark_cmd),stdout=f)
             # output,err = p.communicate(timeout=duration)#, stderr=sp.STDOUT
     except sp.TimeoutExpired:
-        print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
+        print('catch TimeoutExpired. Killed.')
     
     with open(os.path.join(out_dir,out_filename),'r') as f:
         print("f: %d" % len(f.readlines()))
-    seq += 1
+    sp.call('rm -rf /tmp/wireshark_*.pcapng',shell=True)
     print('tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
 intvls = [10,5,1,0.1,0.01]
@@ -120,8 +119,13 @@ def sep_sender(intf,rem_ip,rem_hn,role):
             print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             time.sleep(60) 
 
-def curl_vultr(infile):
-    curl_poll_csv(infile)#'~/sanity_test/scripts/1107_curl_poll.csv'
+def curl_vultr(line,output_file_name):
+    base_cmd = 'script -aqf -c \'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve "%s:%d:%s" "%s"\' %s'
+    cmd = base_cmd % (line[3],urlparse(line[0]).netloc, 443 if line[0].split(':')[0] == 'https' else 80,line[1],line[0],output_file_name)
+    print('curl poll:start %s %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), line[1]))
+    run_cmd_wtimer(cmd,int(line[4]))
+    print('curl poll: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
+
 
 
 if __name__ == '__main__':
@@ -152,13 +156,15 @@ if __name__ == '__main__':
 
     sched = BackgroundScheduler(timezone=pytz.utc)
     seq = 0
-    start = datetime.datetime.strptime('2018-11-07 10:%s:00' % minute,'%Y-%m-%d %H:%M:%S') 
+    start = datetime.datetime.strptime('2018-11-09 %s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
     # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
+
     if role == 'client':    
-        sched.add_job(curl_vultr,'date', args=[infile],run_date=start)
         for i,line in enumerate(ip_hn_list):
+            output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),line[2],line[0].split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+            sched.add_job(curl_vultr,'interval', args=[line,output_file_name],minutes=1,start_date=start+datetime.timedelta(seconds=10*i+2), end_date=end)
             sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,line[1],line[2],80,role,2+10+2],minutes=1,start_date=start+datetime.timedelta(seconds=10*i),end_date=end)
     elif role == 'server':
         for i,line in enumerate(ip_hn_list):

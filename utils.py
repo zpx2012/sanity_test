@@ -30,8 +30,24 @@ def run_cmd_wtimer(cmd,sec):
         call(cmds,timeout=sec)
 
     except TimeoutExpired:
-        print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
-        call('ps -ef | grep {0}'.format(cmds[0]),shell=True)
+        print('catch TimeoutExpired. Killed.')
+        # call('ps -ef | grep {0}'.format(cmds[0]),shell=True)
+
+    except KeyboardInterrupt:
+        inp = input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
+        if inp == 'y':
+            os._exit(-1)
+
+def run_cmd_wtimer_slient(cmd,sec):
+
+    try:
+        cmds = shlex.split(cmd)
+        print(cmds)
+        call(cmds,timeout=sec,stdout=PIPE,stderr=PIPE)
+
+    except TimeoutExpired:
+        print('catch TimeoutExpired. Killed.')
+        # call('ps -ef | grep {0}'.format(cmds[0]),shell=True)
 
     except KeyboardInterrupt:
         inp = input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
@@ -45,7 +61,7 @@ def run_cmd_shell_wtimer(cmd,sec):
         p.communicate(timeout=sec)
 
     except TimeoutExpired:
-        print('\n\n--------------\ncatch TimeoutExpired. Killed\n-------------\n')
+        print('catch TimeoutExpired. Killed.')
         os.killpg(os.getpgid(p.pid), signal.SIGKILL)
         cmds = shlex.split(cmd)
         os.system('set -v;sudo killall -9 %s' % cmds[1] if cmds[0] == 'sudo' else cmds[0])

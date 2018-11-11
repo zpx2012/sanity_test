@@ -2,7 +2,7 @@ import os,sys,time,datetime,socket,threading,csv
 from urllib.parse import urlparse
 from subprocess import Popen, PIPE
 from time import sleep
-from utils import run_cmd_wtimer
+from utils import run_cmd_wtimer,run_cmd_wtimer_slient
 from random import randint
 
 # FIX_WEBSITES = [
@@ -91,7 +91,9 @@ def curl_poll_csv(infile_name):
                 cmd = base_cmd % (line[3],urlparse(line[0]).netloc, 443 if line[0].split(':')[0] == 'https' else 80,line[1],line[0],output_filename_list[i])
                 with open(output_filename_list[i],'a') as f:
                     f.writelines('\n\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
+                print('%s Task : %d %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
                 run_cmd_wtimer(cmd,int(line[4]))
+                print('curl poll: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
                 #visit_cn_websites(8)
                 num_tasks += 1
 
