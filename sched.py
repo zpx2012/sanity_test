@@ -29,16 +29,24 @@ def tshark_capture(out_dir,interface,remote_ip,remote_hostname,port,role,duratio
 
 intvls = [10,5,1,0.1,0.01]
 
-def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,port,role,size,duration,flag):
-    global seq
+def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,port,role,size,duration):
+    # global seq
     print('tcpdump_tshark: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
     out_filename = 'loss_%s_%s_%s_%d_%02d_%.2f_%d_%s.pcap' % (socket.gethostname(),role,remote_hostname,port,seq,intvls[seq%len(intvls)],size,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
     run_cmd_wtimer('tcpdump -w %s -i %s -n host %s and tcp port %d' % (os.path.join(out_dir,out_filename),interface,remote_ip,port),duration)
-    if flag == 1:
-        seq += 1
+    # if flag == 1:
+    #     seq += 1
     #tshark(out_dir,out_filename)    
     sp.call('ls -hl %s' % os.path.join(out_dir,out_filename))
     print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
+
+def tcpdump_1116(out_dir,remote_ip,remote_hostname,port,duration):
+    print('tcpdump_1116: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+    out_filename = 'loss_%s_%s_%d_%s.pcap' % (socket.gethostname(),remote_hostname,port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    run_cmd_wtimer('tcpdump -w %s -s 96 -i $(ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//") -n host %s and tcp port %d' % (os.path.join(out_dir,out_filename),remote_ip,port),duration)
+    sp.call('ls -hl %s' % os.path.join(out_dir,out_filename))
+    print('tcpdump_1116: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
+
 
 def tcpdump_icmp(out_dir,interface,remote_ip,remote_hostname):
     global seq
@@ -129,14 +137,14 @@ def curl_vultr(line,output_file_name):
 
 
 if __name__ == '__main__':
-    intf = sys.argv[1]
-    # rem_ip = sys.argv[2]
-    # rem_hn = sys.argv[3]
-    infile = sys.argv[2]
-    role = sys.argv[3]
+    # intf = sys.argv[1]
+    rem_ip = '169.235.31.181'#sys.argv[1]
+    rem_hn = 'terran'#sys.argv[2]
+    # infile = sys.argv[2]
+    # role = sys.argv[3]
     # shift = int(sys.argv[5])
     # sess_intvl = int(sys.argv[6])
-    minute = sys.argv[4]
+    # minute = sys.argv[3]
 
     # logging.basicConfig()
     # logging.getLogger('apscheduler').setLevel(logging.DEBUG)
@@ -151,25 +159,29 @@ if __name__ == '__main__':
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    with open(infile,'r') as f:         
-        ip_hn_list = list(csv.reader(f))
+    # with open(infile,'r') as f:         
+    #     ip_hn_list = list(csv.reader(f))
 
     sched = BackgroundScheduler(timezone=pytz.utc)
     seq = 0
-    start = datetime.datetime.strptime('2018-11-09 %s:00' % minute,'%Y-%m-%d %H:%M:%S') 
+    # start = datetime.datetime.strptime('2018-11-09 %s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
-    # start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
+    start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
 
-    if role == 'client':    
-        for i,line in enumerate(ip_hn_list):
-            output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),line[2],line[0].split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
-            sched.add_job(curl_vultr,'interval', args=[line,output_file_name],minutes=1,start_date=start+datetime.timedelta(seconds=10*i+2), end_date=end)
-            sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,line[1],line[2],80,role,2+10+2],minutes=1,start_date=start+datetime.timedelta(seconds=10*i),end_date=end)
-    elif role == 'server':
-        for i,line in enumerate(ip_hn_list):
-            if socket.gethostname() == line[2]:
-                sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,'39.108.98.242','sz1-aliyun',80,role,10],minutes=1,start_date=start+datetime.timedelta(seconds=2+10*i),end_date=end)
+    sched.add_job(tcpdump_1116, 'interval', args=[out_dir,rem_ip,rem_hn,80,15],minutes=1,start_date=start,end_date=end)
+    sched.add_job(tcpdump_1116, 'interval', args=[out_dir,rem_ip,rem_hn,20000,15],minutes=1,start_date=start,end_date=end)
+
+
+    # if role == 'client':    
+    #     for i,line in enumerate(ip_hn_list):
+    #         output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),line[2],line[0].split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    #         sched.add_job(curl_vultr,'interval', args=[line,output_file_name],minutes=1,start_date=start+datetime.timedelta(seconds=10*i+2), end_date=end)
+            # sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,line[1],line[2],80,role,2+10+2],minutes=1,start_date=start+datetime.timedelta(seconds=10*i),end_date=end)
+    # elif role == 'server':
+    #     for i,line in enumerate(ip_hn_list):
+    #         if socket.gethostname() == line[2]:
+    #             sched.add_job(tshark_capture, 'interval', args=[out_dir,intf,'39.108.98.242','sz1-aliyun',80,role,10],minutes=1,start_date=start+datetime.timedelta(seconds=2+10*i),end_date=end)
   
     sched.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
