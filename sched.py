@@ -123,7 +123,7 @@ def sep_sender(intf,rem_ip,rem_hn,role):
                 p_dcurl.terminate()
                 p_dcurl.kill()
                 time.sleep(5)
-            sp.call(shlex.split'ps -ef | grep tcpdump;ls -hl %s;ls -hl %s' % (os.path.join(out_dir,outfile_dcurl),os.path.join(out_dir,outfile_dsender)),shell=True)
+            sp.call('ps -ef | grep tcpdump;ls -hl %s;ls -hl %s' % (os.path.join(out_dir,outfile_dcurl),os.path.join(out_dir,outfile_dsender)),shell=True)
             print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             time.sleep(60) 
 
