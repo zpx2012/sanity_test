@@ -24,7 +24,7 @@ if __name__ == '__main__':
     if proxy_mode == '0':
         cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
     else:
-        cmd = 'curl -o /dev/null --limit-rate 1000k --speed-time 1800 -LJ --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (url, output_file_name)
+        cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --socks localhost:1080 \'%s\' 2>&1 | tee -a %s' % (speed_limit, url, output_file_name)
 
 
     #traceroute

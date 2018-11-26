@@ -40,14 +40,6 @@ def tcpdump_tshark(out_dir,interface,remote_ip,remote_hostname,port,role,size,du
     sp.call('ls -hl %s' % os.path.join(out_dir,out_filename))
     print('tcpdump_tshark: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
-def tcpdump_1116(out_dir,remote_ip,remote_hostname,port,duration):
-    print('tcpdump_1116: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-    out_filename = 'loss_%s_%s_%d_%s.pcap' % (socket.gethostname(),remote_hostname,port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
-    run_cmd_wtimer('tcpdump -w %s -s 96 -i eth0 -n host %s and tcp port %d' % (os.path.join(out_dir,out_filename),remote_ip,port),duration)
-    sp.call('ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
-    print('tcpdump_1116: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
-
-
 def tcpdump_icmp(out_dir,interface,remote_ip,remote_hostname):
     global seq
     print('tcpdump_icmp: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
@@ -134,6 +126,12 @@ def curl_vultr(line,output_file_name):
     run_cmd_wtimer(cmd,int(line[4]))
     print('curl poll: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
+def tcpdump_1116(out_dir,remote_ip,remote_hostname,port,duration):
+    print('tcpdump_1116: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+    out_filename = 'loss_%s_%s_%d_%s.pcap' % (socket.gethostname(),remote_hostname,port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    run_cmd_wtimer('tcpdump -w %s -s 96 -i eth0 -n host %s and tcp port %d' % (os.path.join(out_dir,out_filename),remote_ip,port),duration)
+    sp.call('ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
+    print('tcpdump_1116: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
 
 if __name__ == '__main__':
