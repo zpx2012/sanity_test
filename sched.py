@@ -135,9 +135,9 @@ def tcpdump_1116(out_dir,remote_ip,remote_hostname,port,duration):
 
 
 if __name__ == '__main__':
-    # intf = sys.argv[1]
-    rem_ip = '169.235.31.181'#sys.argv[1]
-    rem_hn = 'terran'#sys.argv[2]
+    # intf = 'scripts/1125_aliyun.csv'
+    # rem_ip = '169.235.31.181'#sys.argv[1]
+    # rem_hn = 'terran'#sys.argv[2]
     # infile = sys.argv[2]
     # role = sys.argv[3]
     # shift = int(sys.argv[5])
@@ -156,9 +156,9 @@ if __name__ == '__main__':
         os.makedirs(os.path.expanduser('~/packet_trace'))
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-
-    # with open(infile,'r') as f:         
-    #     ip_hn_list = list(csv.reader(f))
+ 
+    with open('scripts/1125_aliyun.csv','r') as f:         
+        ip_hn_list = list(csv.reader(f))
 
     sched = BackgroundScheduler(timezone=pytz.utc)
     seq = 0
@@ -167,8 +167,9 @@ if __name__ == '__main__':
     start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
 
-    sched.add_job(tcpdump_1116, 'interval', args=[out_dir,rem_ip,rem_hn,80,15],minutes=1,start_date=start,end_date=end)
-    sched.add_job(tcpdump_1116, 'interval', args=[out_dir,rem_ip,rem_hn,20000,15],minutes=1,start_date=start,end_date=end)
+    for i,line in enumerate(ip_hn_list):
+        sched.add_job(tcpdump_1116, 'interval', args=[out_dir,line[1],line[0],80,15],minutes=1,start_date=start,end_date=end)
+        sched.add_job(tcpdump_1116, 'interval', args=[out_dir,line[1],line[0],8388,15],minutes=1,start_date=start,end_date=end)
 
 
     # if role == 'client':    
