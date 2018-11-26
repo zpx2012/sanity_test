@@ -1,5 +1,5 @@
 cd ~/sanity_test/shadowsocks
-for f in shadowsocks/client*.json
+for f in client*.json
 do
     screen -dmS ss_$f sslocal -c $f
 done
