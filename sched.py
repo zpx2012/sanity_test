@@ -157,7 +157,7 @@ if __name__ == '__main__':
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
  
-    with open('scripts/1125_aliyun.csv','r') as f:         
+    with open(os.path.expanduser('~/sanity_test/scripts/1125_aliyun.csv'),'r') as f:         
         ip_hn_list = list(csv.reader(f))
 
     sched = BackgroundScheduler(timezone=pytz.utc)
