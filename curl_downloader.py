@@ -20,7 +20,8 @@ if __name__ == '__main__':
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
 
     out_dir = expanduser('~/sanity_test_results/')
-    output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    pid_file_name = out_dir + '_'.join(['pid',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
     if proxy_port == '0':
         cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
     else:
@@ -47,8 +48,8 @@ if __name__ == '__main__':
                 os._exit(-1)
 
 
-        with open(output_file_name,'a') as f:
-            f.writelines('###PID: %d\n' % p.pid)
+        with open(pid_file_name,'a') as f:
+            f.writelines('%d\n' % p.pid)
         num_tasks += 1
         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         sleep(10)
