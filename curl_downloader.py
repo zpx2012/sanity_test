@@ -21,7 +21,8 @@ if __name__ == '__main__':
 
     out_dir = expanduser('~/sanity_test_results/')
     output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
-    pid_file_name = out_dir + '_'.join(['pid',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    pid_file_name = output_file_name.replace('curl','pid')
+    # pid_file_name = out_dir + '_'.join(['pid',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
     if proxy_port == '0':
         cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
     else:
