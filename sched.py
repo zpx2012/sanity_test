@@ -26,8 +26,8 @@ def main():
     # intf = 'scripts/1125_aliyun.csv'
     # rem_ip = '169.235.31.181'#sys.argv[1]
     # rem_hn = 'terran'#sys.argv[2]
-    infile = sys.argv[2]
-    role = sys.argv[3]
+    infile = sys.argv[1]
+    role = sys.argv[2]
     # shift = int(sys.argv[5])
     # sess_intvl = int(sys.argv[6])
     # minute = sys.argv[3]
