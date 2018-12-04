@@ -1,4 +1,4 @@
-import os,sys,time,datetime,socket,urlparse,threading
+import os,sys,time,datetime,socket,urlparse,threading,psutil
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
@@ -39,7 +39,13 @@ if __name__ == '__main__':
         with open(output_file_name,'a') as f:
             f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
         try:
-            p = Popen(cmd, shell=True)
+            p = Popen(cmd, shell=True,stdout=PIPE)
+            sleep(2)
+            print os.getpid()
+            if proxy_port == '0':
+                children = psutil.Process(os.getpid()).children(recursive=True)
+                with open(pid_file_name,'a') as f:
+                    f.writelines('%d\n' % [x.pid for x in children if x.name() == 'curl'][0])
             p.communicate()
 
         except KeyboardInterrupt:
@@ -49,8 +55,7 @@ if __name__ == '__main__':
                 os._exit(-1)
 
 
-        with open(pid_file_name,'a') as f:
-            f.writelines('%d\n' % p.pid)
+
         num_tasks += 1
         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         sleep(10)
