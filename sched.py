@@ -50,9 +50,10 @@ def main():
 
     sched = BackgroundScheduler(timezone=pytz.utc)
     # seq = 0
+    start = datetime.datetime.utcnow()# + datetime.timedelta(seconds=3)
+    start = start.replace(minute=start.minute+2,second=0,microsecond=0)
     # start = datetime.datetime.strptime('2018-11-09 %s:00' % minute,'%Y-%m-%d %H:%M:%S') 
     # start_str = '1028%s00' % hour   
-    start = datetime.datetime.utcnow() + datetime.timedelta(seconds=3)
     end   = start + datetime.timedelta(days=1)
 
     dur,start_offset = 0,0
