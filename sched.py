@@ -69,7 +69,7 @@ def main():
 
     for i,line in enumerate(ip_hn_list):
         sched.add_job(tcpdump_1116, 'interval', args=[out_dir,line[1],line[0],'80',dur,role],minutes=1,start_date=start+datetime.timedelta(seconds=start_offset),end_date=end)
-        sched.add_job(tcpdump_1116, 'interval', args=[out_dir,line[1],line[0],line[2],dur,role],minutes=1,start_date=start+datetime.timedelta(seconds=start_offset),end_date=end)
+        sched.add_job(tcpdump_1116, 'interval', args=[out_dir,line[1],line[0],'8388',dur,role],minutes=1,start_date=start+datetime.timedelta(seconds=start_offset),end_date=end)
 
 
     # if role == 'client':    
