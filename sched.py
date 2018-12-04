@@ -17,6 +17,7 @@ def tcpdump_1116(out_dir,remote_ip,remote_hostname,port,duration,role):
         return 
 
     intf = sp.check_output('ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//"',shell=True)
+    print intf,intf.split(' ')
     run_cmd_wtimer('tcpdump -w %s -s 96 -i %s -n host %s and tcp port %s' % (os.path.join(out_dir,out_filename),intf.split(' ')[0],remote_ip,port),duration)
     sp.call('ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
     print('tcpdump_1116: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
