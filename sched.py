@@ -57,11 +57,9 @@ def main():
 
     dur,start_offset = 0,0
     if role == 'c':
-        dur = 2+15+2
-        start_offset = 0
+        dur,start_offset = 2+15+2,0
     elif role == 's':
-        dur = 15
-        start_offset = 2
+        dur,start_offset = 15,2
     else:
         print('Role not identified')
         return

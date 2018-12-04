@@ -28,7 +28,6 @@ if __name__ == '__main__':
     else:
         cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --socks localhost:%s \'%s\' 2>&1 | tee -a %s' % (speed_limit,proxy_port,url, output_file_name)
 
-
     #traceroute
     if run_tr == '1':
         print 'traceroute'
