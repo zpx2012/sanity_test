@@ -20,7 +20,7 @@ if __name__ == '__main__':
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
 
     out_dir = expanduser('~/sanity_test_results/')
-    output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else 'ss',datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
     pid_file_name = output_file_name.replace('curl','pid')
     # pid_file_name = out_dir + '_'.join(['pid',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
     if proxy_port == '0':
@@ -41,11 +41,13 @@ if __name__ == '__main__':
         try:
             p = Popen(cmd, shell=True)#stdout=PIPE
             sleep(2)
-            print os.getpid()
             if proxy_port == '0':
                 children = psutil.Process(os.getpid()).children(recursive=True)
+                curl_pids = None
+                while not curl_pids:
+                    curl_pids = [x.pid for x in children if x.name() == 'curl']
                 with open(pid_file_name,'a') as f:
-                    f.writelines('%d\n' % [x.pid for x in children if x.name() == 'curl'][0])
+                    f.writelines('%d\n' % curl_pids[0])
             p.communicate()
 
         except KeyboardInterrupt:
@@ -53,8 +55,6 @@ if __name__ == '__main__':
             if input == 'y':
                 p.terminate()
                 os._exit(-1)
-
-
 
         num_tasks += 1
         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
