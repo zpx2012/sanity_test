@@ -1,4 +1,4 @@
-import os,sys,time,datetime,socket,urlparse,threading
+import os,sys,time,datetime,socket,urlparse,threading,psutil
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
@@ -20,12 +20,13 @@ if __name__ == '__main__':
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
 
     out_dir = expanduser('~/sanity_test_results/')
-    output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0],datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else 'ss',datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+    pid_file_name = output_file_name.replace('curl','pid')
+    # pid_file_name = out_dir + '_'.join(['pid',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
     if proxy_port == '0':
         cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
     else:
         cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --socks localhost:%s \'%s\' 2>&1 | tee -a %s' % (speed_limit,proxy_port,url, output_file_name)
-
 
     #traceroute
     if run_tr == '1':
@@ -37,7 +38,15 @@ if __name__ == '__main__':
         with open(output_file_name,'a') as f:
             f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
         try:
-            p = Popen(cmd, shell=True)
+            p = Popen(cmd, shell=True)#stdout=PIPE
+            sleep(2)
+            if proxy_port == '0':
+                children = psutil.Process(os.getpid()).children(recursive=True)
+                curl_pids = None
+                while not curl_pids:
+                    curl_pids = [x.pid for x in children if x.name() == 'curl']
+                with open(pid_file_name,'a') as f:
+                    f.writelines('%d\n' % curl_pids[0])
             p.communicate()
 
         except KeyboardInterrupt:
@@ -46,9 +55,6 @@ if __name__ == '__main__':
                 p.terminate()
                 os._exit(-1)
 
-
-        with open(output_file_name,'a') as f:
-            f.writelines('###PID: %d\n' % p.pid)
         num_tasks += 1
         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         sleep(10)
