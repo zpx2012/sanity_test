@@ -15,6 +15,7 @@ if __name__ == '__main__':
     run_tr = sys.argv[4]
     speed_limit = sys.argv[5]
     proxy_port = sys.argv[6]
+    local_port = sys.argv[7]
 
     decorator = '\n********************************\n'
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
@@ -22,11 +23,13 @@ if __name__ == '__main__':
     out_dir = expanduser('~/sanity_test_results/')
     output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else 'ss',datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
     pid_file_name = output_file_name.replace('curl','pid')
-    # pid_file_name = out_dir + '_'.join(['pid',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else proxy_port,datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
+
+    sl = '--limit-rate %s ' % speed_limit if speed_limit != '0' else ''
+    lp = '--local-port %s ' % local_port if local_port != '0' else ''
     if proxy_port == '0':
-        cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (speed_limit,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
+        cmd = 'curl -o /dev/null %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (sl+lp,urlparse.urlparse(url).hostname, 443 if 'https' in url else 80, ip, url, output_file_name)
     else:
-        cmd = 'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --socks localhost:%s \'%s\' 2>&1 | tee -a %s' % (speed_limit,proxy_port,url, output_file_name)
+        cmd = 'curl -o /dev/null %s --speed-time 120 -LJv4k --socks localhost:%s \'%s\' 2>&1 | tee -a %s' % (sl+lp,proxy_port,url, output_file_name)
 
     #traceroute
     if run_tr == '1':
@@ -40,14 +43,19 @@ if __name__ == '__main__':
         try:
             p = Popen(cmd, shell=True)#stdout=PIPE
             sleep(2)
-            if proxy_port == '0':
-                children = psutil.Process(os.getpid()).children(recursive=True)
-                curl_pids = None
-                while not curl_pids:
-                    curl_pids = [x.pid for x in children if x.name() == 'curl']
-                with open(pid_file_name,'a') as f:
-                    f.writelines('%d\n' % curl_pids[0])
-            p.communicate()
+            if p.poll() == None:
+                if proxy_port == '0':
+                    children = psutil.Process(os.getpid()).children(recursive=True)
+                    curl_pids = None
+                    while not curl_pids:
+                        curl_pids = [x.pid for x in children if x.name() == 'curl']
+                    with open(pid_file_name,'a') as f:
+                        f.writelines('%d\n' % curl_pids[0])
+                p.communicate()
+                num_tasks += 1
+                print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+                sleep(60)
+                print 'sleep after:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
 
         except KeyboardInterrupt:
             input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
@@ -55,10 +63,7 @@ if __name__ == '__main__':
                 p.terminate()
                 os._exit(-1)
 
-        num_tasks += 1
-        print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-        sleep(10)
-        print 'sleep after:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+
     # nonproxy_modes = ['clean','https']
         # if run_inter == '1':
         #     print 'xxxxxx'

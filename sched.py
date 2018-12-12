@@ -24,6 +24,24 @@ def tcpdump_1116(out_dir,remote_ip,remote_hostname,port,duration,role):
     print('tcpdump_1116: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
 
 
+def tcpdump_1211(out_dir,remote_ip,remote_hostname,port,role):
+    print('tcpdump_1116: start '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+    if role == 'c':
+        intf = 'eth0'
+        out_filename = 'loss_%s_%s_%s_$(date -u +%m%d%H%M)utc_client.pcap' % (socket.gethostname(),remote_hostname,'http' if port == '80' else 'ss')
+    elif role == 's':
+        intf = 'ens3'
+        out_filename = 'loss_%s_%s_%s_$(date -u +%m%d%H%M)utc_server.pcap' % (remote_hostname,socket.gethostname(),'http' if port == '80' else 'ss',datetime.datetime.utcnow().strftime('%m%d%H%Mutc'))
+    else:
+        return 
+
+    #intf = sp.check_output('ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//"',shell=True)
+    run_cmd_wtimer('tcpdump -w %s -G 60 -s 96 -i %s -n host %s and tcp port %s' % (os.path.join(out_dir,out_filename),intf,remote_ip,port))
+    sp.call('ls -hl %s' % os.path.join(out_dir,out_filename),shell=True)
+    print('tcpdump_1116: end '+datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')+'\n')
+
+
+
 def main():
     # intf = 'scripts/1125_aliyun.csv'
     # rem_ip = '169.235.31.181'#sys.argv[1]
