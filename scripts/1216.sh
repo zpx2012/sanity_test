@@ -1,6 +1,5 @@
 stime=$(date -u +%m%d%H%M)
 mkdir ~/packet_trace/loss_$stime
-set -v
 export IFS=","
 if [[ $1 == s ]]; then
 if [[ $(hostname) == singapore-vultr ]]; then
