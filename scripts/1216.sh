@@ -2,14 +2,14 @@ stime=$(date -u +%m%d%H%M)
 mkdir ~/packet_trace/loss_$stime
 export IFS=","
 if [[ $1 == s ]]; then
-    if [[ $(hostname) == singapore-vultr ]]; then
-    n=33456
-    elif [[ $(hostname) == sydney-vultr ]]; then
-    n=33457
-    elif [[ $(hostname) == tokyo-vultrr ]]; then
-    n=33457
-    fi
-cd ~/packet_trace/loss_$stime
+if [[ $(hostname) == singapore-vultr ]]; then
+n=33456
+elif [[ $(hostname) == sydney-vultr ]]; then
+n=33457
+elif [[ $(hostname) == tokyo-vultrr ]]; then
+n=33457
+fi
+cd ~/packet_trfixace/loss_$stime
 cat ~/sanity_test/scripts/1125_aliyun.csv | while read hm ip port; do 
 echo 'tfile=~/sanity_test_results/ptraceroute_'$hm_$(hostname)'_$(date -u +%m%d%H%M%S)utc_server.txt;while true;do date -u +"%Y-%m-%d %H:%M:%S %Z" >> $tfile;sudo paris-traceroute -Q -s 80 -d '$n' -p tcp '$ip' >> $tfile;done;exec bash' > tmp
 screen -dmS ptr_$hm bash tmp
