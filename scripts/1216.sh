@@ -20,7 +20,6 @@ elif [[ $1 == c ]]; then
 n=33456
 i=0
 screen -dmS nethog bash -c 'sudo nethogs -t eth0 &> ~/sanity_test_results/nethogs_$(hostname)_$(date -u +"%m%d%H%M%Sutc").txt'
-set -v
 cd ~/packet_trace/loss_$stime
 cat ~/sanity_test/scripts/1125_vultr.csv | while read hm ip port; do 
 echo $hm
