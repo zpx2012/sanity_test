@@ -7,7 +7,7 @@ n=33456
 elif [[ $(hostname) == sydney-vultr ]]; then
 n=33457
 elif [[ $(hostname) == tokyo-vultr ]]; then
-n=33457
+n=33458
 fi
 cd ~/packet_trace/loss_$stime
 i=0
