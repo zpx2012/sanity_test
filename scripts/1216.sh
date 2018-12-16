@@ -13,10 +13,9 @@ cd ~/packet_trfixace/loss_$stime
 i=0
 cat ~/sanity_test/scripts/1125_aliyun.csv | while read hm ip port; do 
 tfile=~/sanity_test_results/ptraceroute_$hm_$(hostname)_$(date -u +%m%d%H%M%S)utc_server.txt
-echo "while true;do date -u +"'"%Y-%m-%d %H:%M:%S %Z"'">> $tfile;sudo paris-traceroute -Q -s 80 -d $n -p tcp $ip >> $tfile;done;exec bash" > tmp$i.sh
+echo "while true;do date -u +"'"%Y-%m-%d %H:%M:%S %Z"'">> $tfile;sudo paris-traceroute -Q -s 80 -d $n -p tcp $ip >> $tfile;done;exec bash" > tmp$((++i)).sh
 screen -dmS ptr_$hm bash tmp$i.sh
-((i++))
-echo "sudo tcpdump -w tcpdump_$hm_$(hostname)_"'$(date -u +%m%d%H%M%S)'"utc_server.pcap -G 1 -s 96 -i ens3 -n host $ip and tcp port 80;exec bash" > tmp$i.sh
+echo "sudo tcpdump -w tcpdump_$hm_$(hostname)_"'$(date -u +%m%d%H%M%S)'"utc_server.pcap -G 1 -s 96 -i ens3 -n host $ip and tcp port 80;exec bash" > tmp$((++i)).sh
 screen -dmS td_$hm bash tmp$i.sh
 done
 elif [[ $1 == c ]]; then
