@@ -1,3 +1,4 @@
+set -v
 stime=$(date -u +%m%d%H%M)
 mkdir ~/packet_trace/loss_$stime
 export IFS=","
