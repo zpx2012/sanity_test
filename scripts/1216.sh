@@ -18,6 +18,7 @@ elif [[ $1 == c ]]; then
 n=33456
 i=0
 screen -dmS nethog bash -c 'sudo nethogs -t eth0 &> ~/sanity_test_results/nethogs_$(hostname)_$(date -u +"%m%d%H%M%Sutc").txt'
+set -v
 cat ~/sanity_test/scripts/1125_vultr.csv | while read hm ip port; do 
 echo $hm
 screen -dmS ptr bash -c "'"'tfile=~/sanity_test_results/ptraceroute_'$(hostname)_$hm'_$(date -u +%m%d%H%M%S)utc_client.txt;while true;do date -u +"%Y-%m-%d %H:%M:%S %Z" >> $tfile; sudo paris-traceroute -Q -s '$((n+i))' -d 80 -p tcp '$ip' >> $tfile ;done;exec bash'"'"
