@@ -9,7 +9,7 @@ n=33457
 elif [[ $(hostname) == tokyo-vultrr ]]; then
 n=33457
 fi
-cd ~/packet_trfixace/loss_$stime
+cd ~/packet_trace/loss_$stime
 i=0
 cat ~/sanity_test/scripts/1125_aliyun.csv | while read hm ip port; do 
 tfile=~/sanity_test_results/ptraceroute_$hm_$(hostname)_$(date -u +%m%d%H%M%S)utc_server.txt
