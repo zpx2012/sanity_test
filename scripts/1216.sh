@@ -25,12 +25,12 @@ screen -dmS nethog bash -c 'sudo nethogs -t eth0 &> ~/sanity_test_results/nethog
 cd ~/packet_trace/loss_$stime
 cat ~/sanity_test/scripts/1125_vultr.csv | while read hm ip port; do 
 echo $hm
-screen -dmS curl_http_$hm python ~/sanity_test/curl_downloader.py "http://$ip/my.pcap" $ip $hm 0 0 0 $((n+i))
-tfile=~/sanity_test_results/ptraceroute_$(hostname)_${hm}_$(date -u +%m%d%H%M%S)utc_client.txt
-echo "while true;do date -u +"'"%Y-%m-%d %H:%M:%S %Z"'" >> $tfile; sudo paris-traceroute -Q -s $((n+i)) -d 80 -p tcp $ip >> $tfile ;done;exec bash" > ptr$i.sh
-screen -dmS ptr_$hm bash ptr$i.sh
-echo "sudo tcpdump -w tcpdump_$(hostname)_${hm}_"'%m%d%H%M%S%z'"utc_client.pcap -G 60 -s 96 -i eth0 -n host $ip and tcp port 80;exec bash" > td$i.sh
-screen -dmS td_$hm bash td$i.sh
+screen -dmS curl_http_$hm python ~/sanity_test/curl_downloader.py "http://$ip/my.pcap" $ip $hm 0 0 400k $((n+i))
+# tfile=~/sanity_test_results/ptraceroute_$(hostname)_${hm}_$(date -u +%m%d%H%M%S)utc_client.txt
+# echo "while true;do date -u +"'"%Y-%m-%d %H:%M:%S %Z"'" >> $tfile; sudo paris-traceroute -Q -s $((n+i)) -d 80 -p tcp $ip >> $tfile ;done;exec bash" > ptr$i.sh
+# screen -dmS ptr_$hm bash ptr$i.sh
+# echo "sudo tcpdump -w tcpdump_$(hostname)_${hm}_"'%m%d%H%M%S%z'"utc_client.pcap -G 60 -s 96 -i eth0 -n host $ip and tcp port 80;exec bash" > td$i.sh
+# screen -dmS td_$hm bash td$i.sh
 ((i++))
 done
 fi
