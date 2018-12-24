@@ -1,0 +1,1 @@
+screen -dmS mtr4809 bash ~/sanity_test/tmpl_mtr_icmp_1_100.sh 182.148.96.45 182.148.96.45-AS4809

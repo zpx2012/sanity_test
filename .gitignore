@@ -2,3 +2,5 @@
 sender_client
 sender_server
 .DS_Store
+core
+tmp
