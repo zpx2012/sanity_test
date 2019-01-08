@@ -37,29 +37,36 @@ int main(int argc , char *argv[])
     client.sin_family = AF_INET;
     client.sin_port = htons(sport);
 
+    int reuse = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
+        perror("setsockopt(SO_REUSEADDR) failed");
+
+#ifdef SO_REUSEPORT
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, (const char*)&reuse, sizeof(reuse)) < 0) 
+        perror("setsockopt(SO_REUSEPORT) failed");
+#endif
+
     if (bind(sock, (struct sockaddr*) &client, sizeof(struct sockaddr_in)) < 0){
         printf("Unable to bind\n"); 
         return -1;
     } 
     
-    while (1){
-        //Connect to remote server
-        while (connect(sock, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0)
-        {
-            perror("connect failed. Retry");
-        
-        }     
-        printf("Connected\n");     
+    //Connect to remote server
+    while (connect(sock, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0)
+    {
+        perror("connect failed. Retry");
+    
+    }     
+    printf("Connected\n");     
 
-        while(1){
-        if((bytes = send(sock, message, strlen(message)+1, MSG_DONTWAIT)) < 0) {
-            perror("Error on sendto()");
-            return -1;
-        }
-        printf("Success! Sent %d bytes.\n", bytes);
-        sleep(1);
-        }        
+    while(1){
+    if((bytes = send(sock, message, strlen(message)+1, MSG_DONTWAIT)) < 0) {
+        perror("Error on sendto()");
+        return -1;
     }
+    printf("Success! Sent %d bytes.\n", bytes);
+    sleep(1);
+    }        
     close(sock);
     return 0;
 }
