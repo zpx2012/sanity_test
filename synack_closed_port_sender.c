@@ -79,7 +79,7 @@ int send_raw_synack(int sock,
     int bytes  = 1;
     struct iphdr *ipHdr;
     struct tcphdr *tcpHdr;
-    struct sock_addr_in dst;
+    struct sockaddr_in dst;
 
     //Initial guess for the SEQ field of the TCP header
 //    unsigned int initSeqGuess = rand() * UINT32_MAX;
@@ -232,3 +232,4 @@ int main(int argc , char *argv[])
             send_raw_synack(raw_sock_tx,saddr,daddr,port_n);
         }
     }
+}
