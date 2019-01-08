@@ -225,11 +225,15 @@ int main(int argc , char *argv[])
 
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
     set_timeval(&pkt_intvl_tv,0.2);
+    gettimeofday(&pkt_last_tv, NULL);
     while(1){
         gettimeofday(&pkt_this_tv, NULL);
         if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){
+            printf("reach interval\n");
             pkt_last_tv = pkt_this_tv;
             send_raw_synack(raw_sock_tx,saddr,daddr,port_n);
+            printf("send synack");
         }
+        printf("not reach\n");
     }
 }
