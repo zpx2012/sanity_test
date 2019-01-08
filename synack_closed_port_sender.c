@@ -166,7 +166,7 @@ int send_raw_synack(int sock,
     dst.sin_port = tcpHdr->dest;
 
     //Finally, send packet
-    if((bytes = sendto(sock, packet, ipHdr->tot_len, 0, (struct sockaddr *)dst, sizeof(struct sockaddr))) < 0) {
+    if((bytes = sendto(sock, packet, ipHdr->tot_len, 0, (struct sockaddr *)&dst, sizeof(struct sockaddr))) < 0) {
         perror("Error on sendto()");
         return -1;
     }
@@ -196,7 +196,7 @@ int main(int argc , char *argv[])
         perror("At least 2 arguments.");
         return -1;
     }
-    char* intf = argv[1]
+    char* intf = argv[1];
     char* ip = argv[2];
     int port = strtol(argv[3], NULL, 10);
 
@@ -219,13 +219,13 @@ int main(int argc , char *argv[])
     close(fd);
 
     /* display result */
-    unsigned int saddr = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr;
-    unsigned int daddr = inet_addr(ip)
-    unsigned short port_n = htons(port)
+    unsigned int saddr = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
+    unsigned int daddr = inet_addr(ip);
+    unsigned short port_n = htons(port);
 
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
     set_timeval(&pkt_intvl_tv,0.2);
-    while(true){
+    while(1){
         gettimeofday(&pkt_this_tv, NULL);
         if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){
             pkt_last_tv = pkt_this_tv;
