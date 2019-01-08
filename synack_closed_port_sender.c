@@ -190,6 +190,19 @@ void set_timeval(struct timeval* tv,const float ftime){
     tv->tv_usec = dt%mpler; 
 }
 
+void print_utc_time(time_t sec){
+    if (sec == -1) {
+        puts("The time() function failed");
+    }
+        
+    struct tm *ptm = gmtime(&sec);
+    if (ptm == NULL) {
+        puts("The gmtime() function failed");
+    }    
+    printf("UTC time: %s", asctime(ptm));
+}
+
+
 int main(int argc , char *argv[])
 {    
     if(argc < 3){
@@ -226,8 +239,11 @@ int main(int argc , char *argv[])
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
     set_timeval(&pkt_intvl_tv,0.2);
     gettimeofday(&pkt_last_tv, NULL);
+    printf("The current local time is: %ld.%06ld\n",pkt_intvl_tv.tv_sec,pkt_intvl_tv.tv_usec);
+    printf("The current local time is: %ld.%06ld\n",pkt_last_tv.tv_sec,pkt_last_tv.tv_usec);
     while(1){
         gettimeofday(&pkt_this_tv, NULL);
+        printf("The current local time is: %ld.%06ld\n",pkt_this_tv.tv_sec,pkt_this_tv.tv_usec);
         if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){
             printf("reach interval\n");
             pkt_last_tv = pkt_this_tv;
