@@ -243,7 +243,7 @@ int main(int argc , char *argv[])
     printf("The current local time is: %ld.%06ld\n",pkt_last_tv.tv_sec,pkt_last_tv.tv_usec);
     while(1){
         gettimeofday(&pkt_this_tv, NULL);
-        printf("The current local time is: %ld.%06ld\n",pkt_this_tv.tv_sec,pkt_this_tv.tv_usec);
+        // printf("The current local time is: %ld.%06ld\n",pkt_this_tv.tv_sec,pkt_this_tv.tv_usec);
         if(reach_interval(&pkt_this_tv,&pkt_last_tv,&pkt_intvl_tv)){
             printf("reach interval\n");
             pkt_last_tv = pkt_this_tv;
