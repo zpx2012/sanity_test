@@ -50,7 +50,7 @@ int main(int argc , char *argv[])
         printf("Unable to bind\n"); 
         return -1;
     } 
-    
+
     //Connect to remote server
     while (connect(sock, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0)
     {
@@ -65,7 +65,7 @@ int main(int argc , char *argv[])
         return -1;
     }
     printf("Success! Sent %d bytes.\n", bytes);
-    sleep(1);
+    for(i=0;i<10000000;i++);
     }        
     close(sock);
     return 0;
