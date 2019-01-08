@@ -5,7 +5,7 @@ stime=$(date -u +%m%d%H%M)
 mkdir ~/packet_trace/loss_$stime
 gcc ~/sanity_test/ip_scan/synack_client.c -o ~/sanity_test/ip_scan/synack_client
 cat $1 | while IFS=' ' read ip port; do
-    sudo paris-traceroute -Q -s $((n+i)) -d $port -p tcp -f 4 -m 25 $ip > ~/sanity_test_results/tr_terran_${ip}_${port}.txt 2>&1
+    sudo paris-traceroute -Q -s $((n+i)) -d $port -p tcp -f 4 -m 25 $ip > ~/sanity_test_results/tr_terran_${ip}_${port}_$((n+i)).txt 2>&1
     rt=$(cat ~/sanity_test_results/tr_terran_${ip}_${port}_$((n+i)).txt | grep 202.97)
     if [ ! -z "$rt" -a "$rt" != " " ]; then
         echo $ip $port  
