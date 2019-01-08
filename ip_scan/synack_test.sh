@@ -13,7 +13,7 @@ cat $1 | while IFS=' ' read ip port; do
         echo "while true;do date -u +"'"%Y-%m-%d %H:%M:%S %Z"'">> $tfile;sudo paris-traceroute -Q -s $((n+i)) -d $portn -p tcp $ip >> $tfile;done;exec bash" > pt$i.sh
         screen -dmS ptr_$ip bash pt$i.sh
         cd ~/packet_trace/loss_$stime
-        echo "sudo tcpdump -w tcpdump_${ip}_${port}_$(hostname)_"'%m%d%H%M%S%z'"utc.pcap -G 60 -s 96 -i eth1 -n host $ip and tcp port $port;exec bash" > tmp$i.sh
+        echo "sudo tcpdump -w tcpdump_${ip}_${port}_$(hostname)_"'%m%d%H%M%S%z'"utc.pcap -G 60 -s 96 -i $2 -n host $ip and tcp port $port;exec bash" > tmp$i.sh
         screen -dmS td_$ip bash tmp$i.sh
         screen -dmS cl_$ip bash -c "while true;do ~/sanity_test/ip_scan/synack_client $ip $port $((n+i));done"
         ((i++))
