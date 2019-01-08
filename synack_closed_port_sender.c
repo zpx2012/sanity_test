@@ -237,7 +237,7 @@ int main(int argc , char *argv[])
     unsigned short port_n = htons(port);
 
     struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
-    set_timeval(&pkt_intvl_tv,0.2);
+    set_timeval(&pkt_intvl_tv,1);
     gettimeofday(&pkt_last_tv, NULL);
     printf("The current local time is: %ld.%06ld\n",pkt_intvl_tv.tv_sec,pkt_intvl_tv.tv_usec);
     printf("The current local time is: %ld.%06ld\n",pkt_last_tv.tv_sec,pkt_last_tv.tv_usec);
