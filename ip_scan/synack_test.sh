@@ -15,7 +15,7 @@ cat $1 | while IFS=' ' read ip port; do
         cd ~/packet_trace/loss_$stime
         echo "sudo tcpdump -w tcpdump_${ip}_${port}_$(hostname)_"'%m%d%H%M%S%z'"utc.pcap -G 60 -s 96 -i eth1 -n host $ip and tcp port $port;exec bash" > tmp$i.sh
         screen -dmS td_$ip bash tmp$i.sh
-        screen -dmS cl_$ip bash -c "while true;do ~/sanity_test/ip_scan/synack_client $2 $ip $port $((n+i));done"
+        screen -dmS cl_$ip bash -c "while true;do ~/sanity_test/ip_scan/synack_client $ip $port $((n+i));done"
         ((i++))
         # screen -dmS tr_$ip bash -c "sudo traceroute -A -p 80 -P tcp -f 4 -m 25 $ip >> ~/sanity_test_results/tr_terran_${ip}_80.txt 2>&1" 
     fi
