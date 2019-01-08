@@ -250,6 +250,6 @@ int main(int argc , char *argv[])
             send_raw_synack(raw_sock_tx,saddr,daddr,port_n);
             printf("send synack");
         }
-        printf("not reach\n");
+        // printf("not reach\n");
     }
 }
