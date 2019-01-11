@@ -4,3 +4,6 @@ sender_server
 .DS_Store
 core
 tmp
+sa
+log
+synack_client
