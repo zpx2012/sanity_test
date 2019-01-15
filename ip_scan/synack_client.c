@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <signal.h>
 
 uint32_t seq = 0;
 uint32_t ack_seq = 0;
@@ -311,6 +312,11 @@ uint32_t get_localip(char* intf){
     return ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
 }
 
+void intHandler(int dummy){
+    printf("Catch Ctrl+C\n");
+    exit(0);
+}
+
 int main(int argc , char *argv[])
 {
     int sock, bytes = 0, i, client_socklen;
@@ -324,7 +330,7 @@ int main(int argc , char *argv[])
     uint32_t dstip_u32 = inet_addr(argv[1]);
     int dport = atoi(argv[2]);
     int sport = atoi(argv[3]);
-    char* intf = argv[4];
+    // char* intf = argv[4];
 
     srand(time(0));
     seed = rand();
@@ -372,9 +378,10 @@ int main(int argc , char *argv[])
 
     getsockname(sock,(struct sockaddr *)&client,&client_socklen);
 
+    signal(SIGINT, intHandler);
     while(1){
-
-        if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),message,strlen(message)) < 0) {
+        // msg_len = strlen(message);
+        if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),msg,msg_len) < 0) {
             perror("Error on sendto()");
             return -1;
         }
