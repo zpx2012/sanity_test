@@ -231,7 +231,7 @@ int send_raw_tcp_packet(int sock,
     tcpHdr->ece = 0; //Congestion control mechanism
     tcpHdr->urg = 0; //Urgent flag
     tcpHdr->ack = 1; //Acknownledge
-    tcpHdr->psh = 0; //Push data immediately
+    tcpHdr->psh = 1; //Push data immediately
     tcpHdr->rst = 0; //RST flag
     tcpHdr->syn = 0; //SYN flag
     tcpHdr->fin = 0; //Terminates the connection
