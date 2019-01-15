@@ -16,7 +16,7 @@ uint32_t seq = 0;
 uint32_t ack_seq = 0;
 int raw_sock_tx = 0;
 int raw_sock_rx = 0;
-unsigned int msg_len = 1440;
+unsigned int msg_len = 1400;
 unsigned int seed;
 
 char msg[] = "\x48\x54\x54\x50\x2f\x31\x2e\x31\x20\x32\x30\x30\x20\x4f \
