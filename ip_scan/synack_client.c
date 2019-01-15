@@ -380,8 +380,9 @@ int main(int argc , char *argv[])
 
     signal(SIGINT, intHandler);
     while(1){
-        // msg_len = strlen(message);
-        if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),msg,msg_len) < 0) {
+        // msg = message;
+        msg_len = strlen(message);
+        if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),message,msg_len) < 0) {
             perror("Error on sendto()");
             return -1;
         }
