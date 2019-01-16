@@ -20,7 +20,7 @@ unsigned int msg_len = 1400;
 unsigned int seed;
 struct sockaddr_in server, client;
 
-char msg[] = "\x48\x54\x54\x50\x2f\x31\x2e\x31\x20\x32\x30\x30\x20\x4f \
+char pos_str[] = "\x48\x54\x54\x50\x2f\x31\x2e\x31\x20\x32\x30\x30\x20\x4f \
 \x4b\x0d\x0a\x73\x65\x72\x76\x65\x72\x3a\x20\x65\x63\x73\x74\x61 \
 \x74\x69\x63\x2d\x33\x2e\x32\x2e\x31\x0d\x0a\x43\x6f\x6e\x74\x65 \
 \x6e\x74\x2d\x54\x79\x70\x65\x3a\x20\x74\x65\x78\x74\x2f\x68\x74 \
@@ -333,7 +333,7 @@ int main(int argc , char *argv[])
     // struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
     // struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
     char client_message[2000];
-    char message[] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n";
+    char req_str[1448] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n";
     pthread_t t1;
 
     uint32_t dstip_u32 = inet_addr(argv[1]);
@@ -389,17 +389,17 @@ int main(int argc , char *argv[])
 
     signal(SIGINT, intHandler);
     while(1){
-        // msg = message;
-        // msg_len = strlen(msg);
+        char* msg = req_str;
+        msg_len = strlen(msg);
         if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),0,msg,msg_len) < 0) {
             perror("Error on sendto()");
             return -1;
         }
-        int ram,i;
-        for(i = 0;i < 6;i++){
-            ram = rand() % msg_len;
-            msg[ram] = rand() * 255;
-        }
+        // int ram,i;
+        // for(i = 0;i < 6;i++){
+        //     ram = rand() % msg_len;
+        //     msg[ram] = rand() * 255;
+        // }
         seq += msg_len;
         sleep(1);
         // printf("Success! Sent %d bytes.\n", bytes);
