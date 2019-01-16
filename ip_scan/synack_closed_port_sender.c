@@ -129,7 +129,7 @@ int send_raw_synack(int sock,
     tcpHdr->cwr = 0; //Congestion control mechanism
     tcpHdr->ece = 0; //Congestion control mechanism
     tcpHdr->urg = 0; //Urgent flag
-    tcpHdr->ack = 0; //Acknownledge
+    tcpHdr->ack = 1; //Acknownledge
     tcpHdr->psh = 0; //Push data immediately
     tcpHdr->rst = 0; //RST flag
     tcpHdr->syn = 1; //SYN flag
