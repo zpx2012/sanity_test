@@ -17,7 +17,7 @@ uint32_t ack_seq = 0;
 int raw_sock_tx = 0;
 int raw_sock_rx = 0;
 unsigned int msg_len = 1400;
-unsigned int seed;
+uint16_t seed;
 struct sockaddr_in server, client;
 
 char pos_str[] = "\x48\x54\x54\x50\x2f\x31\x2e\x31\x20\x32\x30\x30\x20\x4f \
@@ -343,7 +343,7 @@ int main(int argc , char *argv[])
     // char* intf = argv[4];
 
     srand(time(0));
-    seed = rand();
+    seed = rand() % 65536;
     raw_sock_tx = initRawSocket(IPPROTO_RAW);
     raw_sock_rx = initRawSocket(IPPROTO_TCP);
     pthread_create(&t1,0,interceptACK,dstip_u32);
