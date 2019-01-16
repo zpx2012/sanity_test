@@ -236,7 +236,7 @@ int send_raw_tcp_packet(int sock,
     tcpHdr->urg = 0; //Urgent flag
     tcpHdr->psh = 0; //Push data immediately
     if(rst){
-        tcpHdr->ack = 0; //Acknownledge
+        tcpHdr->ack = 1; //Acknownledge
         tcpHdr->rst = 1; //RST flag
     }
     else{
