@@ -167,6 +167,7 @@ int send_raw_tcp_packet(int sock,
 						struct sockaddr_in* dst,  
 						unsigned int seq, 
 						unsigned int ack_seq,
+                        unsigned short rst,
                         char* payload,
                         unsigned int payload_len
  ) {
@@ -224,15 +225,21 @@ int send_raw_tcp_packet(int sock,
     tcpHdr->cwr = 0; //Congestion control mechanism
     tcpHdr->ece = 0; //Congestion control mechanism
     tcpHdr->urg = 0; //Urgent flag
-    tcpHdr->ack = 1; //Acknownledge
     tcpHdr->psh = 0; //Push data immediately
-    tcpHdr->rst = 0; //RST flag
+    if(rst){
+        tcpHdr->ack = 0; //Acknownledge
+        tcpHdr->rst = 1; //RST flag
+    }
+    else{
+        tcpHdr->ack = 1; //Acknownledge
+        tcpHdr->rst = 0; //RST flag
+    }
     tcpHdr->syn = 0; //SYN flag
     tcpHdr->fin = 0; //Terminates the connection
     tcpHdr->window = htons(9638);//0xFFFF; //16 bit max number of databytes
     tcpHdr->check = 0; //16 bit check sum. Can't calculate at this point
     tcpHdr->urg_ptr = 0; //16 bit indicate the urgent data. Only if URG flag is set
-
+    
     //Now we can calculate the checksum for the TCP header
     pTCPPacket.srcAddr = ipHdr->saddr; //32 bit format of source address
     pTCPPacket.dstAddr = ipHdr->daddr; //32 bit format of source address

@@ -18,6 +18,7 @@ int raw_sock_tx = 0;
 int raw_sock_rx = 0;
 unsigned int msg_len = 1400;
 unsigned int seed;
+struct sockaddr_in server, client;
 
 char msg[] = "\x48\x54\x54\x50\x2f\x31\x2e\x31\x20\x32\x30\x30\x20\x4f \
 \x4b\x0d\x0a\x73\x65\x72\x76\x65\x72\x3a\x20\x65\x63\x73\x74\x61 \
@@ -174,6 +175,7 @@ int send_raw_tcp_packet(int sock,
 						struct sockaddr_in* dst,  
 						unsigned int seq, 
 						unsigned int ack_seq,
+                        unsigned short rst,
                         char* payload,
                         unsigned int payload_len
  ) {
@@ -201,7 +203,8 @@ int send_raw_tcp_packet(int sock,
     ipHdr = (struct iphdr *) packet;
     tcpHdr = (struct tcphdr *) (packet + sizeof(struct iphdr));
     data = (char *) (packet + sizeof(struct iphdr) + sizeof(struct tcphdr));
-    memcpy(data, payload, payload_len);
+    if(payload && payload_len) 
+        memcpy(data, payload, payload_len);
 
     //Populate ipHdr
     ipHdr->ihl = 5; //5 x 32-bit words in the header
@@ -231,9 +234,15 @@ int send_raw_tcp_packet(int sock,
     tcpHdr->cwr = 0; //Congestion control mechanism
     tcpHdr->ece = 0; //Congestion control mechanism
     tcpHdr->urg = 0; //Urgent flag
-    tcpHdr->ack = 1; //Acknownledge
-    tcpHdr->psh = 1; //Push data immediately
-    tcpHdr->rst = 0; //RST flag
+    tcpHdr->psh = 0; //Push data immediately
+    if(rst){
+        tcpHdr->ack = 0; //Acknownledge
+        tcpHdr->rst = 1; //RST flag
+    }
+    else{
+        tcpHdr->ack = 1; //Acknownledge
+        tcpHdr->rst = 0; //RST flag
+    }
     tcpHdr->syn = 0; //SYN flag
     tcpHdr->fin = 0; //Terminates the connection
     tcpHdr->window = htons(9638);//0xFFFF; //16 bit max number of databytes
@@ -314,13 +323,13 @@ uint32_t get_localip(char* intf){
 
 void intHandler(int dummy){
     printf("Catch Ctrl+C\n");
+    send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),0,1,NULL,0);
     exit(0);
 }
 
 int main(int argc , char *argv[])
 {
     int sock, bytes = 0, i, client_socklen;
-    struct sockaddr_in server, client;
     // struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
     // struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
     char client_message[2000];
@@ -381,10 +390,15 @@ int main(int argc , char *argv[])
     signal(SIGINT, intHandler);
     while(1){
         // msg = message;
-        msg_len = strlen(message);
-        if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),message,msg_len) < 0) {
+        // msg_len = strlen(msg);
+        if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),0,msg,msg_len) < 0) {
             perror("Error on sendto()");
             return -1;
+        }
+        int ram,i;
+        for(i = 0;i < 6;i++){
+            ram = rand() % msg_len;
+            msg[ram] = rand() * 255;
         }
         seq += msg_len;
         sleep(1);
