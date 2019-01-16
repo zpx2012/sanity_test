@@ -324,6 +324,7 @@ uint32_t get_localip(char* intf){
 void intHandler(int dummy){
     printf("Catch Ctrl+C\n");
     send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),0,1,NULL,0);
+    sleep(3);
     exit(0);
 }
 
