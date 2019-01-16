@@ -105,7 +105,7 @@ int send_raw_synack(int sock,
     ipHdr->ihl = 5; //5 x 32-bit words in the header
     ipHdr->version = 4; // ipv4
     ipHdr->tos = 0;// //tos = [0:5] DSCP + [5:7] Not used, low delay
-    ipHdr->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(data); //total lenght of packet. len(data) = 0
+    ipHdr->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr);// + strlen(data); //total lenght of packet. len(data) = 0
     ipHdr->id = htons(seed++); // 0x00; //16 bit id
     ipHdr->frag_off = 0x40; //16 bit field = [0:2] flags + [3:15] offset = 0x0
     ipHdr->ttl = 64; //16 bit time to live (or maximal number of hops)
