@@ -9,11 +9,12 @@ n=33456
 cd ~/sanity_test_results/closed_test
 for f in pscan_*.txt;do
     cat $f | grep close | sort -k 4,4 -u | head -3 | while IFS=' ' read closed tcp port ip ts; do
-        optr=`sudo paris-traceroute -Q -s $((n+i)) -d $port -p tcp -f 4 -m 25 $ip`
-        echo $optr
-        rt=`echo $optr | grep (202.97.)` 
+        sudo paris-traceroute -Q -s $((n+i)) -d $port -p tcp -f 4 -m 25 $ip > optr 2>&1
+        cat optr
+        rt=`cat optr | grep \(202.97.\)` 
         if [ ! -z "$rt" -a "$rt" != " " ]; then
-            rt=`nc -zv $ip $port | grep refused`
+            nc -zv $ip $port > onc 2>&1
+            rt=`cat onc | grep refused`
             if [ ! -z "$rt" -a "$rt" != " " ]; then            
                 echo $ip $port  
                 out=hping3_closed_${ip}_${port}.txt
