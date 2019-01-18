@@ -15,7 +15,6 @@ for f in pscan_*.txt;do
             if [ $? != 0 ];then
             echo $ip $port  
             out=`echo $f | sed -e "s/pscan/hping3_closed/g"`
-            hping3 -R -i 1 -c 60 -s 33456 -d
             screen -dmS hping3_$ip bash -c "while true;do date -u +"'"%Y-%m-%d %H:%M:%S %Z"'" >> $out;hping3 -q -SA -i 1 -c 60 -s $((n+i)) -p $port $ip >> $out 2>&1;done"
             ((i++))
             fi
