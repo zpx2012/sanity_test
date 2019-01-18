@@ -9,7 +9,7 @@ n=33456
 cd ~/sanity_test_results/closed_test
 for f in pscan_*.txt;do
     cat $f | grep close | sort -k 4,4 -u | head -15 | while IFS=' ' read closed tcp port ip ts; do
-        if (( i < 3 ));then
+        if (( i < 5 ));then
             sudo paris-traceroute -Q -s $n -d $port -p tcp -f 4 -m 25 $ip > optr 2>&1
             cat optr
             rt=`cat optr | grep \(202.97.` 
