@@ -23,7 +23,6 @@ cat $f | grep close | awk '!seen[$4]++' | head -20 | while IFS=' ' read closed t
                 screen -dmS hping3_SA_$ip bash hping3.sh $ip $port $n SA u500000
                 ((i++))
                 ((n++))
-
             elif ! cat oncS | grep -q '100% packet loss'; then
                 echo SYN: $ip $port  
                 screen -dmS hping3_S_$ip bash hping3.sh $ip $port $n S 1
