@@ -14,6 +14,7 @@ for f in pscan_*.txt;do
             cat optr
             rt=`cat optr | grep \(202.97.` 
             if [ ! -z "$rt" -a "$rt" != " " ]; then
+                echo $ip $port >> via4134.txt
                 hping3 -SA -i 1 -c 10 -s $n -p $port $ip > onc 2>&1
                 cat onc
                 # rt=`cat onc | grep '100% packet loss'`
