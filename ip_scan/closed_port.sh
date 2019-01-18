@@ -14,7 +14,7 @@ for f in pscan_*.txt;do
             cat optr
             rt=`cat optr | grep \(202.97.` 
             if [ ! -z "$rt" -a "$rt" != " " ]; then
-                nc -zv $ip $port > onc 2>&1
+                nc -zv -w 5 $ip $port > onc 2>&1
                 cat onc
                 rt=`cat onc | grep refused`
                 if [ ! -z "$rt" -a "$rt" != " " ]; then            
