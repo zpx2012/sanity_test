@@ -9,9 +9,7 @@ cat $1 | while IFS=' ' read ip port; do
     rt=$(cat ~/sanity_test_results/tr_terran_${ip}_${port}_$((n+i)).txt | grep 202.97)
     if [ ! -z "$rt" -a "$rt" != " " ]; then
         echo $ip $port  
-        tfile=~/sanity_test_results/ptraceroute_$(hostname)_${ip}_${port}_$((n+i))_$(date -u +%m%d%H%M%S)utc_server.txt
-        echo "while true;do date -u +"'"%Y-%m-%d %H:%M:%S %Z"'">> $tfile;sudo paris-traceroute -Q -s $((n+i)) -d $port -p tcp -f 4 -m 25 $ip >> $tfile;done;exec bash" > pt$i.sh
-        screen -dmS ptr_$ip bash pt$i.sh
+        screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $((n+i))
         cd ~/packet_trace/loss_$stime
         echo "sudo tcpdump -w tcpdump_${ip}_${port}_$(hostname)_"'%m%d%H%M%S%z'"utc.pcap -G 60 -s 96 -i $2 -n host $ip and tcp port $port;exec bash" > tmp$i.sh
         screen -dmS td_$ip bash tmp$i.sh

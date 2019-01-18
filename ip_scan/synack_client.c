@@ -272,6 +272,8 @@ int send_raw_tcp_packet(int sock,
     //Set the TCP header's check field
     tcpHdr->check = (csum((unsigned short *) pseudo_packet, (int) (sizeof(struct pseudoTCPPacket) +
                                                                     sizeof(struct tcphdr) +  strlen(data))));
+    free(pseudo_packet);
+
     //Finally, send packet
     if((bytes = sendto(sock, packet, ipHdr->tot_len, 0, (struct sockaddr *)dst, sizeof(struct sockaddr))) < 0) {
         perror("Error on sendto()");
@@ -300,6 +302,30 @@ void * interceptACK(void *pVoid) {
             }
         }
     }
+    pthread_exit(NULL);
+}
+
+void* log_reply(void *pVoid){
+    struct timeval tv = {1,0};
+    uint8_t recvbuf[3000];
+    struct sockaddr recvaddr;
+    socklen_t len0 = sizeof(struct sockaddr);
+
+    setsockopt(raw_sock_rx, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
+    while (1) {
+
+        recvfrom(raw_sock_rx, recvbuf, 3000, 0, &recvaddr, &len0);
+        if (((struct iphdr*)recvbuf)->saddr == (uint32_t)pVoid) {
+            struct tcphdr* tcpHeader = ((struct iphdr*)recvbuf) + 1;
+            if (tcpHeader->syn == 1) {
+                struct tcphdr *ptr = (struct tcphdr *) (recvbuf + sizeof(struct iphdr));
+                seq = ntohl(ptr->ack_seq);
+                ack_seq = (ntohl(ptr->seq) + 1);
+                printf("Found seq and ack\n");
+                break;
+            }
+        }
+    }    
 }
 
 uint32_t get_localip(char* intf){
@@ -337,6 +363,10 @@ int main(int argc , char *argv[])
     char req_str[1448] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n";
     pthread_t t1;
 
+    if(argc < 3){
+        perror("At least 2 arguments.");
+        return -1;
+    }
     uint32_t dstip_u32 = inet_addr(argv[1]);
     int dport = atoi(argv[2]);
     int sport = atoi(argv[3]);
