@@ -2,8 +2,8 @@
 ip=$1
 dp=$2
 sp=$3
-out=hping3_closed_${ip}_${dp}_${sp}_stdout.txt
-err=hping3_closed_${ip}_${dp}_${sp}_stderr.txt
+out=~/sanity_test_results/hping3_closed_${ip}_${dp}_${sp}_${4}_stdout_$(hostname)_$(date -u +"%m%d%H%M").txt
+err=~/sanity_test_results/hping3_closed_${ip}_${dp}_${sp}_${4}_stderr_$(hostname)_$(date -u +"%m%d%H%M").txt
 while true;do
 date -u +"%Y-%m-%d %H:%M:%S %Z" | tee -a $out $err
 hping3 -$4 -i $5 -c $6 -s $sp -p $dp $ip >> $out 2>> $err
