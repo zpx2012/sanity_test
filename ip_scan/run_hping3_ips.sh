@@ -1,6 +1,6 @@
 #!/bin/bash
 n=$2
-cat $1 | while IFS=' ' read port ip; do
+cat $1 | while IFS=' ' read ip port; do
     hping3 -SA -i u500000 -c 10 -s $n -p $port $ip 2> oncSA_$n;cat oncSA_$n
     hping3 -S -i u500000 -c 10 -s $n -p $port $ip 2> oncS_$n;cat oncS_$n
     # rt=`cat onc | grep '100% packet loss'`
