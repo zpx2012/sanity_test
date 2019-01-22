@@ -1,9 +1,10 @@
 #!/bin/bash
-n=7
+n=333456
 cat $1 | while IFS=' ' read ip port; do
-    while (( n < 10 ));do
-        screen -dmS hping3_tr_${ip}_$n bash ~/sanity_test/ip_scan/hping3_tr.sh $ip $port $n SA u500000 120 $n
-        ((n++))
+    i=7
+    while (( i < 10 ));do
+        screen -dmS hping3_tr_${ip}_$n bash ~/sanity_test/ip_scan/hping3_tr.sh $ip $port $n SA u500000 120 $i
+        ((i++))
     done
-    n=7
+    ((n++))
 done
