@@ -14,4 +14,5 @@ cat $f | while IFS=' ' read port ip; do
         ((n++))
     else
         echo $ip $port >> via4134.txt
+    fi
 done
