@@ -1,5 +1,5 @@
 #!/bin/bash
-n=$2
+n=`shuf -i 1024-65535 -n 1`
 cat $1 | while IFS=' ' read ip port; do
     # sudo paris-traceroute -Q -s $n -d $port -p tcp -f 4 -m 25 $ip > optr 2>&1
     # cat optr
@@ -13,11 +13,13 @@ cat $1 | while IFS=' ' read ip port; do
             echo SYNACK: $ip $port  
             screen -dmS hping3_SA_$ip bash ~/sanity_test/ip_scan/hping3.sh $ip $port $n SA u500000 120
             screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $n
+            screen -dmS tr_$ip bash ~/sanity_test/ip_scan/tr.sh $ip $port $n
             ((n++))
         elif ! cat oncS_$n | grep -q '100% packet loss'; then
             echo SYN: $ip $port  
             screen -dmS hping3_S_$ip bash ~/sanity_test/ip_scan/hping3.sh $ip $port $n S 1 60
             screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $n
+            screen -dmS tr_$ip bash ~/sanity_test/ip_scan/tr.sh $ip $port $n
             ((n++))
         else
             echo $ip $port >> via4134.txt
