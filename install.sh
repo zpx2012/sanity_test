@@ -4,7 +4,8 @@ sudo apt-get install -y python-pip libcurl4-gnutls-dev python-dev libgnutls28-de
 sudo pip install pycurl numpy scipy shadowsocks psutil
 sudo npm install -g http-server
 sudo ln -s /usr/bin/nodejs /usr/bin/node
-mkdir httpserver
-cd httpserver
+mkdir ~/httpserver
+cd ~/httpserver
 wget http://108.160.139.201/my.pcap
 screen -dmS httpserver sudo http-server -p 80
+mkdir ~/sanity_test_results/
