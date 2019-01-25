@@ -361,7 +361,7 @@ int main(int argc , char *argv[])
     // struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
     char client_message[2000],*msg;
     char req_str[1448] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n";
-    char trick_str[] = "GET     ";
+    char trick_str[] = "GET ";
     char space_str[1448];
     for(i=0;i<1448;i++)
         space_str[i] = " ";
@@ -424,26 +424,29 @@ int main(int argc , char *argv[])
 
     signal(SIGINT, intHandler);
     i = 0;
-    while(1){
-        if (!i)
-            msg = trick_str;
-        else
-            msg = space_str;
-        msg_len = strlen(msg);
-        if((seq || ack_seq) && send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),0,msg,msg_len) < 0) {
-            printf("%d %d %d\n",seq,ack_seq,msg_len);
-            printf("%s",msg);
-            perror("Error on sendto()");
-            return -1;
+    while(1){        
+        if(seq || ack_seq){
+            if (i == 0)
+                msg = trick_str;
+            else
+                msg = space_str;
+            msg_len = strlen(msg);
+            // if(send(sock,msg,msg_len,0) < 0){
+            if(send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),0,msg,msg_len) < 0) {
+                printf("%d %d %d\n",seq,ack_seq,msg_len);
+                printf("%s",msg);
+                perror("Error on sendto()");
+                return -1;
+            }
+            // int ram,i;
+            // for(i = 0;i < 6;i++){
+            //     ram = rand() % msg_len;
+            //     msg[ram] = rand() * 255;
+            // }
+            seq += msg_len;
+            sleep(1);
+            i++;
         }
-        // int ram,i;
-        // for(i = 0;i < 6;i++){
-        //     ram = rand() % msg_len;
-        //     msg[ram] = rand() * 255;
-        // }
-        seq += msg_len;
-        sleep(1);
-        i++;
         // printf("Success! Sent %d bytes.\n", bytes);
     }
 
