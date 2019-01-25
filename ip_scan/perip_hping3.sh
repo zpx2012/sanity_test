@@ -6,10 +6,10 @@ trfile=$4
 # sudo paris-traceroute -Q -s $n -d $port -p tcp -f 4 -m 25 $ip > optr 2>&1
 # cat optr
 # cat optr >> ~/sanity_test_results/ptr_redo0124_$(hostname)_$(date -u +"%m%d%H%M").txt
-sudo traceroute -A --sport=$n -p $port -T -f 4 -m 25 $ip > otr
-cat otr
-cat otr >> $trfile
-rt=`cat otr | grep -e '202\.97\.\|AS4134'`
+sudo traceroute -A --sport=$n -p $port -T -f 4 -m 25 $ip > otr_$n
+cat otr_$n
+cat otr_$n >> $trfile
+rt=`cat otr_$n | grep -e '202\.97\.\|AS4134'`
 if [ ! -z "$rt" -a "$rt" != " " ]; then
     hping3 -SA -i u500000 -c 10 -s $n -p $port $ip 2> oncSA_$n;cat oncSA_$n
     hping3 -S -i u500000 -c 10 -s $n -p $port $ip 2> oncS_$n;cat oncS_$n
