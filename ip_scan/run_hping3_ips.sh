@@ -1,7 +1,7 @@
 #!/bin/bash
 n=`shuf -i 1024-65535 -n 1`
 trfile=~/sanity_test_results/tr_redo0125_$(hostname)_$(date -u +"%m%d%H%M").txt
-cat $1 | while IFS=' ' read ip port; do
+for n in $(seq 1 40 |shuf);do sed $n'!d' $1; done | while IFS=' ' read ip port; do
     # sudo paris-traceroute -Q -s $n -d $port -p tcp -f 4 -m 25 $ip > optr 2>&1
     # cat optr
     # cat optr >> ~/sanity_test_results/ptr_redo0124_$(hostname)_$(date -u +"%m%d%H%M").txt
