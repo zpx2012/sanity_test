@@ -18,13 +18,13 @@ if [ ! -z "$rt" -a "$rt" != " " ]; then
     if ! cat oncSA_$n | grep -q '100% packet loss'; then            
         echo SYNACK: $ip $port  
         screen -dmS hping3_SA_$ip bash ~/sanity_test/ip_scan/hping3.sh $ip $port $n SA u500000 120
-        sleep 20
-        screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $n
+        # sleep 20
+
     elif ! cat oncS_$n | grep -q '100% packet loss'; then
         echo SYN: $ip $port  
         screen -dmS hping3_S_$ip bash ~/sanity_test/ip_scan/hping3.sh $ip $port $n S 1 60
-        sleep 15
-        screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $n
+        # sleep 15
+        # screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $n
     else
         echo $ip $port >> via4134.txt
     fi
