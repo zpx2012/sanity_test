@@ -8,7 +8,7 @@ for f in $(for n in $(seq 1 60|shuf);do sed $n'!d' file_list;done);do
     ((n+=20))
     ((i++))
     else
-        sleep(180)
+        sleep 180
         i=0
     fi
 done
