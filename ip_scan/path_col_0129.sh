@@ -1,5 +1,4 @@
 #!/bin/bash
-f=$1
 i=0
 n=`shuf -i 1024-65535 -n 1`
 cd ~/sanity_test/ip_scan/data/sp20
