@@ -16,11 +16,11 @@ cat $f | while IFS=' ' read closed tcp port ip ts; do
             # rt=`cat onc | grep '100% packet loss'`
             if ! cat oncSA_$n | grep -q '100% packet loss'; then            
                 echo SYNACK: $ip $port  
-                screen -dmS hping3_SA_$ip bash ~/sanity_test/ip_scan/hping3_ptr.sh $ip $port $n SA 1 60
+                screen -dmS hping3_ptr_SA_$ip bash ~/sanity_test/ip_scan/hping3_ptr.sh $ip $port $n SA 1 60
                 ((n++))
             elif ! cat oncS_$n | grep -q '100% packet loss'; then
                 echo SYN: $ip $port  
-                screen -dmS hping3_S_$ip bash ~/sanity_test/ip_scan/hping3_ptr.sh $ip $port $n S 1 60
+                screen -dmS hping3_ptr_S_$ip bash ~/sanity_test/ip_scan/hping3_ptr.sh $ip $port $n S 1 60
                 ((n++))
             fi
         fi
