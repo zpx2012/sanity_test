@@ -431,8 +431,8 @@ int main(int argc , char *argv[])
             else
                 msg = space_str;
             msg_len = strlen(msg);
-            // if(send(sock,msg,msg_len,0) < 0){
-            if(send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),0,msg,msg_len) < 0) {
+            if(send(sock,msg,msg_len,0) < 0){
+            // if(send_raw_tcp_packet(raw_sock_tx,&client,&server,htonl(seq),htonl(ack_seq),0,msg,msg_len) < 0) {
                 printf("%d %d %d\n",seq,ack_seq,msg_len);
                 printf("%s",msg);
                 perror("Error on sendto()");
