@@ -15,13 +15,13 @@ for n in $(seq 1 40 |shuf);do sed $n'!d' $1; done | while IFS=' ' read ip port; 
         # rt=`cat onc | grep '100% packet loss'`
         if ! cat oncSA_$n | grep -q '100% packet loss'; then            
             echo SYNACK: $ip $port  
-            screen -dmS hping3_SA_$ip bash ~/sanity_test/ip_scan/hping3.sh $ip $port $n SA 1 60
+            screen -dmS hping3_ptr_SA_$ip bash ~/sanity_test/ip_scan/hping3_ptr.sh $ip $port $n SA 1 60
             # screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $n
             # screen -dmS tr_$ip bash ~/sanity_test/ip_scan/tr.sh $ip $port $n
             ((n++))
         elif ! cat oncS_$n | grep -q '100% packet loss'; then
             echo SYN: $ip $port  
-            screen -dmS hping3_S_$ip bash ~/sanity_test/ip_scan/hping3.sh $ip $port $n S 1 60
+            screen -dmS hping3_ptr_S_$ip bash ~/sanity_test/ip_scan/hping3_ptr.sh $ip $port $n S 1 60
             # screen -dmS ptr_$ip bash ~/sanity_test/ip_scan/ptr.sh $ip $port $n
             # screen -dmS tr_$ip bash ~/sanity_test/ip_scan/tr.sh $ip $port $n
             ((n++))
