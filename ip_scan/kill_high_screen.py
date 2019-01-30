@@ -17,7 +17,8 @@ def parse_hping3_outfile(dir,file):
             fn_cells = file.split('_')
             screen_name = '_'.join(['hping3_ptr',fn_cells[5],fn_cells[2]])
             print screen_name
-            sp.Popen(shlex('screen -S %s -X quit'%screen_name)).communicate()
+            p = sp.Popen(shlex('screen -S %s -X quit'%screen_name))
+            p.communicate()
 
     except:
         print '###\n%s' % traceback.format_exc()
