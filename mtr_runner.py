@@ -1,4 +1,4 @@
-import os,sys,time,datetime,socket,shlex,csv
+import os,sys,time,datetime,socket,shlex,csv,random
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
@@ -57,21 +57,25 @@ if __name__ == '__main__':
     if not os.path.isfile(infile_name):
         print 'File does not exist.'
     else:
+        domain_ip_list = []
         with open(infile_name,'rb') as f:         
             domain_ip_list = list(csv.reader(f))
+        dlen = len(domain_ip_list)
         for i,line in enumerate(domain_ip_list):
             output_filename_list.append(out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt")
         num_tasks = 1 
+        r = random.randint(0,dlen-1)
         while True:
-                for i,line in enumerate(domain_ip_list):
-                    port_str = ''
-                    if line[8] != '0':
-                        port_str = '--port %s' % line[8]
-                    cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],port_str,line[5],output_filename_list[i])
-                    print cmd
-                    os.system('echo %s >> %s'%(cmd,output_filename_list[i]))
-                    run_cmd(cmd)
-                    # run_cmd_log(cmd,output_filename_dict[line[0]])
-                    num_tasks += 1
+            for i in range(dlen):
+                line = domain_ip_list[(r+i)%dlen]
+                port_str = ''
+                if line[8] != '0':
+                    port_str = '--port %s' % line[8]
+                cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],port_str,line[5],output_filename_list[i])
+                print cmd
+                os.system('echo %s >> %s'%(cmd,output_filename_list[i]))
+                run_cmd(cmd)
+                # run_cmd_log(cmd,output_filename_dict[line[0]])
+                num_tasks += 1
 
 
