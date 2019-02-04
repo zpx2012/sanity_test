@@ -72,10 +72,11 @@ if __name__ == '__main__':
             port_str = '--port %s' % line[8] if line[8] != '0' else ''
             cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],port_str,line[5])
             if len(cmd_list) < 15 and via_4134(cmd):
-                print('via_4134 return true')
+                print('via_4134 return true!\n')
                 on = out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt"
                 output_filename_list.append(on)
-                cmd_list.append(cmd + ' 2>&1 | tee -a %s'%on)        
+                cmd_list.append(cmd + ' 2>&1 | tee -a %s'%on) 
+                print cmd + ' 2>&1 | tee -a %s'%on       
         clen = len(cmd_list)  
         if clen == 0:
             print('clen == 0')
