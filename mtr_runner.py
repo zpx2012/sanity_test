@@ -63,19 +63,17 @@ if __name__ == '__main__':
     if not os.path.isfile(infile_name):
         print 'File does not exist.'
     else:
-        domain_ip_list = []
+        raw_domain_ip_list,domain_ip_list = [],[]
         with open(infile_name,'rb') as f:         
-            domain_ip_list = list(csv.reader(f))
-        dlen = len(domain_ip_list)
-        if dlen == 0:
+            raw_domain_ip_list = list(csv.reader(f))
+        if len(raw_domain_ip_list) == 0:
             sys.exit(-1)
-        for i,line in enumerate(domain_ip_list):
-            if via_4134(line):
+        for i,line in enumerate(raw_domain_ip_list):
+            if len(domain_ip_list) < 15 and via_4134(line):
                 print('via_4134 return true')
+                domain_ip_list.append(line)
                 output_filename_list.append(out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt")
-            else:
-                domain_ip_list.pop(i)
-        num_tasks = 1 
+        dlen = len(domain_ip_list)        
         r = random.randint(0,dlen-1)
         while True:
             for i in range(dlen):
@@ -88,6 +86,6 @@ if __name__ == '__main__':
                 os.system('echo %s >> %s'%(cmd,output_filename_list[i]))
                 run_cmd(cmd)
                 # run_cmd_log(cmd,output_filename_dict[line[0]])
-                num_tasks += 1
+                # num_tasks += 1
 
 
