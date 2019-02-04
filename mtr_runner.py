@@ -2,7 +2,6 @@ import os,sys,time,datetime,socket,shlex,csv,random
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
-from utils import run_cmd
 
 def run_cmd_log(cmd,outfile):
     try:
