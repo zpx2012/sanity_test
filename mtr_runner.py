@@ -79,7 +79,7 @@ if __name__ == '__main__':
         r = random.randint(0,dlen-1)
         while True:
             for i in range(dlen):
-                line = domain_ip_list[(r+i)%dlen]
+                line = domain_ip_list[(r+i)%(dlen-1)]
                 port_str = ''
                 if line[8] != '0':
                     port_str = '--port %s' % line[8]
