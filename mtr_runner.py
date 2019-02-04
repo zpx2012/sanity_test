@@ -35,7 +35,7 @@ def run_cmd(cmd):
             os._exit(-1)
 
 def via_4134(line):
-    sout,serr = run_cmd('sudo traceroute -A -p %s -T -f 4 -m 25 %s'%(line[8],line[5]))
+    sout,serr = run_cmd(line)
     rt = sout + serr
     if '202.97' in rt or 'AS4134' in rt:
         return True
@@ -56,37 +56,37 @@ if __name__ == '__main__':
     output_filename_list = []
 
     version_dict = {'old':'mtr','1':'~/mtr-modified-1.0/mtr','2':'~/mtr-modified-2.0/mtr'}
-    base_cmd = 'sudo %s -zwnre4%s -i %s -c %s -f %s %s %s 2>&1 | tee -a %s'#.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
+    base_cmd = 'sudo %s -zwnre4%s -i %s -c %s -f %s %s %s'#.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
 
     infile_name = sys.argv[1]
     
     if not os.path.isfile(infile_name):
         print 'File does not exist.'
     else:
-        raw_domain_ip_list,domain_ip_list = [],[]
+        raw_domain_ip_list,cmd_list = [],[]
         with open(infile_name,'rb') as f:         
             raw_domain_ip_list = list(csv.reader(f))
         if len(raw_domain_ip_list) == 0:
             sys.exit(-1)
         for i,line in enumerate(raw_domain_ip_list):
-            if len(domain_ip_list) < 15 and via_4134(line):
+            port_str = '--port %s' % line[8] if line[8] != '0' else ''
+            cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],port_str,line[5])
+            if len(cmd_list) < 15 and via_4134(cmd):
                 print('via_4134 return true')
-                domain_ip_list.append(line)
-                output_filename_list.append(out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt")
-        dlen = len(domain_ip_list)  
-        if dlen == 0:
-            print('dlen == 0')
+                on = out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+                output_filename_list.append(on)
+                cmd_list.append(cmd + ' 2>&1 | tee -a %s'%on)        
+        clen = len(cmd_list)  
+        if clen == 0:
+            print('clen == 0')
             sys.exit(-1)      
-        r = random.randint(0,dlen-1)
+        r = random.randint(0,clen-1)
         while True:
-            for i in range(dlen):
-                line = domain_ip_list[(r+i)%(dlen-1)]
-                port_str = ''
-                if line[8] != '0':
-                    port_str = '--port %s' % line[8]
-                cmd = base_cmd % (version_dict[line[0]],line[1],line[2],line[3],line[4],port_str,line[5],output_filename_list[i])
+            for i in range(clen):
+                ri = (r+i)%(clen-1)
+                cmd = cmd_list[ri]
                 print cmd
-                os.system('echo %s >> %s'%(cmd,output_filename_list[i]))
+                os.system('echo %s >> %s'%(cmd,output_filename_list[ri]))
                 run_cmd(cmd)
                 # run_cmd_log(cmd,output_filename_dict[line[0]])
                 # num_tasks += 1
