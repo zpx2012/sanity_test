@@ -26,6 +26,7 @@ def run_cmd(cmd):
         print 'stout:\n %s\nsterr:\n %s\n' % (sout, serr)
         if not sout:
             print '#######\n empty stdout' 
+        return sout,serr
 
     except KeyboardInterrupt:
         input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
@@ -33,6 +34,12 @@ def run_cmd(cmd):
             p.terminate()
             os._exit(-1)
 
+def via_4134(line):
+    sout,serr = run_cmd('sudo traceroute -A -p %s -T -f 4 -m 25 %s'%(line[5],line[8]))
+    rt = sout + serr
+    if '202.97' in rt or 'AS4134' in rt:
+        return True
+    return False
 
 if __name__ == '__main__':
     if len(sys.argv) < 1:
@@ -60,8 +67,14 @@ if __name__ == '__main__':
         with open(infile_name,'rb') as f:         
             domain_ip_list = list(csv.reader(f))
         dlen = len(domain_ip_list)
+        if dlen == 0:
+            sys.exit(-1)
         for i,line in enumerate(domain_ip_list):
-            output_filename_list.append(out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt")
+            if via_4134(line):
+                print('via_4134 return true')
+                output_filename_list.append(out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt")
+            else:
+                domain_ip_list.pop(i)
         num_tasks = 1 
         r = random.randint(0,dlen-1)
         while True:
