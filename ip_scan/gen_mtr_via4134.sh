@@ -1,1 +1,1 @@
-cat ~/sanity_test_results/via_4134.txt | while IFS=' ' read ip port;do echo old,T,0.1,100,4,${ip},${ip},syn,${port} >> ~/sanity_test/scripts/mtr_0204_nsf.csv;done
+cat ~/sanity_test_results/via4134_*.txt | while IFS=' ' read ip port;do echo old,T,0.1,100,4,${ip},${ip},syn,${port} >> ~/sanity_test/scripts/mtr_0204_nsf.csv;done
