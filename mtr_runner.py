@@ -23,7 +23,7 @@ def run_cmd(cmd):
     try:
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
         sout, serr = p.communicate()
-        print 'stout:\n %s\n sterr:\n %s\n' % (sout, serr)
+        print 'stout:\n %s\nsterr:\n %s\n' % (sout, serr)
         if not sout:
             print '#######\n empty stdout' 
 
