@@ -35,7 +35,7 @@ def run_cmd(cmd):
             os._exit(-1)
 
 def via_4134(line):
-    sout,serr = run_cmd('sudo traceroute -A -p %s -T -f 4 -m 25 %s'%(line[5],line[8]))
+    sout,serr = run_cmd('sudo traceroute -A -p %s -T -f 4 -m 25 %s'%(line[8],line[5]))
     rt = sout + serr
     if '202.97' in rt or 'AS4134' in rt:
         return True
@@ -73,7 +73,10 @@ if __name__ == '__main__':
                 print('via_4134 return true')
                 domain_ip_list.append(line)
                 output_filename_list.append(out_dir + "mtr_" + line[0] + '_' + socket.gethostname() + "2" + line[6] + '_' + line[7]+'_'+line[2] + '_' + line[3] +'_'+ datetime.datetime.now().strftime("%m%d%H%M")+".txt")
-        dlen = len(domain_ip_list)        
+        dlen = len(domain_ip_list)  
+        if dlen == 0:
+            print('dlen == 0')
+            sys.exit(-1)      
         r = random.randint(0,dlen-1)
         while True:
             for i in range(dlen):
