@@ -221,8 +221,9 @@ int main(int argc , char *argv[])
             intvl = timeval2sec(&ses_intvl_tv);
             if(intvl > 1.0){
                 speed = (trick_str_len + space_str_len * i) / intvl / 1024.0;
-                print_utc_time((time_t)ses_this_tv.tv_sec);
-                printf("%fs %f KB/s\n",intvl,speed);
+                print_utc_time((time_t)ses_this_tv.tv_sec);               
+                printf("Thrput: %f KB/s\n",speed);
+                // printf("%s: %f KB/s\n",asctime(gmtime(&ses_this_tv.tv_sec)),speed);
                 gettimeofday(&ses_last_tv,NULL);
                 i = 0;
             }
