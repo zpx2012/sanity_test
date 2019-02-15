@@ -139,16 +139,26 @@ void print_utc_time(time_t sec){
     }    
     printf("UTC time: %s", asctime(ptm));
 }
+FILE * fp;
+void intHandler(int dummy){
+    printf("Catch Ctrl+C\n");
+    fclose(fp);
+}
+
+
 
 int main(int argc , char *argv[])
 {
     int sock, bytes = 0, i, client_socklen;
     // struct timeval pkt_this_tv, pkt_last_tv, pkt_intvl_tv;
     // struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
-    char client_message[2000],*msg;
+    char client_message[2000],*msg,*tstr;
     char req_str[1448] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n";
     char trick_str[] = "GET ";
     char space_str[1448];
+    struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
+    double speed,intvl;
+
     for(i=0;i<1448;i++)
         space_str[i] = ' ';
     unsigned int trick_str_len = strlen(trick_str), space_str_len = strlen(space_str);
@@ -160,7 +170,8 @@ int main(int argc , char *argv[])
     uint32_t dstip_u32 = inet_addr(argv[1]);
     int dport = atoi(argv[2]);
     int sport = atoi(argv[3]);
-    // char* intf = argv[4];
+    char* ofile = argv[4];
+    printf("%s\n",ofile);
 
     srand(time(0));
     seed = rand() % 65536;
@@ -205,15 +216,19 @@ int main(int argc , char *argv[])
 
     getsockname(sock,(struct sockaddr *)&client,&client_socklen);
 
-    // signal(SIGINT, intHandler);
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGINT, intHandler);
     i = 0;
-    struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
-    double speed,intvl;
-    // set_timeval(&ses_intvl_tv,1);
     gettimeofday(&ses_last_tv, NULL);
     if(send(sock,trick_str,trick_str_len,0) < 0){
         perror("Error on sendto()");
         return -1;
+    }
+    fp = fopen(ofile, "w+");
+    if(fp == NULL)
+    {
+      printf("Error!");   
+      exit(1);             
     }
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
@@ -221,20 +236,25 @@ int main(int argc , char *argv[])
             intvl = timeval2sec(&ses_intvl_tv);
             if(intvl > 1.0){
                 speed = (trick_str_len + space_str_len * i) / intvl / 1024.0;
-                print_utc_time((time_t)ses_this_tv.tv_sec);               
-                printf("Thrput: %f KB/s\n",speed);
-                // printf("%s: %f KB/s\n",asctime(gmtime(&ses_this_tv.tv_sec)),speed);
+                // print_utc_time((time_t)ses_this_tv.tv_sec);               
+                // printf("Thrput: %f KB/s\n",speed);
+                tstr = asctime(gmtime(&ses_this_tv.tv_sec));
+                tstr[strlen(tstr)-1] = 0;
+                fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
+                printf("%s UTC, %f KB/s\n",tstr,speed);                
                 gettimeofday(&ses_last_tv,NULL);
                 i = 0;
             }
 
             if(send(sock,space_str,space_str_len,0) < 0){
                 perror("Error on sendto()");
-                return -1;
+                break;
             }
             i++;
         // printf("Success! Sent %d bytes.\n", bytes);
     }
+    printf("out of loop\n");
+    fclose(fp);
 
     return 0;
 }
