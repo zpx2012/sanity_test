@@ -8,8 +8,9 @@ cat ~/sanity_test/ip_scan/data/0214_thrput.csv | while IFS=',' read ip cp op sp 
         # if [ ! -z "$rt" -a "$rt" != " " ]; then
         echo $ip
         thrput_ofile=~/sanity_test_results/opthrput_${ip}_${op}_${sp}_$(hostname)_$(date -u +%m%d%H%M).txt
-        screen -dmS hping3_ptr_$ip bash ~/sanity_test/ip_scan/hping3_ptr_2ip.sh $ip $cp $((sp+1)) $fl 1 60 $ip $op $sp 
+        # screen -dmS hping3_ptr_$ip bash ~/sanity_test/ip_scan/hping3_ptr_2ip.sh $ip $cp $((sp+1)) $fl 1 60 $ip $op $sp 
         screen -dmS thrput_$ip bash -c "while true;do ./open_thrput.o $ip $op $sp $thrput_ofile;done"
+        screen -dmS td_$ip bash ~/sanity_test/ip_scan/tcpdump.sh $ip $op ${ip}_${op}
         # fi
     fi
 done

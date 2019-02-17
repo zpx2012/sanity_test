@@ -242,8 +242,10 @@ int main(int argc , char *argv[])
                 tstr[strlen(tstr)-1] = 0;
                 fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
                 printf("%s UTC, %f KB/s\n",tstr,speed);                
-                gettimeofday(&ses_last_tv,NULL);
                 i = 0;
+                if(speed > 300)
+                    sleep(60);
+                gettimeofday(&ses_last_tv,NULL);
             }
 
             if(send(sock,space_str,space_str_len,0) < 0){
