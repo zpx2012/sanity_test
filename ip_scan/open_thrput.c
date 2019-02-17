@@ -163,7 +163,7 @@ int main(int argc , char *argv[])
         space_str[i] = ' ';
     unsigned int trick_str_len = strlen(trick_str), space_str_len = strlen(space_str);
 
-    if(argc < 3){
+    if(argc < 5){
         perror("At least 2 arguments.");
         return -1;
     }
@@ -224,7 +224,7 @@ int main(int argc , char *argv[])
         perror("Error on sendto()");
         return -1;
     }
-    fp = fopen(ofile, "w+");
+    fp = fopen(ofile, "a+");
     if(fp == NULL)
     {
       printf("Error!");   
@@ -241,6 +241,7 @@ int main(int argc , char *argv[])
                 tstr = asctime(gmtime(&ses_this_tv.tv_sec));
                 tstr[strlen(tstr)-1] = 0;
                 fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
+                // fflush(fp);
                 printf("%s UTC, %f KB/s\n",tstr,speed);                
                 i = 0;
                 if(speed > 300)
