@@ -241,7 +241,7 @@ int main(int argc , char *argv[])
                 tstr = asctime(gmtime(&ses_this_tv.tv_sec));
                 tstr[strlen(tstr)-1] = 0;
                 fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
-                // fflush(fp);
+                fflush(fp);
                 printf("%s UTC, %f KB/s\n",tstr,speed);                
                 i = 0;
                 if(speed > 300)
