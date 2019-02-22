@@ -250,8 +250,7 @@ int main(int argc , char *argv[])
                 gettimeofday(&ses_last_tv,NULL);
             }
             timersub(&ses_this_tv,&pkt_last_tv,&pkt_intvl_tv);
-            intvl = timeval2sec(&pkt_intvl_tv);
-            printf("%f\n",intvl);
+            printf("%d\n",pkt_intvl_tv.tv_usec);
             if(send(sock,space_str,space_str_len,0) < 0){
                 perror("Error on sendto()");
                 break;
