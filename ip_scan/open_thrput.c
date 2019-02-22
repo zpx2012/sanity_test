@@ -235,7 +235,7 @@ int main(int argc , char *argv[])
     fpkt_intvl_ts.tv_sec = 0;
     fpkt_intvl_ts.tv_nsec = 188541;
     fpkt_intvl_tv.tv_sec = 0;
-    fpkt_intvl_tv.tv_nsec = 188;    
+    fpkt_intvl_tv.tv_usec = 188;    
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
@@ -254,7 +254,7 @@ int main(int argc , char *argv[])
                     sleep(300);
                 gettimeofday(&ses_last_tv,NULL);
             }
-            if(!reach_interval(&ses_this_tv,&pkt_last_tv,&fpkt_intvl_tvfix)){
+            if(!reach_interval(&ses_this_tv,&pkt_last_tv,&fpkt_intvl_tv)){
                 nanosleep(&fpkt_intvl_ts,NULL);
             }
             if(send(sock,space_str,space_str_len,0) < 0){
