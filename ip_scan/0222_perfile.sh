@@ -7,8 +7,9 @@ cat $f | while IFS=' ' read closed tcp port ip ts; do
         sudo traceroute -A --sport=$n -p $port -T -f 4 -m 25 $ip > otr_$ip
         cat otr_$ip
         cat otr_$ip >> $trfile
-        rt=`cat otr_$ip | grep -e '202\.97\.\|AS4134'`
-        if [ ! -z "$rt" -a "$rt" != " " ]; then
+        rt=`cat otr_$ip | grep -e '202\.97\.\|AS4134' | wc -l`
+        # if [ ! -z "$rt" -a "$rt" != " " ]; then
+        if (( $rt > 2 ));then
             ((i++))
             echo $ip $port >> via4134.txt
             screen -dmS td_$ip bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip $port $ip
