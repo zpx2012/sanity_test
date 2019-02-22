@@ -156,7 +156,7 @@ int main(int argc , char *argv[])
     char req_str[1448] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n";
     char trick_str[] = "GET ";
     char space_str[1448];
-    struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv,pkt_last_tv,pkt_intvl_tv;
+    struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv,pkt_last_tv,pkt_intvl_tv,fpkt_intvl_tv;
     struct timespec fpkt_intvl_ts;
     double speed,intvl;
 
@@ -234,6 +234,8 @@ int main(int argc , char *argv[])
     gettimeofday(&pkt_last_tv,NULL);
     fpkt_intvl_ts.tv_sec = 0;
     fpkt_intvl_ts.tv_nsec = 188541;
+    fpkt_intvl_tv.tv_sec = 0;
+    fpkt_intvl_tv.tv_nsec = 188;    
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
@@ -252,7 +254,7 @@ int main(int argc , char *argv[])
                     sleep(300);
                 gettimeofday(&ses_last_tv,NULL);
             }
-            if(!reach_interval(&ses_this_tv,&pkt_last_tv,&fpkt_intvl_ts)){
+            if(!reach_interval(&ses_this_tv,&pkt_last_tv,&fpkt_intvl_tvfix)){
                 nanosleep(&fpkt_intvl_ts,NULL);
             }
             if(send(sock,space_str,space_str_len,0) < 0){
