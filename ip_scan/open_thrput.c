@@ -171,7 +171,7 @@ int main(int argc , char *argv[])
     int dport = atoi(argv[2]);
     int sport = atoi(argv[3]);
     // char* ofile = argv[4];
-    printf("%s\n",ofile);
+    // printf("%s\n",ofile);
 
     srand(time(0));
     seed = rand() % 65536;
