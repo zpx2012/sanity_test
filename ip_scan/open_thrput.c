@@ -256,6 +256,7 @@ int main(int argc , char *argv[])
             }
             if(!reach_interval(&ses_this_tv,&pkt_last_tv,&fpkt_intvl_tv)){
                 nanosleep(&fpkt_intvl_ts,NULL);
+                printf("nanosleen");
             }
             if(send(sock,space_str,space_str_len,0) < 0){
                 perror("Error on sendto()");
