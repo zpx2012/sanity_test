@@ -157,6 +157,7 @@ int main(int argc , char *argv[])
     char trick_str[] = "GET ";
     char space_str[1448];
     struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv,pkt_last_tv,pkt_intvl_tv;
+    struct timespec fpkt_intvl_ts;
     double speed,intvl;
 
     for(i=0;i<1448;i++)
@@ -231,6 +232,8 @@ int main(int argc , char *argv[])
     // }
     gettimeofday(&ses_last_tv, NULL);
     gettimeofday(&pkt_last_tv,NULL);
+    fpkt_intvl_ts.tv_sec = 0;
+    fpkt_intvl_ts.tv_usec = 188;
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
@@ -249,14 +252,16 @@ int main(int argc , char *argv[])
                     sleep(300);
                 gettimeofday(&ses_last_tv,NULL);
             }
-            timersub(&ses_this_tv,&pkt_last_tv,&pkt_intvl_tv);
-            printf("%ld\n",pkt_intvl_tv.tv_usec);
+            if(!reach_interval(&ses_this_tv,&pkt_last_tv,&fpkt_intvl_ts)){
+                nanosleep(&fpkt_intvl_ts,NULL);
+            }
             if(send(sock,space_str,space_str_len,0) < 0){
                 perror("Error on sendto()");
                 break;
             }
             i++;
             gettimeofday(&pkt_last_tv,NULL);
+            printf("The current local time is: %ld.%06ld\n",pkt_last_tv.tv_sec,pkt_last_tv.tv_usec);
         // printf("Success! Sent %d bytes.\n", bytes);
     }
     printf("out of loop\n");
