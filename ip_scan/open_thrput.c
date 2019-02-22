@@ -243,7 +243,7 @@ int main(int argc , char *argv[])
             if(intvl > 1.0){
                 speed = (trick_str_len + space_str_len * i) / intvl / 1024.0;
                 // print_utc_time((time_t)ses_this_tv.tv_sec);               
-                // printf("Thrput: %f KB/s\n",speed);
+                printf("Thrput: %f KB/s\n",speed);
                 // tstr = asctime(gmtime(&ses_this_tv.tv_sec));
                 // tstr[strlen(tstr)-1] = 0;
                 // fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
