@@ -233,7 +233,7 @@ int main(int argc , char *argv[])
     gettimeofday(&ses_last_tv, NULL);
     gettimeofday(&pkt_last_tv,NULL);
     fpkt_intvl_ts.tv_sec = 0;
-    fpkt_intvl_ts.tv_nsec = 188541ix;
+    fpkt_intvl_ts.tv_nsec = 188541;
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
