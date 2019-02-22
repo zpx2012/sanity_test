@@ -139,10 +139,10 @@ void print_utc_time(time_t sec){
     }    
     printf("UTC time: %s", asctime(ptm));
 }
-FILE * fp;
+// FILE * fp;
 void intHandler(int dummy){
     printf("Catch Ctrl+C\n");
-    fclose(fp);
+    // fclose(fp);
 }
 
 
@@ -170,7 +170,7 @@ int main(int argc , char *argv[])
     uint32_t dstip_u32 = inet_addr(argv[1]);
     int dport = atoi(argv[2]);
     int sport = atoi(argv[3]);
-    char* ofile = argv[4];
+    // char* ofile = argv[4];
     printf("%s\n",ofile);
 
     srand(time(0));
@@ -224,12 +224,12 @@ int main(int argc , char *argv[])
         perror("Error on sendto()");
         return -1;
     }
-    fp = fopen(ofile, "a+");
-    if(fp == NULL)
-    {
-      printf("Error!");   
-      exit(1);             
-    }
+    // fp = fopen(ofile, "a+");
+    // if(fp == NULL)
+    // {
+    //   printf("Error!");   
+    //   exit(1);             
+    // }
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
@@ -240,8 +240,8 @@ int main(int argc , char *argv[])
                 // printf("Thrput: %f KB/s\n",speed);
                 tstr = asctime(gmtime(&ses_this_tv.tv_sec));
                 tstr[strlen(tstr)-1] = 0;
-                fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
-                fflush(fp);
+                // fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
+                // fflush(fp);
                 printf("%s UTC, %f KB/s\n",tstr,speed);                
                 i = 0;
                 if(speed > 300)
@@ -257,7 +257,7 @@ int main(int argc , char *argv[])
         // printf("Success! Sent %d bytes.\n", bytes);
     }
     printf("out of loop\n");
-    fclose(fp);
+    // fclose(fp);
 
     return 0;
 }
