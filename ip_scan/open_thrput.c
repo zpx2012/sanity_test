@@ -156,7 +156,7 @@ int main(int argc , char *argv[])
     char req_str[1448] = "GET /sdk-tools-linux-3859397.zip HTTP/1.1\r\nHost: 169.235.31.181\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\nReferer: http://169.235.31.181/\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en;q=0.8\r\n";
     char trick_str[] = "GET ";
     char space_str[1448];
-    struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv;
+    struct timeval ses_this_tv, ses_last_tv, ses_intvl_tv,pkt_last_tv,pkt_intvl_tv;
     double speed,intvl;
 
     for(i=0;i<1448;i++)
@@ -219,7 +219,6 @@ int main(int argc , char *argv[])
     signal(SIGPIPE, SIG_IGN);
     signal(SIGINT, intHandler);
     i = 0;
-    gettimeofday(&ses_last_tv, NULL);
     if(send(sock,trick_str,trick_str_len,0) < 0){
         perror("Error on sendto()");
         return -1;
@@ -230,6 +229,8 @@ int main(int argc , char *argv[])
     //   printf("Error!");   
     //   exit(1);             
     // }
+    gettimeofday(&ses_last_tv, NULL);
+    gettimeofday(&pkt_last_tv,NULL);
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
@@ -238,22 +239,25 @@ int main(int argc , char *argv[])
                 speed = (trick_str_len + space_str_len * i) / intvl / 1024.0;
                 // print_utc_time((time_t)ses_this_tv.tv_sec);               
                 // printf("Thrput: %f KB/s\n",speed);
-                tstr = asctime(gmtime(&ses_this_tv.tv_sec));
-                tstr[strlen(tstr)-1] = 0;
+                // tstr = asctime(gmtime(&ses_this_tv.tv_sec));
+                // tstr[strlen(tstr)-1] = 0;
                 // fprintf(fp,"%s UTC, %f KB/s\n",tstr,speed);
                 // fflush(fp);
-                printf("%s UTC, %f KB/s\n",tstr,speed);                
+                // printf("%s UTC, %f KB/s\n",tstr,speed);                
                 i = 0;
                 if(speed > 300)
-                    sleep(60);
+                    sleep(300);
                 gettimeofday(&ses_last_tv,NULL);
             }
-
+            timersub(&ses_this_tv,&pkt_last_tv,&pkt_intvl_tv);
+            intvl = timeval2sec(&pkt_intvl_tv);
+            printf("%f\n",intvl);
             if(send(sock,space_str,space_str_len,0) < 0){
                 perror("Error on sendto()");
                 break;
             }
             i++;
+            gettimeofday(&pkt_last_tv,NULL);
         // printf("Success! Sent %d bytes.\n", bytes);
     }
     printf("out of loop\n");
