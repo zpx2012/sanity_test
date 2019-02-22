@@ -163,7 +163,7 @@ int main(int argc , char *argv[])
         space_str[i] = ' ';
     unsigned int trick_str_len = strlen(trick_str), space_str_len = strlen(space_str);
 
-    if(argc < 5){
+    if(argc < 4){
         perror("At least 2 arguments.");
         return -1;
     }
