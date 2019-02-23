@@ -8,7 +8,7 @@ mtr=~/mtr-modified/mtr
 tf=test_$(date -u +"%m%d%H%M")
 cat via4134.txt | while IFS=' ' read ip port; do
     if ((i < 3));then
-        sudo $mtr -zwnr4T -P $port -c 100 $ip 2>&1 otr_$ip
+        sudo $mtr -zwnr4T -P $port -c 100 $ip > otr_$ip 2>&1
         cat otr_$ip
         rt=`cat otr_$ip | grep -e '202\.97\.\|AS4134' | wc -l`
         # if [ ! -z "$rt" -a "$rt" != " " ]; then
