@@ -2,7 +2,6 @@
 cd ~/sanity_test/ip_scan
 gcc open_thrput.c -o open_thrput.o
 cd ~/sanity_test/ip_scan/data/0222_mtr
-
 i=0
 n=`shuf -i 1024-65535 -n 1`
 mtr=~/mtr-modified/mtr
@@ -22,7 +21,7 @@ cat via4134.txt | while IFS=' ' read closed tcp port ip ts; do
             screen -dmS opt_$ip bash -c "while true;do ./open_thrput.o $ip $port $n;done"
         fi
     else
-        screen -dmS mtr_$ip bash ~/sanity_test/scripts/tmpl_mtr_tcp_1_100.sh $ip $port $mtr
+        screen -dmS mtr bash ~/sanity_test/ip_scan/0222_mtr_poll.sh $tf $mtr
         break
     fi
 done
