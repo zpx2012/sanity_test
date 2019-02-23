@@ -13,8 +13,8 @@ cat ~/sanity_test/ip_scan/data/0222_mtr/via4134.txt | while IFS=' ' read ip port
         # if [ ! -z "$rt" -a "$rt" != " " ]; then
         if (( $rt > 2 ));then
             echo $ip $port >> $tf
-            screen -dmS td_$ip bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip $port $ip
-            screen -dmS opt_$ip bash -c "while true;do ~/sanity_test/ip_scan/open_thrput.o $ip $port $n;done;exec bash"
+            # screen -dmS td_$ip bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip $port $ip
+            # screen -dmS opt_$ip bash -c "while true;do ~/sanity_test/ip_scan/open_thrput.o $ip $port $n;done;exec bash"
             ((i++))
             ((n++))
         fi
@@ -22,10 +22,11 @@ cat ~/sanity_test/ip_scan/data/0222_mtr/via4134.txt | while IFS=' ' read ip port
         break
     fi
 done
+echo $i
 if ((i > 0));then
     screen -dmS mtr bash ~/sanity_test/ip_scan/0222_mtr_poll.sh $tf $mtr
 fi
-
+exec bash
 # 
 # for f in $(for n in $(seq 1 1000|shuf);do sed $n'!d' file_list;done);do 
 #     if (( i < 20 )); then
