@@ -1,22 +1,22 @@
 #!/bin/bash
 cd ~/sanity_test/ip_scan
 gcc open_thrput.c -o open_thrput.o
-cd ~/sanity_test/ip_scan/data/0222_mtr
 i=0
 n=`shuf -i 1024-65535 -n 1`
 mtr=~/mtr-modified/mtr
 tf=test_$(date -u +"%m%d%H%M")
-cat via4134.txt | while IFS=' ' read ip port; do
+cat ~/sanity_test/ip_scan/data/0222_mtr/via4134.txt | while IFS=' ' read ip port; do
     if ((i < 3));then
         sudo $mtr -zwnr4T -P $port $ip > otr_$ip 2>&1
         cat otr_$ip
         rt=`cat otr_$ip | grep -e '202\.97\.\|AS4134' | wc -l`
         # if [ ! -z "$rt" -a "$rt" != " " ]; then
         if (( $rt > 2 ));then
-            ((i++))
             echo $ip $port >> $tf
             screen -dmS td_$ip bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip $port $ip
-            screen -dmS opt_$ip bash -c "while true;do ./open_thrput.o $ip $port $n;done"
+            screen -dmS opt_$ip bash -c "while true;do ~/sanity_test/ip_scan/open_thrput.o $ip $port $n;done"
+            ((i++))
+            ((n++))
         fi
     else
         screen -dmS mtr bash ~/sanity_test/ip_scan/0222_mtr_poll.sh $tf $mtr
