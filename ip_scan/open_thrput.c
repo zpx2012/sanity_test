@@ -235,7 +235,7 @@ int main(int argc , char *argv[])
     fpkt_intvl_ts.tv_sec = 0;
     fpkt_intvl_ts.tv_nsec = 188541;
     fpkt_intvl_tv.tv_sec = 0;
-    fpkt_intvl_tv.tv_usec = 188;    
+    fpkt_intvl_tv.tv_usec = fpkt_intvl_ts.tv_nsec/1000;    
     while(1){        
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
