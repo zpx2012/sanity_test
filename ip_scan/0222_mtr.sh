@@ -22,8 +22,7 @@ cat ~/sanity_test/ip_scan/data/0222_mtr/via4134.txt | while IFS=' ' read ip port
         break
     fi
 done
-echo $i
-if ((i > 0));then
+if [ -s $tf ];then
     screen -dmS mtr bash ~/sanity_test/ip_scan/0222_mtr_poll.sh $tf $mtr
 fi
 exec bash
