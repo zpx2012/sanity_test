@@ -7,7 +7,7 @@ n=`shuf -i 1024-65535 -n 1`
 mtr=~/mtr-modified/mtr
 trfile=~/sanity_test_results/$(echo ${f/pscan/tr}| sed -e 's/.txt//g')_$(hostname)_$(date -u +"%m%d%H%M").txt
 tf=test_$(date -u +"%m%d%H%M")
-cat via4134.txt | while IFS=' ' read closed tcp port ip ts; do
+cat via4134.txt | while IFS=' ' read ip port; do
     if ((i < 3));then
         sudo $mtr -zwnr4T -P $port -c 100 $ip 2>&1 otr_$ip
         cat otr_$ip
