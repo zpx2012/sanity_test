@@ -19,11 +19,12 @@ cat ~/sanity_test/ip_scan/data/0222_mtr/via4134.txt | while IFS=' ' read ip port
             ((n++))
         fi
     else
-        screen -dmS mtr bash ~/sanity_test/ip_scan/0222_mtr_poll.sh $tf $mtr
         break
     fi
 done
-
+if ((i > 0));then
+    screen -dmS mtr bash ~/sanity_test/ip_scan/0222_mtr_poll.sh $tf $mtr
+fi
 
 # 
 # for f in $(for n in $(seq 1 1000|shuf);do sed $n'!d' file_list;done);do 
