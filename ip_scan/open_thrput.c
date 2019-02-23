@@ -240,7 +240,7 @@ int main(int argc , char *argv[])
             gettimeofday(&ses_this_tv, NULL);
             timersub(&ses_this_tv,&ses_last_tv,&ses_intvl_tv);
             intvl = timeval2sec(&ses_intvl_tv);
-            if(intvl > 1.0){
+            if(intvl > 0.1){
                 speed = (trick_str_len + space_str_len * i) / intvl / 1024.0;
                 // print_utc_time((time_t)ses_this_tv.tv_sec);               
                 printf("Thrput: %f KB/s\n",speed);
