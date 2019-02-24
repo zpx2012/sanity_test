@@ -4,6 +4,8 @@ gcc open_thrput.c -o open_thrput.o
 i=0
 n=`shuf -i 1024-65535 -n 1`
 mtr=~/mtr-modified/mtr
+tested=~/sanity_test/ip_scan/data/0222_mtr/tested_$(date -u +"%m%d%H%M")
+tf=no
 comm -13 ~/sanity_test/ip_scan/test_022311* ~/sanity_test/ip_scan/data/0222_mtr/via4134.txt | while IFS=' ' read ip port; do
     tf=~/sanity_test/ip_scan/data/0222_mtr/test_$(date -u +"%m%d%H%M")
     if ((i < 3));then
@@ -26,11 +28,21 @@ comm -13 ~/sanity_test/ip_scan/test_022311* ~/sanity_test/ip_scan/data/0222_mtr/
         bash ~/sanity_test/ks.sh mtr
         bash ~/sanity_test/ks.sh td
         bash ~/sanity_test/ks.sh opt
+        date -u +"%m%d%H%M" >> $tested
+        cat $tf >> $tested
+        rm $tf
         let i=0
     fi
 done
 if ((i > 0));then
     screen -dmS mtr bash ~/sanity_test/ip_scan/0222_mtr_poll.sh $tf $mtr
+    sleep 86400
+    date -u +"%m%d%H%M" >> $tested
+    cat $tf >> $tested
+    rm $tf
+    bash ~/sanity_test/ks.sh mtr
+    bash ~/sanity_test/ks.sh td
+    bash ~/sanity_test/ks.sh opt
 fi
 # 
 # for f in $(for n in $(seq 1 1000|shuf);do sed $n'!d' file_list;done);do 
