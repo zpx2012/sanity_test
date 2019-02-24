@@ -250,8 +250,11 @@ int main(int argc , char *argv[])
                 // fflush(fp);
                 // printf("%s UTC, %f KB/s\n",tstr,speed);                
                 i = 0;
-                if(speed > 300)
+                if(speed > 300){
+                    printf("sleep 60");
                     sleep(60);
+                }
+                    
                 gettimeofday(&ses_last_tv,NULL);
             }
             if(speed > 300 && !reach_interval(&ses_this_tv,&pkt_last_tv,&fpkt_intvl_tv)){
