@@ -251,7 +251,7 @@ int main(int argc , char *argv[])
                 // printf("%s UTC, %f KB/s\n",tstr,speed);                
                 i = 0;
                 if(speed > 300){
-                    printf("sleep 60");
+                    printf("sleep 60\n");
                     sleep(60);
                 }
                     
