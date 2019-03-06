@@ -41,7 +41,7 @@ if __name__ == '__main__':
         with open(output_file_name,'a') as f:
             f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
         try:
-            p = Popen(cmd, shell=True)#stdout=PIPE
+            p = Popen(cmd, shell=True,stdout=PIPE,stderr=PIPE)#
             sleep(2)
             if p.poll() == None:
                 if proxy_port == '0':
@@ -51,12 +51,17 @@ if __name__ == '__main__':
                         curl_pids = [x.pid for x in children if x.name() == 'curl']
                     with open(pid_file_name,'a') as f:
                         f.writelines('%d\n' % curl_pids[0])
-                p.communicate()
                 num_tasks += 1
-                print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-                sleep(60)
-                print 'sleep after:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-
+                out,err = p.communicate()
+                print 'out:\n%s\nerr:\n%s'%(out,err)
+                out_lines = filter(None,out.splitlines())
+                if len(out_lines) > 2:
+                    speed = [l.split(' ')[-1] for l in out_lines if l.startswith('100 ')][0]
+                    if 'M' in speed or ('k' in speed and int(speed.split('k')[0]) > 500):
+                        print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+                        sleep(300)
+                        print 'sleep after:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+                        
         except KeyboardInterrupt:
             input = raw_input('\n\nTerminate the subprocess and exit?(y to exit, n to restart subprocess):')
             if input == 'y':
