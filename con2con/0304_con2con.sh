@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ~/sanity_test/ip_scan
+cd ~/sanity_test/con2con
 day_i=0
 n=0
 mtr=~/mtr-modified/mtr
