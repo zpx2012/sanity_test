@@ -5,7 +5,7 @@ start=$(date -u +"%m%d%H%M")
 i=30
 while true;do
     if (( i == 30 ));then #check
-        echo > $fm
+        cp /dev/null $fm
         cat $f | while IFS=' ' read ip hn dp sp; do
             sudo $mtr -zwnr4T -P $dp -L $sp -i 0.1 -c 50 $ip 2>&1 | tee tmp
             max=`cat tmp | tail -n1 | sed 's@^[^0-9]*\([0-9]\+\).*@\1@'`

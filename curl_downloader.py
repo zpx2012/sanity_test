@@ -56,7 +56,7 @@ if __name__ == '__main__':
                 print 'out:\n%s\nerr:\n%s'%(out,err)
                 out_lines = filter(None,out.splitlines())
                 if len(out_lines) > 2:
-                    speed = [l.split(' ')[-1] for l in out_lines if l.startswith('100 ')][0]
+                    speed = [l.split(' ')[6] for l in out_lines if l.startswith('100 ')][0]#use avg speed
                     if 'M' in speed or ('k' in speed and int(speed.split('k')[0]) > 500):
                         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
                         sleep(300)
