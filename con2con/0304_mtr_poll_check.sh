@@ -2,7 +2,7 @@ f=$1
 fm=${f}_m
 mtr=$2
 start=$(date -u +"%m%d%H%M")
-i=30
+i=15
 while true;do
     if (( i == 15 ));then #check
         cp /dev/null $fm
