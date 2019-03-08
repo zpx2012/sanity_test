@@ -1,4 +1,4 @@
-import os,sys,time,datetime,socket,urlparse,threading,psutil
+import os,sys,time,datetime,socket,urlparse,threading,psutil,traceback
 from subprocess import Popen, PIPE
 from time import sleep
 from os.path import expanduser
@@ -68,6 +68,8 @@ if __name__ == '__main__':
             if input == 'y':
                 p.terminate()
                 os._exit(-1)
+        except:
+            print '###\n%s' % traceback.format_exc()
 
 
     # nonproxy_modes = ['clean','https']
