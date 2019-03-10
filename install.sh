@@ -6,6 +6,6 @@ sudo npm install -g http-server
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 mkdir ~/httpserver
 cd ~/httpserver
-wget http://157.230.172.20/my.pcap
+wget http://169.235.25.53/my.pcap
 screen -dmS httpserver sudo http-server -p 80
 mkdir ~/sanity_test_results/
