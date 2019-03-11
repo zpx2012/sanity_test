@@ -7,7 +7,7 @@ while true;do
     if (( i == 15 ));then #check
         cp /dev/null $fm
         cat $f | while IFS=' ' read ip hn dp sp; do
-            sudo $mtr -zwnr4T -P $dp -L $sp -i 0.1 -c 50 $ip 2>&1 | tee tmp
+            sudo $mtr -zwnr4T -P $dp -L $sp -i 0.1 -c 20 $ip 2>&1 | tee tmp
             max=`cat tmp | tail -n1 | sed 's@^[^0-9]*\([0-9]\+\).*@\1@'`
             if (( max < 10 ));then
                 let max=19
