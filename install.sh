@@ -8,4 +8,5 @@ mkdir ~/httpserver
 mv ~/sanity_test/my.pcap ~/httpserver 
 #screen -dmS httpserver sudo http-server -p 80
 mkdir ~/sanity_test/rs/
-bash ~/sanity_test/mtr-modified/install.sh
+~/sanity_test/mtr-modified/
+bash install.sh
