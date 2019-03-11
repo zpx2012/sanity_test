@@ -1,7 +1,7 @@
 import subprocess, os, time, datetime, socket
 from os.path import expanduser
 
-results_dir_abs_path = expanduser("~") + "/sanity_test_results/"
+results_dir_abs_path = expanduser("~") + "/sanity_test/rs/"
 # os.system("mkdir %s" % results_dir_abs_path)
 output_file_name = results_dir_abs_path + "iperf3_" + socket.gethostname() + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
 

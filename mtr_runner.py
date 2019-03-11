@@ -50,12 +50,12 @@ if __name__ == '__main__':
     decorator = '\n********************************\n'
     print decorator + 'Mtr Runner 1.4.0\nCtrl-C to terminate the program' + decorator + '\n'
 
-    out_dir = expanduser('~/sanity_test_results/')
+    out_dir = expanduser('~/sanity_test/rs/')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     output_filename_list = []
 
-    version_dict = {'old':'mtr','1':'~/mtr-modified-1.0/mtr','2':'~/mtr-modified-2.0/mtr'}
+    version_dict = {'old':'mtr','1':'~/sanity_test/mtr-modified-1.0/mtr','2':'~/sanity_test/mtr-modified-2.0/mtr'}
     base_cmd = 'sudo %s -zwnre4%s -i %s -c %s -f %s %s %s'#.format(version_dict[sys.argv[1]],sys.argv[2],sys.argv[3])
 
     infile_name = sys.argv[1]

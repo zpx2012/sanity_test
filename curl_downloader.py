@@ -20,7 +20,7 @@ if __name__ == '__main__':
     decorator = '\n********************************\n'
     print decorator + 'Curl Downloader 1.1.4\nCtrl-C to terminate the program' + decorator + '\n'
 
-    out_dir = expanduser('~/sanity_test_results/')
+    out_dir = expanduser('~/sanity_test/rs/')
     output_file_name = out_dir + '_'.join(['curl',socket.gethostname(),sitename,url.split(':')[0] if proxy_port == '0' else 'ss',datetime.datetime.utcnow().strftime('%m%d%H%Mutc')]) +'.txt'
     pid_file_name = output_file_name.replace('curl','pid')
 

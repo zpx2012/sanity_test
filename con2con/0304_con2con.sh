@@ -2,7 +2,7 @@
 cd ~/sanity_test/con2con
 day_i=0
 n=0
-mtr=~/mtr-modified/mtr
+mtr=~/sanity_test/mtr-modified/mtr
 tested=~/sanity_test/con2con/tested_$(date -u +"%m%d%H%M")
 tf=no
 cat ~/sanity_test/con2con/$(hostname).csv | while IFS=',' read ip hn sp nm io; do

@@ -3,7 +3,7 @@ cd ~/sanity_test/ip_scan
 gcc open_thrput.c -o open_thrput.o
 i=0
 n=`shuf -i 1024-65535 -n 1`
-mtr=~/mtr-modified/mtr
+mtr=~/sanity_test/mtr-modified/mtr
 tested=~/sanity_test/ip_scan/data/0222_mtr/tested_$(date -u +"%m%d%H%M")
 tf=no
 comm -13 ~/sanity_test/ip_scan/test_022311* ~/sanity_test/ip_scan/data/0222_mtr/via4134.txt | while IFS=' ' read ip port; do

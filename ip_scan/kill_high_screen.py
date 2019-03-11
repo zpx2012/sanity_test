@@ -23,7 +23,7 @@ def parse_hping3_outfile(dir,file):
         print '###\n%s' % traceback.format_exc()
 
 
-out_dir = os.path.expanduser('~/sanity_test_results/')
+out_dir = os.path.expanduser('~/sanity_test/rs/')
 for file in os.listdir(out_dir):
     if file.startswith('hping3') and 'stderr' in file:
         parse_hping3_outfile(out_dir,file)

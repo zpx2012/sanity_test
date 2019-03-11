@@ -4,7 +4,7 @@
 #     screen -dmS ss_$f sslocal -c $f
 # done
 # cd ..
-# screen -dmS nethog bash -c 'nethogs -t eth0 &> ~/sanity_test_results/nethogs_$(hostname)_$(date -u +"%m%d%H%M%Sutc").txt'
+# screen -dmS nethog bash -c 'nethogs -t eth0 &> ~/sanity_test/rs/nethogs_$(hostname)_$(date -u +"%m%d%H%M%Sutc").txt'
 # screen -dmS sched python3 ~/sanity_test/sched.py ~/sanity_test/scripts/1125_vultr.csv c
 export IFS=","
 cat ~/sanity_test/scripts/1125_vultr.csv | while read hm ip port; do 

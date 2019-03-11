@@ -72,7 +72,7 @@ def curl_poll_csv(infile_name):
     
     base_cmd = 'script -aqf -c \'curl -o /dev/null --limit-rate %s --speed-time 120 -LJv4k --resolve "%s:%d:%s" "%s"\' %s'
 
-    out_dir = os.path.expanduser('~/sanity_test_results/')
+    out_dir = os.path.expanduser('~/sanity_test/rs/')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 

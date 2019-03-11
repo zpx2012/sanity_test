@@ -2,7 +2,7 @@
 cd ~/sanity_test/o2c
 day_i=0
 n=0
-mtr=~/mtr-modified/mtr
+mtr=~/sanity_test/mtr-modified/mtr
 tested=tested_$(date -u +"%m%d%H%M")
 tf=no
 while true; do

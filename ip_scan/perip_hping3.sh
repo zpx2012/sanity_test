@@ -5,7 +5,7 @@ trfile=$4
 
 # sudo paris-traceroute -Q -s $n -d $port -p tcp -f 4 -m 25 $ip > optr 2>&1
 # cat optr
-# cat optr >> ~/sanity_test_results/ptr_redo0124_$(hostname)_$(date -u +"%m%d%H%M").txt
+# cat optr >> ~/sanity_test/rs/ptr_redo0124_$(hostname)_$(date -u +"%m%d%H%M").txt
 # screen -dmS tr_$ip bash ~/sanity_test/ip_scan/tr.sh $ip $port $n
 sudo traceroute -A --sport=$n -p $port -T -f 4 -m 25 $ip > otr_$n
 cat otr_$n

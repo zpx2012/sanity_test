@@ -12,5 +12,5 @@ if __name__ == '__main__':
     else:
         with open(infile_name,'rb') as f: 
             for line in list(csv.reader(f)):
-                output_file_name = '~/sanity_test_results/tr_' + socket.gethostname() + "_" + line[0] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
+                output_file_name = '~/sanity_test/rs/tr_' + socket.gethostname() + "_" + line[0] + "_" + datetime.datetime.now().strftime("%m%d%H%M")+".txt"
                 os.system('traceroute -A {} > {}'.format(line[1],output_file_name))

@@ -13,7 +13,7 @@ if __name__ == '__main__':
     decorator = '\n********************************\n'
     print (decorator + 'scp tester 0.0.1\nCtrl-C to terminate the program' + decorator + '\n')
     
-    out_dir = expanduser('~/sanity_test_results/')
+    out_dir = expanduser('~/sanity_test/rs/')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     output_filename_list = []
