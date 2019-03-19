@@ -6,7 +6,7 @@ mtr=~/sanity_test/mtr-modified/mtr
 tested=tested_$(date -u +"%m%d%H%M")
 while true; do
     tf=cur_$(date -u +"%m%d%H%M")
-    cat $(hostname)_$(date -u +"%m%d").csv | while IFS=',' read ip hn sp; do
+    cat $(hostname)_$(date -u +"%m%d").csv | while IFS=' ' read ip hn sp; do
         echo $ip $hn 80 $sp >> $tf
         screen -dmS td_$hn bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip 80 $hn
         screen -dmS curl_$hn python ~/sanity_test/curl_downloader.py "http://$ip/my.pcap" $ip $hn 0 1000k 0 $((sp+1))
