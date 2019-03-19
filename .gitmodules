@@ -1,3 +1,6 @@
 [submodule "mtr-modified"]
 	path = mtr-modified
 	url = https://github.com/mkyybx/mtr-modified.git
+[submodule "mtr-insertion"]
+	path = mtr-insertion
+	url = https://github.com/zpx2012/mtr-insertion
