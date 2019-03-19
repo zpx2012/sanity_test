@@ -60,7 +60,7 @@ if __name__ == '__main__':
                     print speed
                     if 'M' in speed or ('k' in speed and int(speed.split('k')[0]) > 500):
                         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-                        sleep(600)
+                        sleep(60)
                         print 'sleep after:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
                         
         except KeyboardInterrupt:
