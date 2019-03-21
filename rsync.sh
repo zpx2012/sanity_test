@@ -1,5 +1,5 @@
 #!/bin/bash
-outd=st_data/$(hostname)
+outd=/data/pzhu/st-data/$(hostname)
 mv ~/sanity_test/ip_scan/data/terran ~/.ssh/
 ssh pzhu011@terran mkdir -p $outd
 while true; do
