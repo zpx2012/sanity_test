@@ -1,5 +1,5 @@
 #!/bin/bash
-chmod 400 ~/.ssh/terran_key
+chmod 400 ~/.ssh/id_rsa
 outd=/data/pzhu/st-data/$(hostname)
 ssh pzhu011@terran mkdir -p $outd
 while true; do
