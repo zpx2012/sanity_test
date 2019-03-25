@@ -55,8 +55,8 @@ if __name__ == '__main__':
                 out,err = p.communicate()
                 print 'out:\n%s\nerr:\n%s'%(out,err)
                 out_lines = filter(None,out.splitlines())
-                if len(out_lines) > 2:
-                    speed = [filter(None,l.split(' '))[6] for l in out_lines if l.startswith('100 ')][0]#use avg speed
+                if len(out_lines) > 2:                    
+                    speed = [filter(None,l.split(' '))[6] for l in out_lines if l.startswith('100 ') and len(filter(None,l.split(' '))) > 6][0]#use avg speed
                     print speed
                     if 'M' in speed or ('k' in speed and int(speed.split('k')[0]) > 500):
                         print 'sleep before:%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
