@@ -1,4 +1,9 @@
 #!/bin/bash
+if [ -z "$1" ]
+  then
+    echo "No argument supplied"
+    exit 1
+fi
 cd ~/sanity_test/o2c
 node_i=$1
 mtr=~/sanity_test/mtr-insertion/mtr
