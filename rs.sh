@@ -1,0 +1,1 @@
+screen -dmS o2c bash ~/sanity_test/o2c/0319_other.sh
