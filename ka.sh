@@ -1,3 +1,4 @@
+#!/bin/bash
 cd ~/sanity_test
 ./ks.sh td
 ./ks.sh o2c
