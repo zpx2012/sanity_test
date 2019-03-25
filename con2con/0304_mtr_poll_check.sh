@@ -19,6 +19,7 @@ while true;do
         let i=0    
     fi
     cat $fm | while IFS=' ' read ip hn dp sp max; do
+        echo $ip $hn $dp $sp
         sudo $mtr -zwnr4T -m $max -P $dp -c 100 $ip 2>&1 | tee -a ~/sanity_test/rs/mtr_data_$(hostname)_${hn}_${sp}_tcp_1_100_${start}.txt
     done
     let i=i+1
