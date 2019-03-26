@@ -15,7 +15,7 @@ cd ~/sanity_test/o2c
 dfile=node${node_i}_day${today}.csv
 cat $dfile | while IFS=' ' read ip hn dp sp; do
     screen -dmS td_$hn bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip $dp $hn c
-    screen -dmS curl_$hn python ~/sanity_test/curl_downloader_resume.py "http://$ip/my.pcap" $ip $hn 0 750k 0 $sp $st_out
+    screen -dmS curl_$hn python ~/sanity_test/curl_downloader_resume.py "http://$ip/my.pcap" $ip $hn 0 750k 0 $sp ${st_out}utc
 done
 screen -dmS mtr bash ~/sanity_test/con2con/0304_mtr_poll_check_resume.sh $dfile $mtr $st_out
 now=`date -u +"%s"`
