@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -z "$1" || -z "$2" || -z "$3"]
+if [ -z "$1" ]
   then
     echo "No argument supplied"
     exit 1
