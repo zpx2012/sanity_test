@@ -7,7 +7,7 @@ fi
 node_i=$1
 today=$2
 st_in=$3
-st_out=`date --date="$st_in" +"%m%d%H%M"`
+st_out=`date --date="$st_in" -u +"%m%d%H%M"`
 st_sec=`date --date="$st_in" +"%s"`
 mtr=~/sanity_test/mtr-insertion/mtr
 
