@@ -24,7 +24,7 @@ bash ~/sanity_test/ks.sh mtr
 bash ~/sanity_test/ks.sh td
 bash ~/sanity_test/ks.sh curl
 
-for ((day_i=today+1; day_i<4; day_i++));; do
+for ((day_i=today+1; day_i<4; day_i++)); do
     dfile=node${node_i}_day${day_i}.csv
     cat $dfile | while IFS=' ' read ip hn dp sp; do
         screen -dmS td_$hn bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip $dp $hn c
