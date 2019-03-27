@@ -8,7 +8,7 @@ cd ~/sanity_test/o2c
 node_i=$1
 today=$2
 mtr=~/sanity_test/mtr-insertion/mtr
-for ((day_i=today+1; day_i<4; day_i++)); do
+for ((day_i=today; day_i<4; day_i++)); do
     dfile=node${node_i}_day${day_i}.csv
     cat $dfile | while IFS=' ' read ip hn dp sp; do
         screen -dmS td_$hn bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip $dp $hn c
