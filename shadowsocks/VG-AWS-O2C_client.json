@@ -1,8 +1,8 @@
 {
-"server":"169.235.31.181",
-"server_port":20000,
+"server":"52.90.209.164",
+"server_port":8388,
 "local_address":"127.0.0.1",
-"local_port":1086,
+"local_port":1084,
 "password":"wch92507@#",
 "timeout":300,
 "method":"aes-256-cfb"

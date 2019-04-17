@@ -41,7 +41,7 @@ if __name__ == '__main__':
         with open(output_file_name,'a') as f:
             f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
         try:
-            p = Popen(cmd, shell=True,stdout=PIPE,stderr=PIPE)#
+            p = Popen(cmd, shell=True,stdout=PIPE,stderr=PIPE)
             sleep(2)
             if p.poll() == None:
                 if proxy_port == '0':
