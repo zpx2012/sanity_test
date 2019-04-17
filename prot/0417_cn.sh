@@ -3,21 +3,14 @@ cd ~/sanity_test/prot
 day_i=0
 n=0
 mtr=~/sanity_test/mtr-modified/mtr
-tested=tested_$(date -u +"%m%d%H%M")
-while true; do
-    tf=cur_$(date -u +"%m%d%H%M")
-    cat $(hostname)_$(date -u +"%m%d").csv | while IFS=' ' read ip hn sp; do
-        echo $ip $hn 80 $sp >> $tf
-        screen -dmS td_$hn bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip 80 $hn
-        screen -dmS curl_$hn python ~/sanity_test/curl_downloader.py
-        screen -dmS mtr bash ~/sanity_test/con2con/0304_mtr_poll.sh $tf $mtr
+for day in 0 1:
+    cat data/$(hostname)_${day}.csv | while IFS=',' read ip hn http_sp https_sp ss_lp ss_sp iperf_dp iperf_sp; do
+        screen -dmS td_$hn bash tcpdump_iponly.sh $ip $hn
+        screen -dmS poller_$hn poller.sh ip hn http_sp https_sp ss_lp ss_sp iperf_dp iperf_sp
+        screen -dmS mtr bash ~/sanity_test/con2con/0304_mtr_poll.sh data/mtr_$(hostname)_${day}.csv $mtr
     done
-
     sleep 86400
     bash ~/sanity_test/ks.sh mtr
     bash ~/sanity_test/ks.sh td
-    bash ~/sanity_test/ks.sh curl
-    date -u +"%m%d%H%M" >> $tested
-    cat $tf >> $tested
-    rm $tf
+    bash ~/sanity_test/ks.sh poller
 done
