@@ -38,7 +38,7 @@ def curl_poll_csv(infile_name):
                     lp = '--local-port %s ' % sport if sport != '0' else ''
 
                     if line[5] == '0':
-                        cmd = 'curl -o /dev/null %s -m %s --speed-time 120 -LJv4k --resolve \'%s:%d:%s\' \'%s\' 2>&1 | tee -a %s' % (
+                        cmd = 'curl -o /dev/null %s -m %s --speed-time 120 -LJv4k --resolve \'%s:%s:%s\' \'%s\' 2>&1 | tee -a %s' % (
                         sl + lp, runtime,urlparse.urlparse(url).hostname, dport, ip, url, output_filename_list[i])
                     else:
                         cmd = 'curl -o /dev/null %s -m %s --speed-time 120 -LJv4k --socks localhost:%s \'%s\' 2>&1 | tee -a %s' % (
