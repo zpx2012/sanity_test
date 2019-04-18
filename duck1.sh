@@ -4,5 +4,6 @@ while true;do
     echo
     date -u +"%Y-%m-%d %H:%M:%S UTC" | tee -a ~/sanity_test/duck.log
     nslookup $(hostname| tr '[:upper:]' '[:lower:]')-kayodi.duckdns.org | tee -a ~/sanity_test/duck.log
+    curl https://ip.cn
     sleep 60
 done
