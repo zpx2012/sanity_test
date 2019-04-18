@@ -1,6 +1,6 @@
 #!/bin/bash
 cd ~/sanity_test/prot
-mtr=~/sanity_test/mtr-modified/mtr
+mtr=~/sanity_test/mtr-insertion/mtr
 for day in 0 1;do
     cat data/$(hostname)_day${day}.csv | while IFS=' ' read ip hn http_sp https_sp ss_lp ss_sp iperf_dp iperf_sp; do
         screen -dmS td_$hn bash tcpdump_iponly.sh $ip $hn
