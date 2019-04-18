@@ -47,7 +47,7 @@ def curl_poll_csv(infile_name):
                     with open(output_filename_list[i], 'a') as f:
                         f.writelines('\n%s Task : %d\n %s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
                     try:
-                        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+                        p = Popen(cmd, shell=True)
                         print('%s Task : %d \n%s' % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S +0000'), num_tasks, cmd))
                         out,err = p.communicate()
                         print 'out:\n%s\nerr:\n%s'%(out,err)
