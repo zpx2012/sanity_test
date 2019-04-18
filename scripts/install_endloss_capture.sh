@@ -9,6 +9,6 @@ sudo ethtool -K $inf tso off gso off gro off
 inf=$(ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//")
 sudo ethtool -K $inf tso off gso off gro off
 sudo ethtool --show-offloads $inf
-inf=$(ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//");cd ~/sanity_test; git submodule update --init --recursive;bash ~/sanity_test/scripts/install_iperf3.sh;cd mtr-insertion;git pull origin master;bash install.sh;
+cd ~/sanity_test; git submodule update --init --recursive;bash ~/sanity_test/scripts/install_iperf3.sh;cd mtr-insertion;git pull origin master;bash install.sh;
 
 sudo ethtool -K $(ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//") tso off gso off gro off;sudo ethtool --show-offload $(ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//")
