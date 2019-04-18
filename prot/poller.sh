@@ -20,5 +20,5 @@ echo ss $ss_sp
 curl -LJv4k -o /dev/null --limit-rate 750k -m 30 --speed-time 120 --local-port $ss_sp --socks localhost:$ss_lp 2>&1 http://$url | tee -a ~/sanity_test/rs/curl_$(hostname)_${hn}_ss_${start}_${ss_sp}.txt
 echo
 echo iperf3 $iperf_sp
-sudo iperf3 -c $ip -p $iperf_dp -B $(ip route get 8.8.8.8 | head -n1 | awk -- '{print $5x}') --cport $iperf_sp -b 750K -f K -t 30 -4VR --logfile ~/sanity_test/rs/iperf3_$(hostname)_${hn}_${iperf_dp}_${iperf_sp}_${start}.txt
+sudo iperf3 -c $ip -p $iperf_dp -B $(ip route get 8.8.8.8 | head -n1 | awk -- '{print $5x}') --cport $iperf_sp -b 6M -f K -t 30 -4VR --logfile ~/sanity_test/rs/iperf3_$(hostname)_${hn}_${iperf_dp}_${iperf_sp}_${start}.txt
 done
