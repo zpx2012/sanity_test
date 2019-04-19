@@ -8,5 +8,5 @@ mtr=$6
 startime=$(date -u +"%m%d%H%M")utc
 while true
 do 
-sudo $mtr -zwnr4T -P $dp -L $sp -c $cnt $ip 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_${hn}_tcp_1_60_$startime.txt
+sudo $mtr -zwnr4T -P $dp -L $sp -c $cnt $ip | tee -a ~/sanity_test/rs/mtrins_$(hostname)_${hn}_${dp}_${sp}_tcp_1_${cnt}_$startime.txt
 done

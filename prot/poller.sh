@@ -11,14 +11,14 @@ url="${ip}/my.pcap"
 start=$(date -u +"%m%d%H%Mutc")
 while true;do
 echo http $http_sp
-curl -LJv4k -o /dev/null --limit-rate 750k -m 30 --speed-time 120 --local-port $http_sp http://$url 2>&1 | tee -a ~/sanity_test/rs/curl_$(hostname)_${hn}_http_${start}_${http_sp}.txt 
+curl -LJv4k -o /dev/null --limit-rate 500k -m 30 --speed-time 120 --local-port $http_sp http://$url 2>&1 | tee -a ~/sanity_test/rs/curl_$(hostname)_${hn}_http_${start}_${http_sp}.txt
 echo
 echo https $https_sp
-curl -LJv4k -o /dev/null --limit-rate 750k -m 30 --speed-time 120 --local-port $https_sp https://$url 2>&1 | tee -a ~/sanity_test/rs/curl_$(hostname)_${hn}_https_${start}_${https_sp}.txt
+curl -LJv4k -o /dev/null --limit-rate 500k -m 30 --speed-time 120 --local-port $https_sp https://$url 2>&1 | tee -a ~/sanity_test/rs/curl_$(hostname)_${hn}_https_${start}_${https_sp}.txt
 echo
 echo ss $ss_sp
-curl -LJv4k -o /dev/null --limit-rate 750k -m 30 --speed-time 120 --local-port $ss_sp --socks localhost:$ss_lp 2>&1 http://$url | tee -a ~/sanity_test/rs/curl_$(hostname)_${hn}_ss_${start}_${ss_sp}.txt
+curl -LJv4k -o /dev/null --limit-rate 500k -m 30 --speed-time 120 --local-port $ss_sp --socks localhost:$ss_lp 2>&1 http://$url | tee -a ~/sanity_test/rs/curl_$(hostname)_${hn}_ss_${start}_${ss_sp}.txt
 echo
 echo iperf3 $iperf_sp
-sudo iperf3 -c $ip -p $iperf_dp -b 6M -f K -t 30 -4VR --logfile ~/sanity_test/rs/iperf3_$(hostname)_${hn}_${iperf_dp}_${iperf_sp}_${start}.txt
+sudo iperf3 -c $ip -p $iperf_dp -b 4M -f K -t 30 -4VR --logfile ~/sanity_test/rs/iperf3_$(hostname)_${hn}_${iperf_dp}_${iperf_sp}_${start}.txt
 done
