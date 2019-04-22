@@ -14,6 +14,8 @@ for day in 0 1;do
     sleep 86400
     bash ~/sanity_test/ks.sh td
     bash ~/sanity_test/ks.sh ss
-    bash ~/sanity_test/ks.sh pollers
+    bash ~/sanity_test/ks.sh poller
     bash ~/sanity_test/ks.sh mtr
 done
+
+cd ~/sanity_test;./ks.sh mtr;./ks.sh ss;./ks.sh poller;./ks.sh prot;./ks.sh td;git pull;screen -dmS prot bash ~/sanity_test/prot/0417_cn.sh;sleep 4;screen -x
