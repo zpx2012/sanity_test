@@ -23,15 +23,15 @@ def main():
     lines = None
     with open(os.path.expanduser(sys.argv[1]), 'r') as inf:
         lines = filter(None, inf.read().splitlines())
-    start = datetime.datetime.strptime(lines[0],'%Y-%m-%d %H:%M:%S')
+    # start = datetime.datetime.strptime(lines[0],'%Y-%m-%d %H:%M:%S')
     session = sys.argv[2]
     break_between_jobs = sys.argv[3]
     intvl = sys.argv[4]
     day = sys.argv[5]
     role = sys.argv[6]
-    for i in range(1,len(lines)):
+    for i in range(0,len(lines)):
         fields = lines[i].split(',')
-        cur_st = start + datetime.timedelta(seconds=i * break_between_jobs)
+        cur_st = datetime.datetime.strptime(fields[4],'%Y-%m-%d %H:%M:%S')
         if role == 'c':
             sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], minutes=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
