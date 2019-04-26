@@ -11,7 +11,7 @@ def curl_timed(ip,hn,st,sec,src_p=None):
 
 def mtr(ip,hn,st,src_p,dst_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_100_%s.txt"'.format(dst_p,src_p,ip,hn,src_p,st)
+    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_100_%s.txt"' % (dst_p,src_p,ip,hn,src_p,st)
     for i in range(5):
         p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
         out,err = p.communicate()
