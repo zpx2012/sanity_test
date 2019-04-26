@@ -24,10 +24,10 @@ def main():
     with open(os.path.expanduser(sys.argv[1]), 'r') as inf:
         lines = filter(None, inf.read().splitlines())
     # start = datetime.datetime.strptime(lines[0],'%Y-%m-%d %H:%M:%S')
-    session = sys.argv[2]
+    session = int(sys.argv[2])
     break_between_jobs = sys.argv[3]
-    intvl = sys.argv[4]
-    day = sys.argv[5]
+    intvl = int(sys.argv[4])
+    day = int(sys.argv[5])
     role = sys.argv[6]
     for i in range(0,len(lines)):
         fields = lines[i].split(',')
