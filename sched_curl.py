@@ -1,25 +1,42 @@
 import datetime,time,sys,pytz,os,socket,signal,shlex,logging,csv,subprocess as sp
 from apscheduler.schedulers.background import BackgroundScheduler
 
-def curl_timed(ip,hn,st,sec):
-    print '\n',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
+def curl_timed(ip,hn,st,sec,src_p=None):
+    print '\ncurl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = 'bash -c "curl -LJv4k -o /dev/null --limit-rate 500k -m %d --speed-time 120 http://%s/my.pcap 2>&1 | tee -a ~/sanity_test/rs/curl_$(hostname)_%s_http_%s.txt"' % (sec,ip,hn,st)
+    if sp:
+        cmd = cmd.replace('-LJv4k','-LJv4k --local-port '+src_p)
     p = sp.Popen(shlex.split(cmd))
     p.communicate()
+
+def mtr(ip,hn,st,src_p,dst_p):
+    print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
+    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_100_%s.txt"'.format(dst_p,src_p,ip,hn,src_p,st)
+    for i in range(5):
+        p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
+        out,err = p.communicate()
+        if 'send_inserted_tcp_packet:time out' not in out+err:
+            break
 
 def main():
     sched = BackgroundScheduler(timezone=pytz.utc)
     lines = None
-    with open(os.path.expanduser('~/sanity_test/con2con/data/%s.csv'%socket.gethostname()), 'r') as inf:
-    # with open('AUS-AWS.csv', 'r') as inf:
+    with open(os.path.expanduser(sys.argv[1]), 'r') as inf:
         lines = filter(None, inf.read().splitlines())
     start = datetime.datetime.strptime(lines[0],'%Y-%m-%d %H:%M:%S')
-    intvl = 20
+    session = sys.argv[2]
+    break_between_jobs = sys.argv[3]
+    intvl = sys.argv[4]
+    day = sys.argv[5]
+    role = sys.argv[6]
     for i in range(1,len(lines)):
         fields = lines[i].split(',')
-        cur_st = start + datetime.timedelta(seconds=i * intvl)
-        sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),intvl], minutes=10,
-                  start_date=cur_st, end_date=cur_st+datetime.timedelta(days=3))
+        cur_st = start + datetime.timedelta(seconds=i * break_between_jobs)
+        if role == 'c':
+            sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], minutes=intvl,
+                  start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
+        sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2],fields[3]], minutes=intvl,
+                  start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
 
     sched.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
