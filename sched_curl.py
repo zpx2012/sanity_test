@@ -33,7 +33,7 @@ def main():
     role = sys.argv[6]
     for i in range(0,len(lines)):
         fields = lines[i].split(',')
-        cur_st = datetime.datetime.now() + datetime.timedelta(seconds=10)
+        cur_st = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
         # cur_st = datetime.datetime.strptime(fields[4],'%Y-%m-%d %H:%M:%S')
         if role == 'c':
             sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], minutes=intvl,
