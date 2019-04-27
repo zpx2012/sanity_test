@@ -33,12 +33,12 @@ def main():
     role = sys.argv[6]
     for i in range(0,len(lines)):
         fields = lines[i].split(',')
-        cur_st = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
-        # cur_st = datetime.datetime.strptime(fields[4],'%Y-%m-%d %H:%M:%S')
+        # cur_st = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
+        cur_st = datetime.datetime.strptime(fields[4],'%Y-%m-%d %H:%M:%S')
         if role == 'c':
-            sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], minutes=intvl,
+            sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
-        sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], minutes=intvl,
+        sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
 
     sched.start()
