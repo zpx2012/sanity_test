@@ -15,6 +15,8 @@ def mtr(ip,hn,st,src_p,dst_p):
     for i in range(5):
         p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
         out,err = p.communicate()
+        print 'out:\n',out
+        print 'err:\n',err
         if 'send_inserted_tcp_packet:time out' not in out+err:
             break
 
