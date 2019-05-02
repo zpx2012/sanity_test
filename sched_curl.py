@@ -27,13 +27,13 @@ def curl_ss_timed(ip,hn,st,sec,src_p=None,dst_p=None):
 
 def iperf_timed(ip,hn,st,sec,src_p=None,dst_p=None):
     print '\niperf timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'sudo iperf3 -c %s -p %s -b 4M -f K -t %s -4VR --logfile ~/sanity_test/rs/iperf3_$(hostname)_%s_%s_%s.txt'%(ip,dst_p,sec,hn,dst_p,st)
+    cmd = 'sudo iperf3 -c %s -p %s -b 4M -f K -t %s -4VR --logfile %s/sanity_test/rs/iperf3_$(hostname)_%s_%s_%s.txt'%(ip,dst_p,sec,os.path.expanduser('~'),hn,dst_p,st)
     p = sp.Popen(shlex.split(cmd))
     p.communicate()
 
 def mtr(ip,hn,st,src_p,dst_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_%s_1_100_%s.txt"' % (dst_p,src_p,ip,hn,src_p,dst_p,st)
+    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_%s_1_60_%s.txt"' % (dst_p,src_p,ip,hn,src_p,dst_p,st)
     for i in range(5):
         p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
         out,err = p.communicate()
@@ -43,7 +43,7 @@ def mtr(ip,hn,st,src_p,dst_p):
             break
 
 def tcpdump_ip(ip,hn):
-    cmd = 'bash ~/sanity_test/prot/tcpdump_iponly.sh %s %s' % (ip,hn)
+    cmd = 'bash %s/sanity_test/prot/tcpdump_iponly.sh %s %s' % (os.path.expanduser('~'),ip,hn)
     p = sp.Popen(shlex.split(cmd),preexec_fn=os.setpgrp)
     time.sleep(86400)
     os.killpg(os.getpgid(p.pid), signal.SIGKILL)

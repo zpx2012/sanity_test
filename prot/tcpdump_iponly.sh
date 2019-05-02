@@ -7,4 +7,3 @@ outfile=tcpdump_${hm}_$(hostname)_$(date -u +%m%d%H%M)_client.pcap
 mkdir $outdir
 cd $outdir
 sudo tcpdump -w $outfile -vv -W 2000 -C 1024 -s 96 -i $inf -n host $ip
-sudo tcpdump -w $outfile -vv -W 2000 -C 1024 -s 96 -i $inf -n host $ip
