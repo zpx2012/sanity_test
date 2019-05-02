@@ -20,6 +20,14 @@ def mtr(ip,hn,st,src_p,dst_p):
         if 'send_inserted_tcp_packet:time out' not in out+err:
             break
 
+def tcpdump_ip(ip,hn):
+    cmd = 'bash ~/sanity_test/prot/tcpdump_iponly.sh %s %s' % (ip,hn)
+    p = sp.Popen(shlex.split(cmd),preexec_fn=os.setpgrp)
+    time.sleep(86400)
+    os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+    os.system('set -v;sudo killall -9 %s' % cmds[1] if cmds[0] == 'sudo' else cmds[0])
+    print('%d killed' % p.pid)
+
 def main():
     sched = BackgroundScheduler(timezone=pytz.utc)
     lines = None
@@ -38,6 +46,8 @@ def main():
         if role == 'c':
             sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
+            if i % 4 == 0:
+                sched.add_job(tcpdump_ip, 'date', run_date=cur_st, args=[fields[0],fields[1]])
         sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
 
