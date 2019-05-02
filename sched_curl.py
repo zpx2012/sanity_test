@@ -27,7 +27,7 @@ def curl_ss_timed(ip,hn,st,sec,src_p=None,dst_p=None):
 
 def iperf_timed(ip,hn,st,sec,src_p=None,dst_p=None):
     print '\niperf timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'bash -c "sudo iperf3 -c %s -p %s -b 4M -f K -t %s -4VR --logfile %s/sanity_test/rs/iperf3_$(hostname)_%s_%s_%s.txt"'%(ip,dst_p,sec,os.path.expanduser('~'),hn,dst_p,st)
+    cmd = 'bash -c "iperf3 -c %s -p %s -b 4M -f K -t %s -4VR --logfile %s/sanity_test/rs/iperf3_$(hostname)_%s_%s_%s.txt"'%(ip,dst_p,sec,os.path.expanduser('~'),hn,dst_p,st)
     p = sp.Popen(shlex.split(cmd))
     p.communicate()
 
