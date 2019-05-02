@@ -68,7 +68,7 @@ def main():
         # cur_st = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
         cur_st = datetime.datetime.strptime(fields[4],'%Y-%m-%d %H:%M:%S')
         if role == 'c':
-            sched.add_job(funcs[i%4], 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
+            sched.add_job(funcs[i%4], 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2],fields[3]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
             if i % 4 == 0:
                 sched.add_job(tcpdump_ip, 'date', run_date=cur_st, args=[fields[0],fields[1]])
