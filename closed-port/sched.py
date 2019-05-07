@@ -5,6 +5,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 def mtr(ip,st,dst_p,src_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = 'bash -c "sudo ~/sanity_test/mtr-modified/mtr -zwnr4A -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrack_$(hostname)_%s_%s_%s_1_60_%s.txt"' % (dst_p,src_p,ip,ip,src_p,dst_p,st)
+    print cmd
     for i in range(5):
         p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
         out,err = p.communicate()
