@@ -2,7 +2,7 @@ import datetime,time,sys,pytz,os,socket,signal,shlex,logging,csv,subprocess as s
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
-def mtr(ip,st,src_p,dst_p):
+def mtr(ip,st,dst_p,src_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = 'bash -c "sudo ~/sanity_test/mtr-modified/mtr -zwnr4A -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrack_$(hostname)_%s_%s_%s_1_60_%s.txt"' % (dst_p,src_p,ip,ip,src_p,dst_p,st)
     for i in range(5):
@@ -13,8 +13,8 @@ def mtr(ip,st,src_p,dst_p):
         if 'Broken pipe' not in out+err:
             break
 
-def hping(ip,st,src_p,dst_p):
-    cmd = 'bash hping3.sh %s %s %s A 0.1 120'%(ip,dst_p,src_p)
+def hping(ip,st,dst_p,src_p,):
+    cmd = 'bash %s/sanity_test/closed-port/hping3_onetime.sh %s %s %s A 0.1 120'%(os.path.expanduser('~'),ip,dst_p,src_p)
     p = sp.Popen(shlex.split(cmd))
     p.communicate()
 
