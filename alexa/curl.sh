@@ -1,7 +1,12 @@
 #!/bin/bash
+if [ -z "$1" ]
+  then
+    echo "No argument supplied"
+    exit 1
+fi
 start=$(date -u +"%m%d%H%Mutc")
 while true;do
-    cat ~/sanity_test/alexa/urls.csv | while IFS=',' read url hn tag ip;do
+    cat $1 | while IFS=',' read url hn tag ip;do
     echo
     echo $tag
     echo
