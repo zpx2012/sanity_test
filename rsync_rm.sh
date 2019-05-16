@@ -4,5 +4,5 @@ outd=/data/pzhu/st-data/$(hostname)
 ssh -oStrictHostKeyChecking=no pzhu011@terran.cs.ucr.edu mkdir -p $outd
 while true; do
     rsync -avzS --progress --remove-source-files ~/sanity_test/rs/* pzhu011@terran.cs.ucr.edu:$outd/
-    sleep 3600
+    sleep 1
 done
