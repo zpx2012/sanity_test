@@ -37,7 +37,7 @@ def main():
         now = datetime.datetime.utcnow()
         while cur_st-now < datetime.timedelta(seconds=10):
             cur_st += datetime.timedelta(seconds=intvl)
-        print('Previous: %s\nChanged: %s\n',fields[4],cur_st.strftime('%Y-%m-%d %H:%M:%S'))
+        print('Previous: %s\nChanged: %s\n' % (fields[4],cur_st.strftime('%Y-%m-%d %H:%M:%S')))
         if role == 'c':
             sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
