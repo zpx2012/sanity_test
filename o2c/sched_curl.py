@@ -5,6 +5,7 @@ def curl_timed(ip,hn,st,sec,src_p=None):
     print '\ncurl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     out = '~/sanity_test/rs/curl_$(hostname)_%s_http_%s.txt' % (hn,st)
     cmd = 'bash -c "echo Start: $(date -u +\"%Y-%m-%d %H:%M:%S\") >> %s;curl -LJv4k -o /dev/null --limit-rate 500k -m %d --speed-time 120 http://%s/my.mp4 2>&1 | tee -a %s"' % (out,sec,ip,out)
+    print cmd
     if sp:
         cmd = cmd.replace('-LJv4k','-LJv4k --local-port '+src_p)
     p = sp.Popen(shlex.split(cmd))
