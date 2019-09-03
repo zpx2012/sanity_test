@@ -35,7 +35,7 @@ def main():
         # cur_st = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
         cur_st = datetime.datetime.strptime(fields[4],'%Y-%m-%d %H:%M:%S')
         now = datetime.datetime.utcnow()
-        while cur_st-now < datetime.timedelta(seconds=10)
+        while cur_st-now < datetime.timedelta(seconds=10):
             cur_st += intvl
         
         if role == 'c':
