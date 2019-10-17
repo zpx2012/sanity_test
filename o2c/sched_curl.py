@@ -11,6 +11,12 @@ def curl_timed(ip,hn,st,sec,src_p=None):
     p = sp.Popen(shlex.split(cmd))
     p.communicate()
 
+def nc_listen(sec,src_p):
+    cmd = 'nc -l %s' % src_p
+    p = sp.Popen(shlex.split(cmd))
+    time.sleep(sec)
+    p.kill()
+
 def mtr(ip,hn,st,src_p,dst_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_100_%s.txt"' % (dst_p,src_p,ip,hn,src_p,st)
@@ -21,6 +27,12 @@ def mtr(ip,hn,st,src_p,dst_p):
         print 'err:\n',err
         if 'send_inserted_tcp_packet:time out' not in out+err:
             break
+
+def gfw_hop(ip,hn,st,src_p,dst_p):
+    print '\ngfw:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
+    cmd = 'sudo %s/filter_hop/test %s %s %s' % (os.path.expanduser('~'),ip,dst_p,src_p)
+    p = sp.Popen(shlex.split(cmd))
+    p.communicate()
 
 def main():
     sched = BackgroundScheduler(timezone=pytz.utc)
@@ -43,10 +55,13 @@ def main():
         if role == 'c':
             sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
+            sched.add_job(nc_listen, 'interval', args=[40,fields[2]], seconds=intvl,
+                  start_date=cur_st+60, end_date=cur_st+datetime.timedelta(days=day))            
         else:
             sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
                    start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
-
+            sched.add_job(gfw_hop,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
+                   start_date=cur_st+65, end_date=cur_st+datetime.timedelta(days=day))
     sched.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
