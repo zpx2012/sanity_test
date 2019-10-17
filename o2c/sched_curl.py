@@ -56,12 +56,12 @@ def main():
             sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
             sched.add_job(nc_listen, 'interval', args=[40,fields[2]], seconds=intvl,
-                  start_date=cur_st+datetime.timedelta(seconds=60), end_date=cur_st+datetime.timedelta(days=day))            
+                  start_date=cur_st+datetime.timedelta(seconds=session+60), end_date=cur_st+datetime.timedelta(days=day))            
         else:
             sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
                    start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
             sched.add_job(gfw_hop,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
-                   start_date=cur_st+datetime.timedelta(seconds=65), end_date=cur_st+datetime.timedelta(days=day))
+                   start_date=cur_st+datetime.timedelta(seconds=session+65), end_date=cur_st+datetime.timedelta(days=day))
     sched.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
