@@ -16,8 +16,8 @@ def nc_listen(sec,src_p):
     cmd = 'sudo nc -l %s' % src_p
     print cmd
     p = sp.Popen(shlex.split(cmd))
-    time.sleep(200)
-    p.kill()
+    time.sleep(150)
+    os.system('sudo killall nc')
 
 def mtr(ip,hn,st,src_p,dst_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
