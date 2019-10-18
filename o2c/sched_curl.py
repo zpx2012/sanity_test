@@ -45,7 +45,7 @@ def main():
     intvl = int(sys.argv[3])
     day = int(sys.argv[4])
     role = sys.argv[5]
-    gfw_delay = 60
+    gfw_delay = 65
     for i in range(0,len(lines)):
         fields = lines[i].split(',')
         # cur_st = datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
