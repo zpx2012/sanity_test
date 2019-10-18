@@ -12,7 +12,7 @@ def curl_timed(ip,hn,st,sec,src_p=None):
     p.communicate()
 
 def nc_listen(sec,src_p):
-    cmd = 'nc -l %s' % src_p
+    cmd = 'sudo nc -l %s' % src_p
     p = sp.Popen(shlex.split(cmd))
     time.sleep(sec)
     p.kill()
@@ -20,6 +20,7 @@ def nc_listen(sec,src_p):
 def mtr(ip,hn,st,src_p,dst_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_100_%s.txt"' % (dst_p,src_p,ip,hn,src_p,st)
+    print cmd
     for i in range(5):
         p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
         out,err = p.communicate()
