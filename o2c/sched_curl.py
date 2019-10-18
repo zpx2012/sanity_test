@@ -31,7 +31,7 @@ def mtr(ip,hn,st,src_p,dst_p):
 
 def gfw_hop(ip,hn,st,src_p,dst_p):
     print '\ngfw:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'cd ~/filter_hop; sudo ./test %s %s %s' % (ip,dst_p,src_p)
+    cmd = 'cd ~/filter_hop; sudo ./test ' + ' '.join(ip,dst_p,src_p,'$(hostname)',hn,st)
     p = sp.Popen(cmd,shell=True)
     p.communicate()
 
