@@ -16,7 +16,7 @@ def nc_listen(sec,src_p):
     cmd = 'sudo nc -l %s' % src_p
     print cmd
     p = sp.Popen(shlex.split(cmd))
-    time.sleep(150)
+    time.sleep(140)
     os.system('sudo killall nc')
 
 def mtr(ip,hn,st,src_p,dst_p):
