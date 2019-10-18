@@ -14,7 +14,7 @@ def curl_timed(ip,hn,st,sec,src_p=None):
 def nc_listen(sec,src_p):
     cmd = 'sudo nc -l %s' % src_p
     p = sp.Popen(shlex.split(cmd))
-    time.sleep(sec)
+    time.sleep(200)
     p.kill()
 
 def mtr(ip,hn,st,src_p,dst_p):
