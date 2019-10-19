@@ -13,7 +13,7 @@ def curl_timed(ip,hn,st,sec,src_p=None):
 
 def nc_listen(sec,src_p):
     print '\nnc:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'    
-    cmd = 'sudo nc -l %s' % src_p
+    cmd = 'sudo nc -vv -l %s' % src_p
     print cmd
     p = sp.Popen(shlex.split(cmd))
     time.sleep(140)
