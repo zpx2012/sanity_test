@@ -13,7 +13,7 @@ def curl_timed(ip,hn,st,sec,src_p=None):
 
 def nc_listen(sec,src_p):
     print '\nnc:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'    
-    cmd = 'sudo nc -vv -l %s' % src_p
+    cmd = 'sudo nc -vv -l %d' % (int(src_p) + 1000)
     print cmd
     p = sp.Popen(shlex.split(cmd))
     time.sleep(140)
@@ -33,7 +33,7 @@ def mtr(ip,hn,st,src_p,dst_p):
 
 def gfw_hop(ip,hn,st,src_p,dst_p):
     print '\ngfw:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'cd ~/filter_hop; sudo ./test ' + ' '.join([ip,dst_p,src_p,'$(hostname)',hn])
+    cmd = 'cd ~/filter_hop; sudo ./test ' + ' '.join([ip,str(int(dst_p)+1000),src_p,'$(hostname)',hn])
     print cmd
     p = sp.Popen(cmd,shell=True)
     p.communicate()
@@ -81,3 +81,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
