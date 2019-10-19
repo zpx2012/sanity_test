@@ -31,9 +31,9 @@ def mtr(ip,hn,st,src_p,dst_p):
         if 'send_inserted_tcp_packet:time out' not in out+err:
             break
 
-def gfw_hop(ip,hn,st,src_p,dst_p):
+def gfw_hop(ip,hn,st,src_p,dst_p,start_ttl):
     print '\ngfw:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'cd ~/filter_hop; sudo ./test ' + ' '.join([ip,str(int(dst_p)+1000),src_p,'$(hostname)',hn])
+    cmd = 'cd ~/filter_hop; sudo ./test ' + ' '.join([ip,str(int(dst_p)+1000),src_p,'$(hostname)',hn,start_ttl])
     print cmd
     p = sp.Popen(cmd,shell=True)
     p.communicate()
@@ -66,7 +66,7 @@ def main():
         else:
             sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
                    start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
-            sched.add_job(gfw_hop,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
+            sched.add_job(gfw_hop,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3],fields[5]], seconds=intvl,
                    start_date=cur_st+datetime.timedelta(seconds=session+gfw_delay+5), end_date=cur_st+datetime.timedelta(days=day))
     sched.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
