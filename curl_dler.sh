@@ -13,5 +13,7 @@ while true; do
 		break
 	fi
 	sleep 1 
-	echo "Retry after 1 second"
+	cat singlerun >> $out
+	echo "Retry after 1 second" | tee -a $out
 done
+echo >> $out
