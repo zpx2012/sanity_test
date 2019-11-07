@@ -4,3 +4,4 @@ wget "http://101.133.171.40/anyconnect-linux64-4.6.02074-predeploy-k9.tar.gz"
 tar -xzvf anyconnect-linux64-4.6.02074-predeploy-k9.tar.gz
 cd anyconnect-linux64-4.6.02074/vpn
 printf "y\n" | sudo ./vpn_install.sh
+cd /opt/.cisco/certificates;sudo mv ca ca.orig;sudo ln -sf /etc/ssl/certs/ ca;sudo /etc/init.d/vpnagentd restart
