@@ -6,6 +6,7 @@ dur=$3
 lp=$4
 stime=$5
 log=$6
+ovpn=$7
 
 echo For $hn $ip $dur $lp | tee -a $log
 for i in 1 2 3 4 5 6 7 8 9 10;do
