@@ -1,19 +1,22 @@
 stime=$(date -u +'%Y%m%d%H%M%S')
+dur=50
 mkdir -p ~/sanity_test/rs
 while true;do
-    screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN 3000 http $stime
+    screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur http $stime
     echo HTTP starts
     screen -ls
-    sleep 3005
+    sleep $dur
+    sleep 5
     screen -S http -X quit 
     echo HTTP ends
-    screen -dmS vpn openvpn --config hk4-expressvpn.ovpn
+    screen -dmS vpn openvpn --config ~/hk4-expressvpn.ovpn
     sleep 20
     echo VPN starts
     screen -ls
     ip route
-    screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN 3000 vpn $stime
-    sleep 3005
+    screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur vpn $stime
+    sleep $dur
+    sleep $5
     screen -S vpn -X quit
     screen -S http -X quit
     echo VPN ends
