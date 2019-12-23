@@ -9,6 +9,7 @@ while true;do
     sleep 5
     screen -S http -X quit 
     echo HTTP ends
+    echo
     screen -dmS vpn openvpn --config ~/hk4-expressvpn.ovpn
     sleep 20
     echo VPN starts
@@ -22,4 +23,5 @@ while true;do
     screen -S vpn -X quit
     screen -S vpnhttp -X quit
     echo VPN ends
+    echo 
 done
