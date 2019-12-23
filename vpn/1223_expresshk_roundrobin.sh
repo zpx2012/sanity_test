@@ -1,5 +1,5 @@
 stime=$(date -u +'%Y%m%d%H%M%S')
-dur=50
+dur=10
 mkdir -p ~/sanity_test/rs
 while true;do
     screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur http $stime
@@ -20,7 +20,7 @@ while true;do
     screen -dmS vpnhttp bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur vpn $stime
     sleep $dur
     sleep 5
-    screen -S vpn -X quit
+    sudo killall openvpn
     screen -S vpnhttp -X quit
     echo VPN ends
     echo 
