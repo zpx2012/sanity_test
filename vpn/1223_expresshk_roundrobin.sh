@@ -5,10 +5,14 @@ while true;do
     screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur http $stime
     echo HTTP starts
     screen -ls
+    echo -----------------------
+    ip route
+    echo -----------------------
     sleep $dur
     sleep 5
     screen -S http -X quit 
     echo HTTP ends
+    
     echo
     screen -dmS vpn openvpn --config ~/hk4-expressvpn.ovpn
     sleep 20
