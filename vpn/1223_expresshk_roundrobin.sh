@@ -16,10 +16,10 @@ while true;do
     echo -----------------------
     ip route
     echo -----------------------
-    screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur vpn $stime
+    screen -dmS vpnhttp bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur vpn $stime
     sleep $dur
     sleep 5
     screen -S vpn -X quit
-    screen -S http -X quit
+    screen -S vpnhttp -X quit
     echo VPN ends
 done
