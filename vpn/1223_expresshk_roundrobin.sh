@@ -1,5 +1,5 @@
 stime=$(date -u +'%Y%m%d%H%M%S')
-dur=10
+dur=3000
 mkdir -p ~/sanity_test/rs
 while true;do
     screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur http $stime
@@ -12,7 +12,7 @@ while true;do
     sleep 5
     screen -S http -X quit 
     echo HTTP ends
-    
+
     echo
     screen -dmS vpn openvpn --config ~/hk4-expressvpn.ovpn
     sleep 20
