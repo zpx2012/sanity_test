@@ -1,5 +1,5 @@
 stime=$(date -u +'%Y%m%d%H%M%S')
-dur=3000
+dur=300
 mkdir -p ~/sanity_test/rs
 while true;do
     screen -dmS http bash ~/sanity_test/curl_dler.sh 3.86.202.146 VG-AWS-VPN $dur http $stime
