@@ -1,0 +1,23 @@
+Start: 2019-12-23 10:18:20
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 3.86.202.146...
+* TCP_NODELAY set
+* Connected to 3.86.202.146 (3.86.202.146) port 80 (#0)
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0> GET /my.mp4 HTTP/1.1
+> Host: 3.86.202.146
+> User-Agent: curl/7.54.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< server: ecstatic-3.3.2
+< cache-control: max-age=3600
+< last-modified: Wed, 27 Feb 2019 00:07:02 GMT
+< etag: W/"269883-915406848-2019-02-27T00:07:02.000Z"
+< content-length: 915406848
+< content-type: video/mp4; charset=utf-8
+< Date: Mon, 23 Dec 2019 10:18:21 GMT
+< Connection: keep-alive
+< 
+{ [11296 bytes data]
+  0  873M    0  644k    0     0   488k      0  0:30:28  0:00:01  0:30:27  488k
