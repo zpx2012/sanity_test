@@ -9,7 +9,7 @@ log=$6
 
 echo For $hn $ip $dur $lp | tee -a $log
 for i in 1 2 3 4 5 6 7 8 9 10;do
-    expressvpn connect "Hong Kong" > expressvpn_output
+    expressvpn connect "Hong Kong" | tee -a expressvpn_output
     if cat expressvpn_output | grep -q 'Connected to'; then
         sleep 5
         echo VPN starts | tee -a $log
