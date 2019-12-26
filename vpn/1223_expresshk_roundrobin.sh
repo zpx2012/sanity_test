@@ -16,7 +16,9 @@ while true;do
     echo HTTP ends
 
     echo
-    screen -dmS vpn openvpn --config ~/sanity_test/vpn/hk4-expressvpn.ovpn
+    #screen -dmS vpn openvpn --config ~/sanity_test/vpn/hk4-expressvpn.ovpn
+    expressvpn protocol tcp
+    expressvpn connect hk4
     sleep 5
     echo VPN starts
     screen -ls
@@ -25,7 +27,8 @@ while true;do
     echo -----------------------
     screen -dmS vpnhttp bash ~/sanity_test/curl_dler.sh $ip $hn $dur vpn $stime $lp
     sleep $dur
-    sudo killall openvpn
+    # sudo killall openvpn
+    expressvpn disconnect
     screen -S vpnhttp -X quit
     echo VPN ends
     echo 
