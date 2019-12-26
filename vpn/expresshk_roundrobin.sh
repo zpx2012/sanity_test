@@ -7,6 +7,7 @@ lp=$4
 stime=$5
 log=$6
 
+echo For $hn $ip $dur $lp | tee -a $log
 for i in 1 2 3 4 5 6 7 8 9 10;do
     expressvpn connect "Hong Kong" > expressvpn_output
     if cat expressvpn_output | grep -q 'Connected to'; then
@@ -33,5 +34,6 @@ for i in 1 2 3 4 5 6 7 8 9 10;do
         screen -S http -X quit 
         echo HTTP ends| tee -a $log
         echo | tee -a $log
+        break
     fi
 done
