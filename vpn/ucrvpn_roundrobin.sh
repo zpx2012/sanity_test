@@ -9,11 +9,12 @@ log=$6
 
 echo For $hn $ip $dur $lp | tee -a $log
 for i in 1 2 3 4 5 6 7 8 9 10;do
-    date -u +'%Y%m%d%H%M' | tee -a $log
+    echo "Try" $i | tee -a $log
+    date +%s | tee -a $log
     screen -dmS vpn bash -c 'printf "0\npzhu011\nWuyaowang:2234\n" | /opt/cisco/anyconnect/bin/vpn -s connect vpn.ucr.edu > vpn_output'
     sleep 5
     if cat vpn_output | grep -q 'state: Connected'; then
-        date -u +'%Y%m%d%H%M' | tee -a $log
+        date +%s | tee -a $log
         echo VPN starts | tee -a $log
         screen -ls | tee -a $log
         echo ----------------------- | tee -a $log
