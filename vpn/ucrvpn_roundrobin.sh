@@ -12,7 +12,7 @@ for i in 1 2 3 4 5 6 7 8 9 10;do
     echo "Try" $i | tee -a $log
     date +%s | tee -a $log
     screen -dmS vpn bash -c 'printf "0\npzhu011\nWuyaowang:2234\n" | /opt/cisco/anyconnect/bin/vpn -s connect vpn.ucr.edu > vpn_output'
-    sleep 5
+    sleep 10
     cat vpn_output | tee -a $log
     if cat vpn_output | grep -q 'state: Connected'; then
         date +%s | tee -a $log
