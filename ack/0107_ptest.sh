@@ -2,7 +2,7 @@
 
 stime=$(date -u +%m%d%H%M)
 
-cat $(hostname).csv | while IFS=',' read ip hn; do
+cat ~/sanity_test/ack/$(hostname).csv | while IFS=',' read ip hn; do
     screen -dmS td bash ~/sanity_test/ip_scan/tcpdump_whole.sh $ip 5000 $hn s
     while true;do
         aout=~/sanity_test/rs/hping3_ptest_$(hostname)_${hn}_${dp}_${sp}_ack_stdout_${stime}.txt
