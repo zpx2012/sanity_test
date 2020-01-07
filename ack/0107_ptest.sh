@@ -10,8 +10,8 @@ cat $(hostname).csv | while IFS=',' read ip hn; do
         dout=~/sanity_test/rs/hping3_ptest_$(hostname)_${hn}_${dp}_${sp}_data_stdout_${stime}.txt
         derr=~/sanity_test/rs/hping3_ptest_$(hostname)_${hn}_${dp}_${sp}_data_stderr_${stime}.txt
         date -u +"%Y-%m-%d %H:%M:%S %Z" | tee -a $dout $derr
-        sudo hping3 -PA -d 1400 -i 0.1 -c 60 -s 80 -k -p 5000 $ip >> $dout 2>> $derr
+        sudo hping3 -PA -d 1400 -i 0.05 -c 600 -s 80 -k -p 5000 $ip >> $dout 2>> $derr
         date -u +"%Y-%m-%d %H:%M:%S %Z" | tee -a $aout $aerr
-        sudo hping3 -A -i 0.1 -c 60 -s 80 -k -p 5000 $ip >> $aout 2>> $aerr
+        sudo hping3 -A -i 0.05 -c 600 -s 80 -k -p 5000 $ip >> $aout 2>> $aerr
     done
 done
