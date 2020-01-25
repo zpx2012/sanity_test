@@ -1,0 +1,11 @@
+#!/usr/bin/expect
+
+set username "zhupengxiong@yeah.net\r"
+set passwd "password\r"
+
+spawn nordvpn login
+expect "Email / Username:"
+send -- $username
+expect "Password:"
+send -- $passwd
+expect eof

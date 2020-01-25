@@ -1,0 +1,11 @@
+#!/usr/bin/expect
+
+set username "purevpn0s9067134\r"
+set passwd "d4vz1dfg\r"
+
+spawn purevpn -li
+expect " Username:"
+send $username
+expect " Password:"
+send $passwd
+expect eof
