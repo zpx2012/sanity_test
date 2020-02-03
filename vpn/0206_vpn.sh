@@ -8,7 +8,7 @@ log=~/sanity_test/rs/screenlog_0206astrill_vpn_$(hostname)_$(date -u +'%Y%m%d%H%
 mkdir -p ~/sanity_test/rs
 while true;do
     cat ~/sanity_test/vpn/data/0206/$(hostname).csv | while IFS=',' read ip hn lp; do
-		screen -dmS vpn_$hn bash ~/sanity_test/curl_dler_wProxy.sh $ip $hn 60 astrillvpn $stime $((lp+1)) "http://localhost:${proxy_port}"
-        sudo ~/sanity_test/mtr-modified/mtr -zwnr4T -P 443 -c 60 -i 0.5 $ip 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_${hn}_${sp}_tcp_05_60_${stime}.txt
+		screen -dmS vpn_$hn bash ~/sanity_test/curl_dler_wProxy.sh $ip $hn 60 astrillvpn $stime $((lp+1)) "http://localhost:${proxy_local_sp}"
+        sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P 443 -c 60 -i 0.5 $ip 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_${hn}_${sp}_tcp_05_60_${stime}.txt
     done
 done
