@@ -2,7 +2,6 @@
 
 server_ip=$1
 proxy_local_sp=$2
-proxy_foreg_sp=$3
 
 stime=$(date -u +'%Y%m%d%H%M')
 log=~/sanity_test/rs/screenlog_0206astrill_vpn_$(hostname)_$(date -u +'%Y%m%d%H%M')
