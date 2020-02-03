@@ -6,6 +6,8 @@ sleep 60
 screen -dmS vpn bash 0206_vpn.sh $1 $2 astrill-hk
 
 
-1. Transfer the astrillvpn installation file
-2. Install WSL
-3. Change FIN_Wait2 timeout
+# 1. Transfer the astrillvpn installation file
+# 2. Install WSL
+# 3. Change FIN_Wait2 timeout
+
+# 209.95.60.176
