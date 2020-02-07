@@ -1,9 +1,9 @@
 #! /bin/bash
 
 cd ~/sanity_test/vpn/
-screen -dmS http bash 0206_http.sh astrill-hk
+screen -dmS http bash 0206_http.sh
 sleep 60
-screen -dmS vpn bash 0206_vpn.sh $1 $2 astrill-hk
+screen -dmS vpn bash 0206_vpn.sh
 
 
 # 1. Transfer the astrillvpn installation file
@@ -19,3 +19,4 @@ screen -dmS vpn bash 0206_vpn.sh $1 $2 astrill-hk
 # TcpFinWait2Delay
 # TcpTimedWaitDelay
 # 209.95.60.176
+# curl -o /dev/null --limit-rate 500k --proxy http://localhost:3213 http://142.93.117.107/my.mp4
