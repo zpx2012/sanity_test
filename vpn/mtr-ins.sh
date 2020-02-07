@@ -20,8 +20,7 @@ for i in 1 2 3 4 5 6 7 8 9 10;do
     sudo $mtr -zwnr4T -P $dp -c $cnt -i $intvl ${ip} 2>&1 | tee single_mtr
     if ! cat single_mtr | grep -q 'send_inserted_tcp_packet:time out'; then
         cat single_mtr >> $out
+        echo >> $out
         break
     fi
 done
-
-echo >> $out
