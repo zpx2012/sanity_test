@@ -4,7 +4,7 @@ cd ~/sanity_test/vpn/
 screen -dmS http bash 0206_http.sh
 sleep 60
 screen -dmS vpn bash 0206_vpn.sh
-
+exec bash
 
 # 1. Transfer the astrillvpn installation file
 # 2. Install astrillvpn
