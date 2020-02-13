@@ -23,18 +23,17 @@ BAD_WEBSITES = {
 }
 
 GOOD_WEBSITES = {
-    'absjdojogi.com' : 'http://absjdojogi.com/',
     'www.nba.com' : 'https://www.nba.com',
     'www.yahoo.com': 'https://www.yahoo.com/',
     'www.vk.com': 'https://www.vk.com/',
     'www.linkedin.com': 'https://www.linkedin.com/',
     'www.yandex.ru': 'https://www.yandex.ru/',
-    'www.reddit.com': 'https://www.reddit.com/',
     'www.ebay.com': 'https://www.ebay.com/',
     'www.stackoverflow.com': 'https://www.stackoverflow.com/',
     'www.mail.ru': 'https://www.mail.ru/',
     'www.github.com': 'https://www.github.com/',
     'www.imdb.com': 'https://www.imdb.com/',
+    'www.overleaf.com' : 'https://www.overleaf.com/',
 }
 
 
@@ -48,7 +47,7 @@ target_ips = {}
 
 def start_tcpdump():
     print("Starting tcpdump...")
-    p = subprocess.Popen(["tcpdump", "-i", "any", "-w", "~/results/pktdump.pcap.%s" % (start_time), "tcp port 443"])
+    p = subprocess.Popen(["tcpdump", "-i", "any", "-w", "~/sanity_test/results/pktdump.pcap.%s" % (start_time), "tcp port 443"])
     return p
 
 def stop_tcpdump(p):
@@ -57,17 +56,21 @@ def stop_tcpdump(p):
 
 
 def test_website_browser(website, url):
+    print("Testing website %s..." % website) 
+
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
     driver = webdriver.Firefox(firefox_options=options)
-    driver.set_page_load_timeout(20)
+    driver.set_page_load_timeout(60)
     try:
         driver.get(url)
         print driver.title
         logging.info(website + ', ' + driver.title)
         if driver.title:
+            driver.quit()
             return True
         else:
+            driver.quit()
             return False
     except: 
         logging.debug(website + ', timeout')
@@ -130,6 +133,8 @@ def test_websites():
                 if not ret:
                     p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     out, err = p.communicate()
+                    print out
+                    print err
                     with open(ping_out,'a') as outf:
                         outf.writelines('ping %s\n' % website)
                         outf.writelines(out+'\n'+err)
