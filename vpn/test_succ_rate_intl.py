@@ -77,7 +77,7 @@ def test_website_browser(website, url, sec):
         print '###\n%s' % traceback.format_exc() 
 
     finally:
-        print 'final', driver.title
+        print driver.title
         title = driver.title
         driver.quit()
         if title and title != 'Problem loading page':
@@ -133,7 +133,8 @@ def test_group(target, ping_out, browser_out):
                 outf.writelines(out+'\n'+err)
         with open(browser_out,'a') as outf:
             outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
-
+        print
+        
 def test_websites():
     global start_time
 
