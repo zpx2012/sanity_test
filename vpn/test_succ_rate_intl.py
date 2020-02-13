@@ -34,6 +34,9 @@ GOOD_WEBSITES = {
     'www.github.com': 'http://www.github.com/',
     'www.sciencedirect.com': 'http://www.sciencedirect.com/',
     'www.springer.com' : 'http://www.springer.com/',
+    'www.baidu.com' : 'http://www.baidu.com',
+    'www.qq.com' : 'http://www.qq.com',
+    'www.taobao.com' : 'http://www.taobao.com',
 }
 
 
@@ -97,7 +100,7 @@ def test_website_urllib2(url):
         # 404
         if herr.code == 404:
             return '404'
-        if herr.code == '301':
+        if herr.code == 301:
             return 'success'
         else:
             return str(herr.code)
