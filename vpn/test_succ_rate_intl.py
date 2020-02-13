@@ -53,7 +53,7 @@ target_ips = {}
 
 def start_tcpdump():
     print("Starting tcpdump...")
-    p = subprocess.Popen(["tcpdump", "-i", "any", "-w", "~/sanity_test/rs/pktdump.pcap.%s" % (start_time), "tcp port 443"])
+    p = subprocess.Popen(["tcpdump", "-i", "any", "-w", os.path.expanduser("~/sanity_test/rs/pktdump.pcap.%s" % (start_time)), "tcp port 443"])
     return p
 
 def stop_tcpdump(p):
