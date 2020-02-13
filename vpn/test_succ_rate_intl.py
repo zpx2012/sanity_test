@@ -80,7 +80,7 @@ def test_website_browser(website, url, sec):
         print 'final', driver.title
         title = driver.title
         driver.quit()
-        if title:
+        if title and title != 'Problem loading page':
             return True
         return False
 
@@ -110,7 +110,7 @@ def test_website_urllib2(url):
         if isinstance(uerr.reason, socket.timeout):
             return 'timeout'
         else:
-            return str(herr.code)
+            return 'urlerror'
     except socket.error as serr:
         # reset
         return 'reset'
