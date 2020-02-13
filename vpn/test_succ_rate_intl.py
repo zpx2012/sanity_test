@@ -118,7 +118,7 @@ def test_website_urllib2(url):
         return 'reset'
 
 def test_group(target, ping_out, browser_out):
-    for website, url in GOOD_WEBSITES.iteritems():
+    for website, url in target.iteritems():
         flag = False
         ret_browser = test_website_browser(website, url,90)
         ret_urllib2 = test_website_urllib2(url)
