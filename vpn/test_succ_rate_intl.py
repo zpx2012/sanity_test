@@ -71,18 +71,21 @@ def test_website_browser(website, url, sec):
     try:
         driver.get(url)
         logging.info(website + ', ' + driver.title)
+        print driver.title
+        if driver.title and drivertitle != 'Problem loading page':
+            driver.quit()
+            return True
+        else:
+            driver.quit()
+            return False
+
 
     except: 
         logging.debug(website + ', timeout')
         print '###\n%s' % traceback.format_exc() 
-
-    finally:
-        print driver.title
-        title = driver.title
         driver.quit()
-        if title and title != 'Problem loading page':
-            return True
         return False
+
 
 
 def test_website_urllib2(url):
