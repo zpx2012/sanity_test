@@ -18,22 +18,22 @@ BADWORD = 'ultrasurf'
 
 
 BAD_WEBSITES = {
-    'www.google.com' : 'https://www.google.com',
-    'www.facebook.com' : 'https://www.facebook.com',
+    'www.google.com' : 'http://www.google.com',
+    'www.facebook.com' : 'http://www.facebook.com',
 }
 
 GOOD_WEBSITES = {
-    'www.nba.com' : 'https://www.nba.com',
-    'www.yahoo.com': 'https://www.yahoo.com/',
-    'www.vk.com': 'https://www.vk.com/',
-    'www.linkedin.com': 'https://www.linkedin.com/',
-    'www.yandex.ru': 'https://www.yandex.ru/',
-    'www.ebay.com': 'https://www.ebay.com/',
-    'www.stackoverflow.com': 'https://www.stackoverflow.com/',
-    'www.mail.ru': 'https://www.mail.ru/',
-    'www.github.com': 'https://www.github.com/',
-    'www.imdb.com': 'https://www.imdb.com/',
-    'www.overleaf.com' : 'https://www.overleaf.com/',
+    'www.nba.com' : 'http://www.nba.com',
+    'www.bing.com': 'http://www.bing.com/',
+    'www.vk.com': 'http://www.vk.com/',
+    'www.linkedin.com': 'http://www.linkedin.com/',
+    'www.yandex.ru': 'http://www.yandex.ru/',
+    'www.ebay.com': 'http://www.ebay.com/',
+    'www.stackoverflow.com': 'http://www.stackoverflow.com/',
+    'www.mail.ru': 'http://www.mail.ru/',
+    'www.github.com': 'http://www.github.com/',
+    'www.sciencedirect.com': 'http://www.sciencedirect.com/',
+    'www.springer.com' : 'http://www.springer.com/',
 }
 
 
@@ -55,13 +55,13 @@ def stop_tcpdump(p):
     os.system("kill %d" % p.pid)
 
 
-def test_website_browser(website, url):
+def test_website_browser(website, url, sec):
     print("Testing website %s..." % website) 
 
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
     driver = webdriver.Firefox(firefox_options=options)
-    driver.set_page_load_timeout(60)
+    driver.set_page_load_timeout(sec)
     try:
         driver.get(url)
         print driver.title
@@ -97,7 +97,8 @@ def test_website_urllib2(url):
         # 404
         if herr.code == 404:
             return '404'
-        
+        if herr.code == '301':
+            return 'success'
         else:
             return str(herr.code)
     except urllib2.URLError as uerr:
@@ -120,26 +121,31 @@ def test_websites():
     testing = {}
 
     ping_out = '%s/sanity_test/rs/ping_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
-    penalty_out = '%s/sanity_test/rs/penalty_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
-
+    browser_out = '%s/sanity_test/rs/penalty_browser_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+    # urllib2_out = '%s/sanity_test/rs/penalty_urllib2_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+    
     try:
         while True:
             for website, url in BAD_WEBSITES.iteritems():
-                test_website_browser(website, url)
+                test_website_browser(website, url,10)
 
             for website, url in GOOD_WEBSITES.iteritems():
-                ret = test_website_browser(website, url)
-                # ret = test_website_urllib2(url)
-                if not ret:
+                flag = False
+                ret_browser = test_website_browser(website, url,90)
+                ret_urllib2 = test_website_urllib2(url)
+                print ret_urllib2
+                if ret_browser == False or ret_urllib2 == 'timeout':
                     p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     out, err = p.communicate()
                     print out
                     print err
+                    if '100% packet loss' in out+err:
+                        flag = True
                     with open(ping_out,'a') as outf:
                         outf.writelines('ping %s\n' % website)
                         outf.writelines(out+'\n'+err)
-                with open(penalty_out,'a') as outf:
-                    outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret)])+'\n')
+                with open(browser_out,'a') as outf:
+                    outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
     except (KeyboardInterrupt, SystemExit):   
         stop_tcpdump(p) 
         sys.exit(0)
