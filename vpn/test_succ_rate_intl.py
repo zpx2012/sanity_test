@@ -122,7 +122,7 @@ def test_group(target, ping_out, browser_out):
         flag = False
         ret_browser = test_website_browser(website, url,90)
         ret_urllib2 = test_website_urllib2(url)
-        print ret_urllib2
+        print ret_browser, ret_urllib2
         if ret_browser == False or ret_urllib2 == 'timeout':
             p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = p.communicate()
