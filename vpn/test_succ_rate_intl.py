@@ -72,18 +72,18 @@ def test_website_browser(website, url, sec):
         driver.get(url)
         print driver.title
         logging.info(website + ', ' + driver.title)
-        if driver.title:
-            driver.quit()
-            return True
-        else:
-            driver.quit()
-            return False
+        # if driver.title:
+        #     driver.quit()
+        #     return True
+        # else:
+        #     driver.quit()
+        #     return False
     except: 
         logging.debug(website + ', timeout')
         print '###\n%s' % traceback.format_exc() 
 
     finally:
-        print 'final'
+        print 'final', driver.title
         driver.quit()
         return False
 
