@@ -152,7 +152,7 @@ def test_websites():
     
     try:
         while True:
-            for website, url in BAD_WEBSITES.iteritems():
+            for website, url in BAD_INTL_WEBSITES.iteritems():
                 test_website_browser(website, url,10)
             test_group(GOOD_INTL_WEBSITES,intl_ping_out,intl_out)
             test_group(CN_WEBSITES,cn_ping_out,cn_out)
