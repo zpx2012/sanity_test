@@ -82,6 +82,7 @@ def test_website_browser(website, url, sec):
 
     except: 
         logging.debug(website + ', timeout')
+        logging.debug(traceback.format_exc())
         print '###\n%s' % traceback.format_exc() 
         driver.quit()
         return False
@@ -117,26 +118,31 @@ def test_website_urllib2(url):
     except socket.error as serr:
         # reset
         return 'reset'
+    except:
+        logging.debug(traceback.format_exc())
 
 def test_group(target, ping_out, browser_out):
     for website, url in target.iteritems():
-        flag = False
-        ret_browser = test_website_browser(website, url,90)
-        ret_urllib2 = test_website_urllib2(url)
-        print ret_browser, ret_urllib2
-        if ret_browser == False or ret_urllib2 == 'timeout':
-            p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            print out
-            print err
-            if '100% packet loss' in out+err:
-                flag = True
-            with open(ping_out,'a') as outf:
-                outf.writelines('ping %s\n' % website)
-                outf.writelines(out+'\n'+err)
-        with open(browser_out,'a') as outf:
-            outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
-        print
+        try:
+            flag = False
+            ret_browser = test_website_browser(website, url,90)
+            ret_urllib2 = test_website_urllib2(url)
+            print ret_browser, ret_urllib2
+            if ret_browser == False or ret_urllib2 == 'timeout':
+                p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                out, err = p.communicate()
+                print out
+                print err
+                if '100% packet loss' in out+err:
+                    flag = True
+                with open(ping_out,'a') as outf:
+                    outf.writelines('ping %s\n' % website)
+                    outf.writelines(out+'\n'+err)
+            with open(browser_out,'a') as outf:
+                outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
+            print
+        except:
+            logging.debug(traceback.format_exc())
 
 def test_websites():
     global start_time
@@ -165,5 +171,5 @@ def test_websites():
 
 if __name__ == "__main__":
     start_time = time.strftime("%Y%m%d%H%M%S")
-    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), level=logging.INFO, format='%(asctime)s,%(levelname)s, %(message)s')
+    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s')
     test_websites()
