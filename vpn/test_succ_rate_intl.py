@@ -17,26 +17,29 @@ GOODWORD = 'goodword'
 BADWORD = 'ultrasurf'
 
 
-BAD_WEBSITES = {
-    'www.google.com' : 'http://www.google.com',
-    'www.facebook.com' : 'http://www.facebook.com',
+BAD_INTL_WEBSITES = {
+    'www.google.com' : 'https://www.google.com',
+    'www.facebook.com' : 'https://www.facebook.com',
 }
 
-GOOD_WEBSITES = {
-    'www.nba.com' : 'http://www.nba.com',
-    'www.bing.com': 'http://www.bing.com/',
-    'www.vk.com': 'http://www.vk.com/',
-    'www.linkedin.com': 'http://www.linkedin.com/',
-    'www.yandex.ru': 'http://www.yandex.ru/',
-    'www.ebay.com': 'http://www.ebay.com/',
-    'www.stackoverflow.com': 'http://www.stackoverflow.com/',
-    'www.mail.ru': 'http://www.mail.ru/',
-    'www.github.com': 'http://www.github.com/',
-    'www.sciencedirect.com': 'http://www.sciencedirect.com/',
-    'www.springer.com' : 'http://www.springer.com/',
-    'www.baidu.com' : 'http://www.baidu.com',
-    'www.qq.com' : 'http://www.qq.com',
-    'www.taobao.com' : 'http://www.taobao.com',
+GOOD_INTL_WEBSITES = {
+    'www.nba.com' : 'https://www.nba.com',
+    'www.bing.com': 'https://www.bing.com/',
+    'www.vk.com': 'https://www.vk.com/',
+    'www.linkedin.com': 'https://www.linkedin.com/',
+    'www.yandex.ru': 'https://www.yandex.ru/',
+    'www.ebay.com': 'https://www.ebay.com/',
+    'www.stackoverflow.com': 'https://www.stackoverflow.com/',
+    'www.mail.ru': 'https://www.mail.ru/',
+    'www.github.com': 'https://www.github.com/',
+    'www.sciencedirect.com': 'https://www.sciencedirect.com/',
+    'www.springer.com' : 'https://www.springer.com/',
+}
+
+CN_WEBSITES = {
+    'www.baidu.com' : 'https://www.baidu.com',
+    'www.qq.com' : 'https://www.qq.com',
+    'www.taobao.com' : 'https://www.taobao.com',
 }
 
 
@@ -88,7 +91,7 @@ def test_website_urllib2(url):
     print("Testing website %s..." % url) 
     #pwget = subprocess.Popen("wget -4 -O /dev/null --tries=1 --timeout=5 --max-redirect 0 \"%s\"" % (url + KEYWORD), shell=True)
     #testing[website] = pwget
-    # request = urllib2.Request("http://%s/%s%s" % (target_ips[website], TARGETS[website][7:].split('/', 1)[1], KEYWORD),
+    # request = urllib2.Request("https://%s/%s%s" % (target_ips[website], TARGETS[website][7:].split('/', 1)[1], KEYWORD),
     #                           headers = {'Host': target_domains[website]})
     request = urllib2.Request(url, headers = {'Host': url[8:].split('/', 1)[0]})
 
@@ -114,7 +117,24 @@ def test_website_urllib2(url):
         # reset
         return 'reset'
 
-
+def test_group(target, ping_out, browser_out):
+    for website, url in GOOD_WEBSITES.iteritems():
+        flag = False
+        ret_browser = test_website_browser(website, url,90)
+        ret_urllib2 = test_website_urllib2(url)
+        print ret_urllib2
+        if ret_browser == False or ret_urllib2 == 'timeout':
+            p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = p.communicate()
+            print out
+            print err
+            if '100% packet loss' in out+err:
+                flag = True
+            with open(ping_out,'a') as outf:
+                outf.writelines('ping %s\n' % website)
+                outf.writelines(out+'\n'+err)
+        with open(browser_out,'a') as outf:
+            outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
 
 def test_websites():
     global start_time
@@ -123,32 +143,20 @@ def test_websites():
     time.sleep(1)
     testing = {}
 
-    ping_out = '%s/sanity_test/rs/ping_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
-    browser_out = '%s/sanity_test/rs/penalty_browser_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+    intl_ping_out = '%s/sanity_test/rs/ping_intl_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+    intl_out = '%s/sanity_test/rs/penalty_intl_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+    cn_ping_out = '%s/sanity_test/rs/ping_cn_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+    cn_out = '%s/sanity_test/rs/penalty_cn_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+
     # urllib2_out = '%s/sanity_test/rs/penalty_urllib2_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
     
     try:
         while True:
             for website, url in BAD_WEBSITES.iteritems():
                 test_website_browser(website, url,10)
+            test_group(GOOD_INTL_WEBSITES,intl_ping_out,intl_out)
+            test_group(CN_WEBSITES,cn_ping_out,cn_out)
 
-            for website, url in GOOD_WEBSITES.iteritems():
-                flag = False
-                ret_browser = test_website_browser(website, url,90)
-                ret_urllib2 = test_website_urllib2(url)
-                print ret_urllib2
-                if ret_browser == False or ret_urllib2 == 'timeout':
-                    p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    out, err = p.communicate()
-                    print out
-                    print err
-                    if '100% packet loss' in out+err:
-                        flag = True
-                    with open(ping_out,'a') as outf:
-                        outf.writelines('ping %s\n' % website)
-                        outf.writelines(out+'\n'+err)
-                with open(browser_out,'a') as outf:
-                    outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
     except (KeyboardInterrupt, SystemExit):   
         stop_tcpdump(p) 
         sys.exit(0)
