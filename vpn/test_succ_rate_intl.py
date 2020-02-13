@@ -70,14 +70,8 @@ def test_website_browser(website, url, sec):
     driver.set_page_load_timeout(sec)
     try:
         driver.get(url)
-        print driver.title
         logging.info(website + ', ' + driver.title)
-        # if driver.title:
-        #     driver.quit()
-        #     return True
-        # else:
-        #     driver.quit()
-        #     return False
+
     except: 
         logging.debug(website + ', timeout')
         print '###\n%s' % traceback.format_exc() 
@@ -85,6 +79,8 @@ def test_website_browser(website, url, sec):
     finally:
         print 'final', driver.title
         driver.quit()
+        if driver.title:
+            return True
         return False
 
 
