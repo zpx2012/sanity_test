@@ -63,7 +63,7 @@ def stop_tcpdump(p):
 
 def test_website_browser(website, url, sec):
     print("Testing website %s..." % website) 
-
+    
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
     driver = webdriver.Firefox(firefox_options=options)
@@ -78,8 +78,9 @@ def test_website_browser(website, url, sec):
 
     finally:
         print 'final', driver.title
+        title = driver.title
         driver.quit()
-        if driver.title:
+        if title:
             return True
         return False
 
