@@ -53,7 +53,7 @@ target_ips = {}
 
 def start_tcpdump():
     print("Starting tcpdump...")
-    p = subprocess.Popen(["tcpdump", "-i", "any", "-w", "~/sanity_test/results/pktdump.pcap.%s" % (start_time), "tcp port 443"])
+    p = subprocess.Popen(["tcpdump", "-i", "any", "-w", "~/sanity_test/rs/pktdump.pcap.%s" % (start_time), "tcp port 443"])
     return p
 
 def stop_tcpdump(p):
@@ -134,7 +134,7 @@ def test_group(target, ping_out, browser_out):
         with open(browser_out,'a') as outf:
             outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
         print
-        
+
 def test_websites():
     global start_time
 
