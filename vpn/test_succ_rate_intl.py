@@ -83,6 +83,7 @@ def test_website_browser(website, url, sec):
         print '###\n%s' % traceback.format_exc() 
 
     finally:
+        print 'final'
         driver.quit()
         return False
 
