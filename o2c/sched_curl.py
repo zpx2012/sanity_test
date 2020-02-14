@@ -45,10 +45,9 @@ def main():
         lines = filter(None, inf.read().splitlines())
     # start = datetime.datetime.strptime(lines[0],'%Y-%m-%d %H:%M:%S')
     session = int(sys.argv[2])
-    intvl = int(sys.argv[3])
-    day = int(sys.argv[4])
-    role = sys.argv[5]
-    gfw_delay = int(sys.argv[6])
+    day = int(sys.argv[3])
+    role = sys.argv[4]
+    # gfw_delay = int(sys.argv[6])
 
     for i in range(0,len(lines)):
         fields = lines[i].split(',')
@@ -59,12 +58,12 @@ def main():
             cur_st += datetime.timedelta(seconds=intvl)
         print(' '.join(['Previous:', fields[4], 'Changed:', cur_st.strftime('%Y-%m-%d %H:%M:%S')]))
         if role == 'c':
-            sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
+            sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=session*len(lines),
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
             # sched.add_job(nc_listen, 'interval', args=[40,fields[2]], seconds=intvl,
                 #   start_date=cur_st+datetime.timedelta(seconds=session+gfw_delay), end_date=cur_st+datetime.timedelta(days=day))            
         else:
-            sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
+            sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=session*len(lines),
                    start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
             # sched.add_job(gfw_hop,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3],fields[5]], seconds=intvl,
                 #    start_date=cur_st+datetime.timedelta(seconds=session+gfw_delay+5), end_date=cur_st+datetime.timedelta(days=day))
