@@ -21,7 +21,8 @@ def nc_listen(sec,src_p):
 
 def mtr(ip,hn,st,src_p,dst_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 25 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_25_%s.txt"' % (dst_p,src_p,ip,hn,src_p,st)
+    outfile = os.path.expanduser('~') + "/sanity_test/rs/mtrins_%s_%s_%s_tcp_1_25_%s.txt" % (socket.gethostname(),hn,src_p,st)
+    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 25 %s"' % (dst_p,src_p,ip)
     print cmd
     for i in range(5):
         p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
@@ -29,6 +30,8 @@ def mtr(ip,hn,st,src_p,dst_p):
         print 'out:\n',out
         print 'err:\n',err
         if 'send_inserted_tcp_packet:time out' not in out+err:
+            with open(outfile, 'a') as outf:
+                outf.writelines(out+'\n'+err)
             break
 
 def gfw_hop(ip,hn,st,src_p,dst_p,start_ttl):
