@@ -21,7 +21,7 @@ def nc_listen(sec,src_p):
 
 def mtr(ip,hn,st,src_p,dst_p):
     print '\nmtr:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 60 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_100_%s.txt"' % (dst_p,src_p,ip,hn,src_p,st)
+    cmd = 'bash -c "sudo ~/sanity_test/mtr-insertion/mtr -zwnr4T -P %s -L %s -c 25 %s 2>&1 | tee -a ~/sanity_test/rs/mtrins_$(hostname)_%s_%s_tcp_1_25_%s.txt"' % (dst_p,src_p,ip,hn,src_p,st)
     print cmd
     for i in range(5):
         p = sp.Popen(shlex.split(cmd),stdout=sp.PIPE,stderr=sp.PIPE)
@@ -61,13 +61,13 @@ def main():
         if role == 'c':
             sched.add_job(curl_timed, 'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),session,fields[2]], seconds=intvl,
                   start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
-            sched.add_job(nc_listen, 'interval', args=[40,fields[2]], seconds=intvl,
-                  start_date=cur_st+datetime.timedelta(seconds=session+gfw_delay), end_date=cur_st+datetime.timedelta(days=day))            
+            # sched.add_job(nc_listen, 'interval', args=[40,fields[2]], seconds=intvl,
+                #   start_date=cur_st+datetime.timedelta(seconds=session+gfw_delay), end_date=cur_st+datetime.timedelta(days=day))            
         else:
             sched.add_job(mtr,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3]], seconds=intvl,
                    start_date=cur_st, end_date=cur_st+datetime.timedelta(days=day))
-            sched.add_job(gfw_hop,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3],fields[5]], seconds=intvl,
-                   start_date=cur_st+datetime.timedelta(seconds=session+gfw_delay+5), end_date=cur_st+datetime.timedelta(days=day))
+            # sched.add_job(gfw_hop,'interval', args=[fields[0],fields[1],cur_st.strftime('%Y%m%d%H%M'),fields[2],fields[3],fields[5]], seconds=intvl,
+                #    start_date=cur_st+datetime.timedelta(seconds=session+gfw_delay+5), end_date=cur_st+datetime.timedelta(days=day))
     sched.start()
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
 
