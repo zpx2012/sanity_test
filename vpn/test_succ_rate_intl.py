@@ -127,16 +127,16 @@ def test_group(target, ping_out, browser_out):
             ret_browser = test_website_browser(website, url,90)
             ret_urllib2 = test_website_urllib2(url)
             print ret_browser, ret_urllib2
-            if ret_browser == False or ret_urllib2 == 'timeout':
-                p = subprocess.Popen(['ping', '-c','10', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                out, err = p.communicate()
-                print out
-                print err
-                if '100% packet loss' in out+err:
-                    flag = True
-                with open(ping_out,'a') as outf:
-                    outf.writelines('ping %s\n' % website)
-                    outf.writelines(out+'\n'+err)
+            # if ret_browser == False or ret_urllib2 == 'timeout':
+            p = subprocess.Popen(['ping', '-c','50', '-i','0.1', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = p.communicate()
+            print out
+            print err
+            if '100% packet loss' in out+err:
+                flag = True
+            with open(ping_out,'a') as outf:
+                outf.writelines('ping %s\n' % website)
+                outf.writelines(out+'\n'+err)
             with open(browser_out,'a') as outf:
                 outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
             print
