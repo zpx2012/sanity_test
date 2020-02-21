@@ -11,10 +11,10 @@ con_log=~/openvpn_single_${hn}_$(date +%s)
 
 echo log:$log, ovpn:$ovpn
 
-for i in 1 2 3 4 5 6 7 8 9 10;do
+for i in 1 2 3 4 5;do
     echo $(date +%s)": Try" $i  | tee -a $log
     screen -dmS vpn_${hn} bash -c "sudo openvpn --config $ovpn --log $con_log;exec bash"
-    for j in 1 2 3 4 5 6 7;do
+    for j in {1..30};do
         if cat $con_log | grep -q 'Initialization Sequence Completed'; 
         then
             break
