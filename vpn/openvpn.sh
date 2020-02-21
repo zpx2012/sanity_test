@@ -9,9 +9,9 @@ log=$6
 ovpn=$7
 ovpn_base=$(basename $ovpn)
 vpnname=${ovpn_base%.*}
-con_log=~/openvpn_single_${hn}_$(date +%s)
+con_log=~/openvpn_single_${hn}_${vpnname}_$(date +%s)
 
-echo log:$log, ovpn:$ovpn
+# echo log:$log, ovpn:$ovpn
 
 for i in 1 2 3 4 5;do
     echo $(date +%s)": Try" $i  | tee -a $log
@@ -21,12 +21,12 @@ for i in 1 2 3 4 5;do
         then
             break
         fi
-        echo sleep 1 sec | tee -a $log
+        # echo sleep 1 sec | tee -a $log
         sleep 1
     done
     if cat $con_log | grep -q 'Initialization Sequence Completed'; 
     then
-        cat $con_log | tee -a $log
+        cat $con_log >> $log
         rm $con_log
         echo $(date +%s)": VPN starts"  | tee -a $log
         echo ----------------------- | tee -a $log
