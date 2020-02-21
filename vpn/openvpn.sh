@@ -11,7 +11,7 @@ con_log=~/openvpn_single_${hn}_$(date +%s)
 
 for i in 1 2 3 4 5 6 7 8 9 10;do
     echo $(date +%s)": Try" $i  | tee -a $log
-    screen -dmS vpn sudo openvpn --config ~/sanity_test/vpn/$ovpn --log $con_log
+    screen -dmS vpn sudo openvpn --config $ovpn --log $con_log
     for j in 1 2 3 4 5;do
         if cat $con_log | grep -q 'Initialization Sequence Completed'; then
             break
