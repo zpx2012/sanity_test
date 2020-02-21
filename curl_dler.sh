@@ -7,7 +7,7 @@ prtcl=$4
 stime=$5
 lp=$6
 out=~/sanity_test/rs/curl_$(hostname)_${hn}_${prtcl}_${stime}.txt
-singlerun=singlerun_${hn}_${prtcl}_$(date -u %Y%m%d%H%M%S)
+singlerun=singlerun_${hn}_${prtcl}_$(date +%s)
 echo Start: $(date -u +'%Y-%m-%d %H:%M:%S') >> $out
 # while true; do
 for i in 1 2 3 4 5 6 7 8 9 10;do

@@ -7,7 +7,7 @@ lp=$4
 stime=$5
 log=$6
 ovpn=$7
-con_log=~/openvpn_single_${hn}_$(date -u +'%Y%m%d%H%M%S')
+con_log=~/openvpn_single_${hn}_$(date +%s)
 
 for i in 1 2 3 4 5 6 7 8 9 10;do
     echo $(date +%s)": Try" $i  | tee -a $log
