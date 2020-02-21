@@ -7,6 +7,7 @@ lp=$4
 stime=$5
 log=$6
 ovpn=$7
+ovpn_base=$(basename $ovpn)
 con_log=~/openvpn_single_${hn}_$(date +%s)
 
 echo log:$log, ovpn:$ovpn
@@ -29,7 +30,7 @@ for i in 1 2 3 4 5;do
         echo ----------------------- | tee -a $log
         ip route | tee -a $log
         echo ----------------------- | tee -a $log
-        bash ~/sanity_test/curl_dler.sh $ip $hn $dur ${ovpn%.*} $stime $lp
+        bash ~/sanity_test/curl_dler.sh $ip $hn $dur ${ovpn_base%.*} $stime $lp
         screen -S vpn_$hn -X quit
         echo $(date +%s)":VPN ends" | tee -a $log
         break
