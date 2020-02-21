@@ -13,24 +13,27 @@ echo log:$log, ovpn:$ovpn
 
 for i in 1 2 3 4 5 6 7 8 9 10;do
     echo $(date +%s)": Try" $i  | tee -a $log
-    screen -dmS vpn bash -c "sudo openvpn --config $ovpn --log $con_log;exec bash"
-    for j in 1 2 3 4 5;do
-        if cat $con_log | grep -q 'Initialization Sequence Completed'; then
+    screen -dmS vpn_${hn} bash -c "sudo openvpn --config $ovpn --log $con_log;exec bash"
+    for j in 1 2 3 4 5 6 7;do
+        if cat $con_log | grep -q 'Initialization Sequence Completed'; 
+        then
             break
         fi
         echo sleep 1 sec | tee -a $log
         sleep 1
     done
-    if cat $con_log | grep -q 'Initialization Sequence Completed'; then
+    if cat $con_log | grep -q 'Initialization Sequence Completed'; 
+    then
         cat $con_log | tee -a $log
         echo $(date +%s)": VPN starts"  | tee -a $log
         echo ----------------------- | tee -a $log
         ip route | tee -a $log
         echo ----------------------- | tee -a $log
         bash ~/sanity_test/curl_dler.sh $ip $hn $dur ${ovpn%.*} $stime $lp
-        sudo killall openvpn
+        screen -S vpn_$hn -X quit
         echo $(date +%s)":VPN ends" | tee -a $log
         break
+    else
+        screen -S vpn_$hn -X quit
     fi
 done
-exec bash
