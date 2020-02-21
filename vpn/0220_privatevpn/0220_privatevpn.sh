@@ -1,7 +1,7 @@
 #! /bin/bash
 
 stime=$(date -u +'%Y%m%d%H%M')
-log=~/sanity_test/rs/screenlog_0220_privatevpn_$(hostname)_$(date +%s)
+log=~/sanity_test/rs/screenlog_0220privatevpn_$(hostname)_$(date +%s)
 mkdir -p ~/sanity_test/rs
 cd ~/sanity_test/vpn/0220_privatevpn
 while true;do

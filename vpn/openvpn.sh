@@ -9,6 +9,8 @@ log=$6
 ovpn=$7
 con_log=~/openvpn_single_${hn}_$(date +%s)
 
+echo log:$log, ovpn:$ovpn
+
 for i in 1 2 3 4 5 6 7 8 9 10;do
     echo $(date +%s)": Try" $i  | tee -a $log
     screen -dmS vpn sudo openvpn --config $ovpn --log $con_log
