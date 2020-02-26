@@ -34,6 +34,7 @@ for i in 1 2 3 4 5;do
         echo ----------------------- | tee -a $log
         bash ~/sanity_test/curl_dler.sh $ip $hn $dur $vpnname $stime $lp
         screen -S vpn_${hn}_$vpnname -X quit
+        sudo killall openvpn
         echo $(date +%s)":VPN ends" | tee -a $log
         break
     else
