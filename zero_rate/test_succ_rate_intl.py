@@ -8,6 +8,27 @@ import urllib2
 import traceback,socket,datetime,logging
 from selenium import webdriver
 
+import pwd, grp
+
+def drop_privileges(uid_name='nobody', gid_name='nogroup'):
+    if os.getuid() != 0:
+        # We're not root so, like, whatever dude
+        return
+
+    # Get the uid/gid from the name
+    running_uid = pwd.getpwnam(uid_name).pw_uid
+    running_gid = grp.getgrnam(gid_name).gr_gid
+
+    # Remove group privileges
+    os.setgroups([])
+
+    # Try setting the new uid/gid
+    os.setgid(running_gid)
+    os.setuid(running_uid)
+
+    # Ensure a very conservative umask
+    old_umask = os.umask(077)
+
 
 
 MAX_PROC_NUM = 10
@@ -147,6 +168,7 @@ def test_websites():
     global start_time
 
     p = start_tcpdump()
+    drop_privileges()
     time.sleep(1)
     testing = {}
 
