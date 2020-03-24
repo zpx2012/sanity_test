@@ -15,3 +15,9 @@ while true;do
 		bash ~/sanity_test/curl_dler.sh $ip $hn 30 http $stime $lp
     done
 done
+
+#Notes:
+# python run_cmd_over_ssh.py 0323c_express.csv 'cd sanity_test;git pull;screen -dmS expressvpn bash vpn/0322_expressvpn/handler.sh' -ch -s
+# make sure the hostname is changed, interval between each vps
+# screen -S expressvpn -X quit can not kill the process
+# need to run ps -ef| grep express to check

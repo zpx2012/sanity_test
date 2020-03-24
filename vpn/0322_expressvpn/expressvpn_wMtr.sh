@@ -44,6 +44,7 @@ for i in 1 2 3 4 5;do
     else
         echo $start_time, 60, $country, Fail >> $connectivity_log
     fi
+    expressvpn disconnect
     screen -S vpn_${hn}_$country -X quit
     sudo killall expressvpn
     rm $con_log
