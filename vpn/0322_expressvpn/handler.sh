@@ -1,6 +1,6 @@
 #! /bin/bash
 dir_name=0322_expressvpn
-vpnfile=~/sanity_test/0322_expressvpn/expressvpn_wMtr.sh
+vpnfile=~/sanity_test/vpn/0322_expressvpn/expressvpn_wMtr.sh
 
 stime=$(date -u +'%Y%m%d%H%M')
 log=~/sanity_test/rs/screenlog_${dir_name}_$(hostname)_$(date +%s)
