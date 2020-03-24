@@ -35,7 +35,7 @@ for i in 1 2 3 4 5;do
         echo ----------------------- | tee -a $log
         ip route | tee -a $log
         echo ----------------------- | tee -a $log
-        screen -dmS mtr_${hn}_${country}_$(date +%s) bash ~/sanity_test/vpn/mtr-ins.sh mtr $(curl ifconfig.io) $hn 1195 60 0.5
+        screen -dmS mtr_${hn}_${country}_$(date +%s) bash ~/sanity_test/vpn/mtr-ins.sh mtr $(curl ifconfig.io) expressvpn_$country 1195 60 0.5 $stime
         bash ~/sanity_test/curl_dler.sh $ip $hn $dur expressvpn-$country $stime $lp
         expressvpn disconnect
         echo $(date +%s)":VPN ends" | tee -a $log
