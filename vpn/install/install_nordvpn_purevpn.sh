@@ -6,7 +6,6 @@ wget "https://101.133.171.40/purevpn_1.2.1_amd64.deb"
 sudo dpkg -i purevpn_1.2.1_amd64.deb
 purevpn –protocol tcp
 ./sanity_test/vpn/install/purevpn.exp
-purevpn -c HK
 
 wget -qnc "https://101.133.171.40/nordvpn-release_1.0.0_all.deb"
 sudo dpkg -i nordvpn-release_1.0.0_all.deb
