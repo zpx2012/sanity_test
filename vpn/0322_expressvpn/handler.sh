@@ -3,7 +3,7 @@ dir_name=0322_expressvpn
 vpnfile=~/sanity_test/vpn/0322_expressvpn/expressvpn_wMtr.sh
 
 stime=$(date -u +'%Y%m%d%H%M')
-log=~/sanity_test/rs/screenlog_${dir_name}_$(hostname)_$(date +%s)
+log=~/sanity_test/rs/screenlog_${dir_name}_$(hostname)_$stime
 mkdir -p ~/sanity_test/rs
 cd ~/sanity_test/vpn/$dir_name
 while true;do
