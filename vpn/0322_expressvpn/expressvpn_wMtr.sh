@@ -18,7 +18,7 @@ for i in 1 2 3;do
     echo $(date +%s)": Try" $i  | tee -a $log
     screen -dmS vpn_${hn}_$country bash -c "expressvpn connect $country > $con_log"
     sleep 1
-    for j in {1..90};do
+    for j in {1..89};do
         if cat $con_log | grep -q 'Connected to'; 
         then
             break
@@ -42,7 +42,7 @@ for i in 1 2 3;do
         rm $con_log
         break
     else
-        echo $start_time, 60, $country, Fail >> $connectivity_log
+        echo $start_time, 90, $country, Fail >> $connectivity_log
     fi
     expressvpn disconnect
     screen -S vpn_${hn}_$country -X quit
