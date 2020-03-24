@@ -1,0 +1,8 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+spawn expressvpn activate
+match_max 100000
+expect -exact "Enter activation code: "
+send -- "EYYVSHGRVEW3WGAI5EBNABD\r"
+expect eof
