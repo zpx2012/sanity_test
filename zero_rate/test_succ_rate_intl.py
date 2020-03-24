@@ -169,6 +169,7 @@ def test_websites():
 
     p = start_tcpdump()
     drop_privileges()
+    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s')
     time.sleep(1)
     testing = {}
 
@@ -192,5 +193,4 @@ def test_websites():
 
 if __name__ == "__main__":
     start_time = time.strftime("%Y%m%d%H%M%S")
-    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s')
     test_websites()
