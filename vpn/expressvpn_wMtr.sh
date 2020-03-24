@@ -12,11 +12,18 @@ con_log=~/expressvpn_single_${hn}_${country}_$(date +%s)
 echo For $hn $ip $dur $lp $country | tee -a $log
 for i in 1 2 3 4 5;do
     echo $(date +%s)": Try" $i  | tee -a $log
-    expressvpn connect $country | tee $con_log
+    screen -dmS vpn_${hn}_$country bash -c "expressvpn connect $country > $con_log"
+    for j in {1..30};do
+        if sudo cat $con_log | grep -q 'Connected to'; 
+        then
+            break
+        fi
+        # echo sleep 1 sec | tee -a $log
+        sleep 1
+    done
     if sudo cat $con_log | grep -q 'Connected to'; 
     then
         sudo cat $con_log >> $log
-        sudo rm $con_log
         echo $(date +%s)": VPN starts"  | tee -a $log
         echo ----------------------- | tee -a $log
         ip route | tee -a $log
@@ -27,4 +34,8 @@ for i in 1 2 3 4 5;do
         echo $(date +%s)":VPN ends" | tee -a $log
         break
     fi
+    screen -S vpn_${hn}_$country -X quit
+    sudo killall expressvpn
+    sudo rm $con_log
 done
+
