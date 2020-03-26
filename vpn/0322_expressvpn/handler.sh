@@ -9,7 +9,6 @@ cd ~/sanity_test/vpn/$dir_name
 while true;do
     cat data/$(hostname).csv | while IFS=',' read ip hn lp; do
         bash $vpnfile $ip $hn 30 $((lp+1)) $stime $log hk
-        bash $vpnfile $ip $hn 30 $((lp+2)) $stime $log tw
         bash $vpnfile $ip $hn 30 $((lp+3)) $stime $log jp
         bash $vpnfile $ip $hn 30 $((lp+4)) $stime $log us
 		bash ~/sanity_test/curl_dler.sh $ip $hn 30 http $stime $lp

@@ -12,13 +12,13 @@ connectivity_log=~/sanity_test/rs/succrate_$(hostname)_expressvpn_${stime}.csv
 start_time=0
 
 echo For $hn $ip $dur $lp $country | tee -a $log
-for i in 1 2 3;do
+for i in 1 2;do
     start_time=$(date -u --rfc-3339=seconds)
     start_tstamp=$(date +%s)
     echo $(date +%s)": Try" $i  | tee -a $log
     screen -dmS vpn_${hn}_$country bash -c "expressvpn connect $country > $con_log"
     sleep 1
-    for j in {1..119};do
+    for j in {1..29};do
         if cat $con_log | grep -q 'Connected to'; 
         then
             break
@@ -42,7 +42,7 @@ for i in 1 2 3;do
         rm $con_log
         break
     else
-        echo $start_time, 120, $country, Fail >> $connectivity_log
+        echo $start_time, 0, $country, Fail >> $connectivity_log
     fi
     expressvpn disconnect
     screen -S vpn_${hn}_$country -X quit
