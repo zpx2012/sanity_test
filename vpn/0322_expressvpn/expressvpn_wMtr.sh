@@ -35,11 +35,12 @@ for i in 1 2;do
         echo ----------------------- | tee -a $log
         ip route | tee -a $log
         echo ----------------------- | tee -a $log
-        screen -dmS mtr_${hn}_${country}_$(date +%s) bash ~/sanity_test/vpn/mtr-ins.sh mtr $(curl ifconfig.io) expressvpn_$country 1195 60 0.5 $stime
+        vpn_ip=$(curl ifconfig.io)
         bash ~/sanity_test/curl_dler.sh $ip $hn $dur expressvpn-$country $stime $lp
         expressvpn disconnect
         echo $(date +%s)":VPN ends" | tee -a $log
         rm $con_log
+        screen -dmS mtr_${hn}_${country}_$(date +%s) bash ~/sanity_test/vpn/mtr-ins.sh mtr $vpn_ip expressvpn_$country 1195 60 0.5 $stime
         break
     else
         echo $start_time, 0, $country, Fail >> $connectivity_log
