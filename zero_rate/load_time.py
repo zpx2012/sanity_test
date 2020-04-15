@@ -47,11 +47,11 @@ def stop_tcpdump(p):
 def curl_timed(url,hn,st,sec,src_p=None):
     print '\ncurl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = [os.path.expanduser('~')+'/sanity_test/zero_rate/curl_loop.sh',url,hn,sec,'https',st]
-    p = sp.Popen(cmd)
+    p = sp.Popen(cmd) #stdout=subprocess.PIPE, stderr=subprocess.PIPE
     return p
 
 def test_website_browser(website, url, sec):
-    print("Testing website %s..." % website) 
+    print("%s:Testing website %s..." % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),website)) 
     
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
@@ -62,17 +62,24 @@ def test_website_browser(website, url, sec):
     flag = False
     try:
         driver.get(url)
+        print("%s:page loaded" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         logging.info(website + ', ' + driver.title)
         print driver.title
         if driver.title and driver.title != 'Problem loading page':
             flag = True
         time.sleep(datetime.datetime.now().timestamp() - start_stamp)
+
+    except (KeyboardInterrupt, SystemExit):   
+        # stop_tcpdump(p) 
+        sys.exit(0)
+
     except: 
         logging.debug(website + driver.title + ', timeout')
         logging.debug(traceback.format_exc())
         print '###\n%s' % traceback.format_exc() 
 
     finally:
+        print("%s:test website ends" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))         
         driver.quit()
         p.kill()
         os.killpg(os.getpgid(p.pid), signal.SIGKILL)
@@ -120,5 +127,5 @@ def test_websites():
 
 if __name__ == "__main__":
     start_time = time.strftime("%Y%m%d%H%M%S")
-    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s')
+    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s', stream=sys.stdout)
     test_websites()
