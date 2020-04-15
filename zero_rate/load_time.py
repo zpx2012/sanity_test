@@ -62,21 +62,22 @@ def test_website_browser(website, url, sec):
     flag = False
     try:
         driver.get(url)
-        print("%s:page loaded" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-        logging.info(website + ', ' + driver.title)
-        print driver.title
-        if driver.title and driver.title != 'Problem loading page':
-            flag = True
-        time.sleep(datetime.datetime.now().timestamp() - start_stamp)
 
     except (KeyboardInterrupt, SystemExit):   
-        # stop_tcpdump(p) 
         sys.exit(0)
 
     except: 
         logging.debug(website + driver.title + ', timeout')
         logging.debug(traceback.format_exc())
         print '###\n%s' % traceback.format_exc() 
+
+    else:
+        print("%s:page loaded" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+        logging.info(website + ', ' + driver.title)
+        print driver.title
+        if driver.title and driver.title != 'Problem loading page':
+            flag = True
+        time.sleep(datetime.datetime.now().timestamp() - start_stamp)
 
     finally:
         print("%s:test website ends" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))         
@@ -105,6 +106,9 @@ def test_group(target, ping_out, browser_out):
             with open(browser_out,'a') as outf:
                 outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
             print
+
+        except (KeyboardInterrupt, SystemExit):   
+            sys.exit(0)
         except:
             logging.debug(traceback.format_exc())
 
