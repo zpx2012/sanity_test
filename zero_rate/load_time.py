@@ -9,23 +9,23 @@ import traceback,socket,datetime,logging
 from selenium import webdriver
 
 GOOD_INTL_WEBSITES = {
-    'yandex': 'https://www.yandex.ru/',
-    'ebay': 'https://www.ebay.com/',
-    'mail': 'https://www.mail.ru/',
-    'github': 'https://www.github.com/',
-    'sciencedirect': 'https://www.sciencedirect.com/',
-    'springer' : 'https://www.springer.com/',
-    'nih.gov' : 'https://www.nih.gov',
+    'yandex.ru': 'https://www.yandex.ru/',
+    'ebay.com': 'https://www.ebay.com/',
+    'mail.ru': 'https://www.mail.ru/',
+    'github.com': 'https://www.github.com/',
+    'sciencedirect.com': 'https://www.sciencedirect.com/',
+    'springer.com' : 'https://www.springer.com/',
+    'nih.gov.com' : 'https://www.nih.gov',
     'naver.net' : 'https://ww.naver.net',
 }
 
 GOOD_INTL_FILES = {
-    'yandex': 'https://an.yandex.ru/resource/context_static_r_8394.js',
-    'ebay': 'https://developer.ebay.com/devzone/codebase/javasdk-jaxb/ebaysdkjava1085.zip',
-    'mail': 'https://rfr.agent.mail.ru/magent.exe',
-    'github': 'https://codeload.github.com/scipy/scipy/zip/master',
-    'sciencedirect': 'https://holdings.sciencedirect.com/holdings/productReport.url?packageId=&productId=34&downloadId=1539921713612',
-    'springer' : 'https://link.springer.com/content/pdf/10.1007%2Fs10853-018-2650-4.pdf',    
+    'yandex.ru': 'https://an.yandex.ru/resource/context_static_r_8394.js',
+    'ebay.com': 'https://developer.ebay.com/devzone/codebase/javasdk-jaxb/ebaysdkjava1085.zip',
+    'mail.ru': 'https://rfr.agent.mail.ru/magent.exe',
+    'github.com': 'https://codeload.github.com/scipy/scipy/zip/master',
+    'sciencedirect.com': 'https://holdings.sciencedirect.com/holdings/productReport.url?packageId=&productId=34&downloadId=1539921713612',
+    'springer.com' : 'https://link.springer.com/content/pdf/10.1007%2Fs10853-018-2650-4.pdf',    
     'nih.gov' : 'https://obssr.od.nih.gov/wp-content/uploads/2018/03/OBSSR_Festival_Report_2017.pdf',
     'naver.net' : 'http://update.whale.naver.net/downloads/installers/naver-whale-stable_amd64.deb',
 }
@@ -111,11 +111,12 @@ def test_group(target, ping_out, browser_out):
                 outf.writelines(out+'\n'+err)
             with open(browser_out,'a') as outf:
                 outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),str(flag)])+'\n')
-            print
+            print 'write done'
 
         except (KeyboardInterrupt, SystemExit):   
             sys.exit(0)
         except:
+            traceback.format_exc()
             logging.debug(traceback.format_exc())
 
 def test_websites():
@@ -137,5 +138,5 @@ def test_websites():
 
 if __name__ == "__main__":
     start_time = time.strftime("%Y%m%d%H%M%S")
-    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s', stream=sys.stdout)
+    logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s')
     test_websites()
