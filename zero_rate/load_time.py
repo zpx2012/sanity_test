@@ -53,16 +53,16 @@ def curl_timed(url,hn,st,sec,src_p=None):
 
 def test_website_browser(website, url, sec):
     print("%s:Testing website %s..." % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),website)) 
-
+    p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
+    
     try:
         options = webdriver.firefox.options.Options()
         options.add_argument("--headless")
         driver = webdriver.Firefox(firefox_options=options)
         driver.set_page_load_timeout(sec)
-        p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
-        start_stamp = time.time()
-        load_time = 90
+        load_time = sec
         print("%s:before get url" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+        start_stamp = time.time()
         driver.get(url)
 
     except (KeyboardInterrupt, SystemExit):   
@@ -86,7 +86,7 @@ def test_website_browser(website, url, sec):
         print("%s:test website ends" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))         
         driver.quit()
         p.kill()
-        os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+        # os.killpg(os.getpgid(p.pid), signal.SIGKILL)
         # os.system('ps -ef | grep curl')
         return load_time
 
