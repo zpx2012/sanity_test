@@ -45,7 +45,7 @@ def stop_tcpdump(p):
 
 
 def curl_timed(url,hn,st,sec,src_p=None):
-    print 'curl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
+    print datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), ': curl timed'
     cmd = [os.path.expanduser('~')+'/sanity_test/zero_rate/curl_loop.sh',url,hn,str(sec),'https',st]
     print ' '.join(cmd)
     p = subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE) #
@@ -88,7 +88,7 @@ def test_website_browser(website, url, sec):
         driver.quit()
         p.kill()
         os.killpg(os.getpgid(p.pid), signal.SIGKILL)
-        os.system('ps -ef | grep curl')
+        # os.system('ps -ef | grep curl')
         return flag
 
 
