@@ -63,7 +63,7 @@ def test_website_browser(website, url, sec):
         print("%s:driver.set_page_load_timeout(sec)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         # p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
         print("%s:p = curl_timed" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-        start_stamp = datetime.datetime.now().timestamp()
+        start_stamp = time.time()
         flag = False
         print("%s:flag = False" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         print("%s:before driver.get(url)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
@@ -85,7 +85,7 @@ def test_website_browser(website, url, sec):
         print driver.title
         if driver.title and driver.title != 'Problem loading page':
             flag = True
-        time.sleep(datetime.datetime.now().timestamp() - start_stamp)
+        time.sleep(time.time() - start_stamp)
 
     finally:
         print("%s:test website ends" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))         
