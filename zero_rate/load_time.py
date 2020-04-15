@@ -55,7 +55,7 @@ def test_website_browser(website, url, sec):
 
     try:
         options = webdriver.firefox.options.Options()
-        # options.add_argument("--headless")
+        options.add_argument("--headless")
         print("%s:options.add_argument(\"--headless\")" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
 
         driver = webdriver.Firefox(firefox_options=options)
@@ -85,7 +85,7 @@ def test_website_browser(website, url, sec):
         print driver.title
         if driver.title and driver.title != 'Problem loading page':
             flag = True
-        time.sleep(time.time() - start_stamp)
+        time.sleep(90 - time.time() + start_stamp)
 
     finally:
         print("%s:test website ends" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))         
