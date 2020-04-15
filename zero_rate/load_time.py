@@ -96,7 +96,7 @@ def test_group(target, ping_out, browser_out):
         try:
             flag = False
             # print("%s:before test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-            ret_browser = test_website_browser(website, url, 90)
+            ret_browser = test_website_browser(website, url, 5)
             print ret_browser
             # print("%s:after test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
             # if ret_browser == False or ret_urllib2 == 'timeout':
