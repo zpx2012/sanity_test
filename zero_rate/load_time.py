@@ -45,9 +45,9 @@ def stop_tcpdump(p):
 
 
 def curl_timed(url,hn,st,sec,src_p=None):
-    print '\ncurl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
+    print 'curl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = [os.path.expanduser('~')+'/sanity_test/zero_rate/curl_loop.sh',url,hn,sec,'https',st]
-    p = sp.Popen(cmd) #stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    p = subprocess.Popen(cmd) #stdout=subprocess.PIPE, stderr=subprocess.PIPE
     return p
 
 def test_website_browser(website, url, sec):
@@ -55,18 +55,27 @@ def test_website_browser(website, url, sec):
     
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
+    print("%s:options.add_argument(\"--headless\")" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+
     driver = webdriver.Firefox(firefox_options=options)
     driver.set_page_load_timeout(sec)
+    print("%s:driver.set_page_load_timeout(sec)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
     p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
+    print("%s:p = curl_timed" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
     start_stamp = datetime.datetime.now().timestamp()
     flag = False
+    print("%s:flag = False" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+
     try:
+        print("%s:before driver.get(url)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         driver.get(url)
+        print("%s:after driver.get(url)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
 
     except (KeyboardInterrupt, SystemExit):   
         sys.exit(0)
 
     except: 
+        print("%s:except" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         logging.debug(website + driver.title + ', timeout')
         logging.debug(traceback.format_exc())
         print '###\n%s' % traceback.format_exc() 
@@ -92,8 +101,10 @@ def test_group(target, ping_out, browser_out):
     for website, url in target.iteritems():
         try:
             flag = False
+            print("%s:before test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
             ret_browser = test_website_browser(website, url, 90)
             print ret_browser
+            print("%s:after test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
             # if ret_browser == False or ret_urllib2 == 'timeout':
             p = subprocess.Popen(['ping', '-c','50', '-i','0.2', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = p.communicate()
