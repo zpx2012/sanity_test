@@ -52,21 +52,20 @@ def curl_timed(url,hn,st,sec,src_p=None):
 
 def test_website_browser(website, url, sec):
     print("%s:Testing website %s..." % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),website)) 
-    
-    options = webdriver.firefox.options.Options()
-    options.add_argument("--headless")
-    print("%s:options.add_argument(\"--headless\")" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-
-    driver = webdriver.Firefox(firefox_options=options)
-    driver.set_page_load_timeout(sec)
-    print("%s:driver.set_page_load_timeout(sec)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-    # p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
-    print("%s:p = curl_timed" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-    start_stamp = datetime.datetime.now().timestamp()
-    flag = False
-    print("%s:flag = False" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
 
     try:
+        options = webdriver.firefox.options.Options()
+        options.add_argument("--headless")
+        print("%s:options.add_argument(\"--headless\")" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+
+        driver = webdriver.Firefox(firefox_options=options)
+        driver.set_page_load_timeout(sec)
+        print("%s:driver.set_page_load_timeout(sec)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+        # p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
+        print("%s:p = curl_timed" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+        start_stamp = datetime.datetime.now().timestamp()
+        flag = False
+        print("%s:flag = False" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         print("%s:before driver.get(url)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         driver.get(url)
         print("%s:after driver.get(url)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
