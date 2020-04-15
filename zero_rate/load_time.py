@@ -85,6 +85,7 @@ def test_website_browser(website, url, sec):
         p.kill()
         os.killpg(os.getpgid(p.pid), signal.SIGKILL)
         return flag
+    print 'skipped'
 
 
 def test_group(target, ping_out, browser_out):
