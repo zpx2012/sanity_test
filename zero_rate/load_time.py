@@ -47,6 +47,7 @@ def stop_tcpdump(p):
 def curl_timed(url,hn,st,sec,src_p=None):
     print 'curl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
     cmd = [os.path.expanduser('~')+'/sanity_test/zero_rate/curl_loop.sh',url,hn,sec,'https',10]
+    print ' '.join(cmd)
     p = subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE) #
     out, err = p.communicate()
     return p
