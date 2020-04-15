@@ -5,7 +5,7 @@ import sys
 import subprocess
 import time
 import urllib2
-import traceback,socket,datetime,logging
+import traceback,socket,datetime,logging,signal
 from selenium import webdriver
 
 GOOD_INTL_WEBSITES = {
