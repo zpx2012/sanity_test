@@ -45,9 +45,8 @@ def stop_tcpdump(p):
 
 
 def curl_timed(url,hn,st,sec,src_p=None):
-    print datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), ': curl timed'
+    print datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), ':curl timed'
     cmd = [os.path.expanduser('~')+'/sanity_test/zero_rate/curl_loop.sh',url,hn,str(sec),'https',st]
-    print ' '.join(cmd)
     p = subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE) #
     # out, err = p.communicate()
     return p
@@ -62,7 +61,7 @@ def test_website_browser(website, url, sec):
         driver.set_page_load_timeout(sec)
         p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
         start_stamp = time.time()
-        flag = False
+        load_time = 90
         print("%s:before get url" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         driver.get(url)
 
@@ -80,8 +79,8 @@ def test_website_browser(website, url, sec):
         logging.info(website + ', ' + driver.title)
         print driver.title
         if driver.title and driver.title != 'Problem loading page':
-            flag = True
-        time.sleep(90 - time.time() + start_stamp)
+            load_time = time.time() + start_stamp
+        time.sleep(90 - load_time)
 
     finally:
         print("%s:test website ends" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))         
@@ -89,17 +88,17 @@ def test_website_browser(website, url, sec):
         p.kill()
         os.killpg(os.getpgid(p.pid), signal.SIGKILL)
         # os.system('ps -ef | grep curl')
-        return flag
+        return load_time
 
 
 def test_group(target, ping_out, browser_out):
     for website, url in target.iteritems():
         try:
             flag = False
-            print("%s:before test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+            # print("%s:before test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
             ret_browser = test_website_browser(website, url, 90)
             print ret_browser
-            print("%s:after test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+            # print("%s:after test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
             # if ret_browser == False or ret_urllib2 == 'timeout':
             p = subprocess.Popen(['ping', '-c','50', '-i','0.2', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = p.communicate()
@@ -111,7 +110,7 @@ def test_group(target, ping_out, browser_out):
                 outf.writelines('ping %s\n' % website)
                 outf.writelines(out+'\n'+err)
             with open(browser_out,'a') as outf:
-                outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),ret_urllib2,str(flag)])+'\n')
+                outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),str(flag)])+'\n')
             print
 
         except (KeyboardInterrupt, SystemExit):   
