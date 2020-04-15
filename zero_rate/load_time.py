@@ -54,13 +54,13 @@ def curl_timed(url,hn,st,sec,src_p=None):
 def test_website_browser(website, url, sec):
     print("%s:Testing website %s..." % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),website)) 
     p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
-    
+    load_time = sec    
+
     try:
         options = webdriver.firefox.options.Options()
         options.add_argument("--headless")
         driver = webdriver.Firefox(firefox_options=options)
         driver.set_page_load_timeout(sec)
-        load_time = sec
         print("%s:before get url" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         start_stamp = time.time()
         driver.get(url)
