@@ -46,10 +46,10 @@ def stop_tcpdump(p):
 
 def curl_timed(url,hn,st,sec,src_p=None):
     print 'curl timed:',datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),'\n'
-    cmd = [os.path.expanduser('~')+'/sanity_test/zero_rate/curl_loop.sh',url,hn,str(sec),'https','10']
+    cmd = [os.path.expanduser('~')+'/sanity_test/zero_rate/curl_loop.sh',url,hn,str(sec),'https',st]
     print ' '.join(cmd)
-    p = subprocess.Popen(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE) #
-    out, err = p.communicate()
+    p = subprocess.Popen(cmd) #,stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    # out, err = p.communicate()
     return p
 
 def test_website_browser(website, url, sec):
@@ -58,19 +58,13 @@ def test_website_browser(website, url, sec):
     try:
         options = webdriver.firefox.options.Options()
         options.add_argument("--headless")
-        print("%s:options.add_argument(\"--headless\")" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-
         driver = webdriver.Firefox(firefox_options=options)
         driver.set_page_load_timeout(sec)
-        print("%s:driver.set_page_load_timeout(sec)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
-        print("%s:p = curl_timed" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         start_stamp = time.time()
         flag = False
-        print("%s:flag = False" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-        print("%s:before driver.get(url)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+        print("%s:before get url" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
         driver.get(url)
-        print("%s:after driver.get(url)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
 
     except (KeyboardInterrupt, SystemExit):   
         sys.exit(0)
@@ -94,8 +88,8 @@ def test_website_browser(website, url, sec):
         driver.quit()
         p.kill()
         os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+        os.system('ps -ef | grep curl')
         return flag
-    print 'skipped'
 
 
 def test_group(target, ping_out, browser_out):

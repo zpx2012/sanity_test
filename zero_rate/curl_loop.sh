@@ -9,9 +9,7 @@ stime=$5
 out=~/sanity_test/rs/curl_$(hostname)_${hn}_${prtcl}_${stime}.txt
 singlerun=singlerun_${hn}_${prtcl}_$(date +%s)
 echo Start: $(date -u +'%Y-%m-%d %H:%M:%S') >> $out
-# while true; do
+while true; do
 	curl -LJv4k -o /dev/null --limit-rate 500k -m $dur --speed-time 120 $url 2>&1 | tee -a $out
-	# cat singlerun >> $out
-	# echo "Retry after 1 second" | tee -a $out
-# done
+done
 echo >> $out
