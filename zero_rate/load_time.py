@@ -60,7 +60,7 @@ def test_website_browser(website, url, sec):
     driver = webdriver.Firefox(firefox_options=options)
     driver.set_page_load_timeout(sec)
     print("%s:driver.set_page_load_timeout(sec)" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-    p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
+    # p = curl_timed(GOOD_INTL_FILES[website], website, start_time, sec)
     print("%s:p = curl_timed" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
     start_stamp = datetime.datetime.now().timestamp()
     flag = False
