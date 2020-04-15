@@ -19,15 +19,15 @@ GOOD_INTL_WEBSITES = {
     'naver.net' : 'https://ww.naver.net',
 }
 
-GOOD_INTL_FILES = {https://obssr.od.nih.gov/wp-content/uploads/2018/03/OBSSR_Festival_Report_2017.pdf
+GOOD_INTL_FILES = {
     'yandex': 'https://an.yandex.ru/resource/context_static_r_8394.js',
     'ebay': 'https://developer.ebay.com/devzone/codebase/javasdk-jaxb/ebaysdkjava1085.zip',
     'mail': 'https://rfr.agent.mail.ru/magent.exe',
     'github': 'https://codeload.github.com/scipy/scipy/zip/master',
     'sciencedirect': 'https://holdings.sciencedirect.com/holdings/productReport.url?packageId=&productId=34&downloadId=1539921713612',
     'springer' : 'https://link.springer.com/content/pdf/10.1007%2Fs10853-018-2650-4.pdf',    
-    'nih.gov' : 'https://obssr.od.nih.gov/wp-content/uploads/2018/03/OBSSR_Festival_Report_2017.pdf'
-    'naver.net' : 'http://update.whale.naver.net/downloads/installers/naver-whale-stable_amd64.deb'
+    'nih.gov' : 'https://obssr.od.nih.gov/wp-content/uploads/2018/03/OBSSR_Festival_Report_2017.pdf',
+    'naver.net' : 'http://update.whale.naver.net/downloads/installers/naver-whale-stable_amd64.deb',
 }
 
 
