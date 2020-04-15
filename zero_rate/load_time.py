@@ -15,7 +15,7 @@ GOOD_INTL_WEBSITES = {
     'github.com': 'https://www.github.com/',
     'sciencedirect.com': 'https://www.sciencedirect.com/',
     'springer.com' : 'https://www.springer.com/',
-    'nih.gov.com' : 'https://www.nih.gov',
+    'nih.gov' : 'https://www.nih.gov',
     'naver.net' : 'https://ww.naver.net',
 }
 
