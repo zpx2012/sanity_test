@@ -79,7 +79,7 @@ def test_website_browser(website, url, sec):
         logging.info(website + ', ' + driver.title)
         print driver.title
         if driver.title and driver.title != 'Problem loading page':
-            load_time = time.time() + start_stamp
+            load_time = time.time() - start_stamp
         time.sleep(90 - load_time)
 
     finally:
@@ -94,12 +94,11 @@ def test_website_browser(website, url, sec):
 def test_group(target, ping_out, browser_out):
     for website, url in target.iteritems():
         try:
+            ping_out = '%s/sanity_test/rs/ping_intl_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+            browser_out = '%s/sanity_test/rs/penalty_intl_%s_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),website,start_time)
             flag = False
-            # print("%s:before test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
             ret_browser = test_website_browser(website, url, 120)
             print ret_browser
-            # print("%s:after test_website_browser" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
-            # if ret_browser == False or ret_urllib2 == 'timeout':
             p = subprocess.Popen(['ping', '-c','50', '-i','0.2', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = p.communicate()
             print out
@@ -125,8 +124,7 @@ def test_websites():
     # p = start_tcpdump()
     # time.sleep(1)
 
-    intl_ping_out = '%s/sanity_test/rs/ping_intl_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
-    intl_out = '%s/sanity_test/rs/penalty_intl_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+
     
     try:
         while True:
