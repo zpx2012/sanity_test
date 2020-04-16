@@ -70,6 +70,8 @@ def test_website_browser(website, url, sec):
 
     except: 
         print("%s:except" % (datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')))
+        if driver.title:
+            print("title loaded")
         logging.debug(website + driver.title + ', timeout')
         logging.debug(traceback.format_exc())
         print '###\n%s' % traceback.format_exc() 
@@ -91,50 +93,39 @@ def test_website_browser(website, url, sec):
         return load_time
 
 
-def test_group(target, ping_out, browser_out):
-    for website, url in target.iteritems():
-        try:
-            ping_out = '%s/sanity_test/rs/ping_intl_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
-            browser_out = '%s/sanity_test/rs/penalty_intl_%s_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),website,start_time)
-            flag = False
-            ret_browser = test_website_browser(website, url, 120)
-            print ret_browser
-            p = subprocess.Popen(['ping', '-c','50', '-i','0.2', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            print out
-            print err
-            if '100% packet loss' in out+err:
-                flag = True
-            with open(ping_out,'a') as outf:
-                outf.writelines('ping %s\n' % website)
-                outf.writelines(out+'\n'+err)
-            with open(browser_out,'a') as outf:
-                outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),str(flag)])+'\n')
-            print 'write done'
+def test_group(target):
+    isEmpty=True
+    while True:
+        for website, url in target.iteritems():
+            try:
+                ping_out = '%s/sanity_test/rs/ping_intl_%s_%s.txt' % (os.path.expanduser('~'),socket.gethostname(),start_time)
+                browser_out = '%s/sanity_test/rs/penalty_intl_%s_%s_%s.csv' % (os.path.expanduser('~'),socket.gethostname(),website,start_time)
+                flag = False
+                ret_browser = test_website_browser(website, url, 120)
+                print ret_browser
+                p = subprocess.Popen(['ping', '-c','50', '-i','0.2', website], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                out, err = p.communicate()
+                print out
+                print err
+                if '100% packet loss' in out+err:
+                    flag = True
+                with open(ping_out,'a') as outf:
+                    outf.writelines('ping %s\n' % website)
+                    outf.writelines(out+'\n'+err)
+                with open(browser_out,'a') as outf:
+                    if isEmpty:
+                        outf.writelines('time, load_time, ping_result\n')
+                    outf.writelines(','.join([datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), website, str(ret_browser),str(flag)])+'\n')
+                print 'write done'
 
-        except (KeyboardInterrupt, SystemExit):   
-            sys.exit(0)
-        except:
-            traceback.format_exc()
-            logging.debug(traceback.format_exc())
-
-def test_websites():
-    global start_time
-
-    # p = start_tcpdump()
-    # time.sleep(1)
-
-
-    
-    try:
-        while True:
-            test_group(GOOD_INTL_WEBSITES,intl_ping_out,intl_out)
-
-    except (KeyboardInterrupt, SystemExit):   
-        # stop_tcpdump(p) 
-        sys.exit(0)
+            except (KeyboardInterrupt, SystemExit):   
+                sys.exit(0)
+            except:
+                traceback.format_exc()
+                logging.debug(traceback.format_exc())
+        isEmpty = False
 
 if __name__ == "__main__":
     start_time = time.strftime("%Y%m%d%H%M%S")
     logging.basicConfig(filename=os.path.expanduser('~/sanity_test/rs/penalty_%s_%s.log' % (socket.gethostname(), start_time)), format='%(asctime)s,%(levelname)s, %(message)s')
-    test_websites()
+    test_group(GOOD_INTL_WEBSITES)
