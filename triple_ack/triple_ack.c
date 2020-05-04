@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <linux/types.h>
@@ -81,13 +82,13 @@ char dst_ip[16];
 
 void add_iprules(){
         char buf[80];
-        snprintf(buf,80,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK -j NFQUEUE", dst_ip); 
+        snprintf(buf,80,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
         system(buf);
 }
 
 void delete_iprules(){
         char buf[80];
-        snprintf(buf,80,"iptables -D OUTPUT -d %s --protocol tcp --tcp-flags ACK -j NFQUEUE", dst_ip); 
+        snprintf(buf,80,"iptables -D OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
         system(buf);
 }
 
@@ -114,6 +115,7 @@ void  INThandler(int sig)
         signal(sig, SIG_IGN);
         close_nfq();
         delete_iprules();
+        exit(0);
 }
 
 
