@@ -67,8 +67,8 @@ static u_int32_t print_pkt (struct nfq_data *tb)
         
 void print_tcp_packet(unsigned char *buf) {
 
-    struct iphdr *iph = (struct ipheader*)buf;          /* IPv4 header */
-    struct tcphdr *tcph tcphdr = (struct tcpheader*)(buf + 20);        /* TCP header */
+    struct iphdr *iph = (struct iphdr*)buf;          /* IPv4 header */
+    struct tcphdr *tcph = (struct tcphdr*)(buf + 20);        /* TCP header */
     u_int16_t sport, dport;           /* Source and destination ports */
     u_int32_t saddr, daddr;           /* Source and destination addresses */
     unsigned char *user_data;   /* TCP data begin pointer */
@@ -107,12 +107,12 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
 {
         // u_int32_t id = print_pkt(nfa);
         u_int32_t id;
-        char* data;
+        unsigned char* packet_data;
 
         struct nfqnl_msg_packet_hdr *ph;
         ph = nfq_get_msg_packet_hdr(nfa);    
-        nfq_get_payload(nfa, &data);
-        print_tcp_packet(data);   
+        nfq_get_payload(nfa, &packet_data);
+        print_tcp_packet(packet_data);   
         id = ntohl(ph->packet_id);
         printf("entering callback\n");
         return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
