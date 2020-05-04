@@ -118,7 +118,6 @@ void  INThandler(int sig)
 
 
 
-
 int main(int argc, char **argv)
 {
         signal(SIGINT, INThandler);
@@ -138,7 +137,7 @@ int main(int argc, char **argv)
         add_iprules();
 
         //setup of raw socket to send packets
-        add_msg("setting up raw socket");
+        printf("setting up raw socket");
         raw_sd = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
         if(raw_sd < 0) {
                 fprintf(stderr, "couldn't open RAW socket\n");
