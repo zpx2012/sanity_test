@@ -81,14 +81,14 @@ struct nfq_q_handle *qh;
 char dst_ip[16];
 
 void add_iprules(){
-        char buf[80];
-        snprintf(buf,80,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
+        char buf[100];
+        snprintf(buf,100,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
         system(buf);
 }
 
 void delete_iprules(){
-        char buf[80];
-        snprintf(buf,80,"iptables -D OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
+        char buf[100];
+        snprintf(buf,100,"iptables -D OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
         system(buf);
 }
 
