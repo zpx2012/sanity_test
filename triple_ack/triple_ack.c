@@ -69,8 +69,8 @@ void print_tcp_packet(unsigned char *buf) {
 
     struct iphdr *iph = (struct ipheader*)buf;          /* IPv4 header */
     struct tcphdr *tcph tcphdr = (struct tcpheader*)(buf + 20);        /* TCP header */
-    u16 sport, dport;           /* Source and destination ports */
-    u32 saddr, daddr;           /* Source and destination addresses */
+    u_int16_t sport, dport;           /* Source and destination ports */
+    u_int32_t saddr, daddr;           /* Source and destination addresses */
     unsigned char *user_data;   /* TCP data begin pointer */
     unsigned char *it;          /* TCP data iterator */
 
@@ -90,15 +90,15 @@ void print_tcp_packet(unsigned char *buf) {
                               &daddr, dport);
 
     /* Print TCP packet data (payload) */
-    printf("print_tcp: data:\n");
-    for (it = user_data; it != tail; ++it) {
-        char c = *(char *)it;
+    // printf("print_tcp: data:\n");
+    // for (it = user_data; it != tail; ++it) {
+    //     char c = *(char *)it;
 
-        if (c == '\0')
-            break;
+    //     if (c == '\0')
+    //         break;
 
-        printf("%c", c);
-    }
+    //     printf("%c", c);
+    // }
     printf("\n\n");
 
  }
