@@ -7,6 +7,8 @@
 #include <linux/netfilter.h>            
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include <signal.h>
+#include <linux/ip.h>
+#include <linux/tcp.h>
 
 static u_int32_t print_pkt (struct nfq_data *tb)
 {
@@ -63,14 +65,54 @@ static u_int32_t print_pkt (struct nfq_data *tb)
         return id;
 }
         
+void print_tcp_packet(unsigned char *buf) {
+
+    struct iphdr *iph = (struct ipheader*)buf;          /* IPv4 header */
+    struct tcphdr *tcph tcphdr = (struct tcpheader*)(buf + 20);        /* TCP header */
+    u16 sport, dport;           /* Source and destination ports */
+    u32 saddr, daddr;           /* Source and destination addresses */
+    unsigned char *user_data;   /* TCP data begin pointer */
+    unsigned char *it;          /* TCP data iterator */
+
+    /* Convert network endianness to host endiannes */
+    saddr = ntohl(iph->saddr);
+    daddr = ntohl(iph->daddr);
+    sport = ntohs(tcph->source);
+    dport = ntohs(tcph->dest);
+
+    /* Calculate pointers for begin and end of TCP packet data */
+    user_data = (unsigned char *)((unsigned char *)tcph + (tcph->doff * 4));
+
+    /* ----- Print all needed information from received TCP packet ------ */
+
+    /* Print packet route */
+    printf("print_tcp: %pI4h:%d -> %pI4h:%d\n", &saddr, sport,
+                              &daddr, dport);
+
+    /* Print TCP packet data (payload) */
+    printf("print_tcp: data:\n");
+    for (it = user_data; it != tail; ++it) {
+        char c = *(char *)it;
+
+        if (c == '\0')
+            break;
+
+        printf("%c", c);
+    }
+    printf("\n\n");
+
+ }
 
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
 {
-        u_int32_t id = print_pkt(nfa);
-//      u_int32_t id;
+        // u_int32_t id = print_pkt(nfa);
+        u_int32_t id;
+        char* data;
 
         struct nfqnl_msg_packet_hdr *ph;
-        ph = nfq_get_msg_packet_hdr(nfa);       
+        ph = nfq_get_msg_packet_hdr(nfa);    
+        nfq_get_payload(nfa, &data);
+        print_tcp_packet(data);   
         id = ntohl(ph->packet_id);
         printf("entering callback\n");
         return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
