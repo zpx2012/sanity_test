@@ -1,0 +1,1 @@
+gcc triple_ack.c -o triple_ack -lnfnetlink -lnetfilter_queue
