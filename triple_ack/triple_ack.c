@@ -80,7 +80,7 @@ void print_tcp_packet(unsigned char *buf) {
         struct iphdr *iph = (struct iphdr*)buf;          /* IPv4 header */
         struct tcphdr *tcph = (struct tcphdr*)(buf + 20);        /* TCP header */
         u_int16_t sport, dport;           /* Source and destination ports */
-        struct sockaddr_in source,dest;
+        struct sockaddr_in source, dest;
 
         /* Convert network endianness to host endiannes */
         memset(&source, 0, sizeof(source));
@@ -94,10 +94,8 @@ void print_tcp_packet(unsigned char *buf) {
         /* ----- Print all needed information from received TCP packet ------ */
 
         /* Print packet route */
-        printf("print_tcp: %s:%d -> %s:%d seq=%x ack=%x\n", inet_ntoa(source.sin_addr), sport,
+        printf("%s:%d -> %s:%d seq=%x ack=%x\n", inet_ntoa(source.sin_addr), sport,
                               inet_ntoa(dest.sin_addr), dport, ntohl(tcph->seq),ntohl(tcph->ack_seq));
-
-        printf("\n\n");
 
 }
 
@@ -264,7 +262,7 @@ int main(int argc, char **argv)
         
         for (;;) {
                 if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
-                        printf("pkt received\n");
+                        // printf("pkt received\n");
                         nfq_handle_packet(h, buf, rv);
                         continue;
                 }
