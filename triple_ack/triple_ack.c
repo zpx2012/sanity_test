@@ -214,7 +214,7 @@ int main(int argc, char **argv)
                 exit(1);
         }
 
-        if (setsockopt(sd, SOL_SOCKET, SO_MARK, &mark, sizeof(mark)) < 0)
+        if (setsockopt(raw_sd, SOL_SOCKET, SO_MARK, &mark, sizeof(mark)) < 0)
         {
                 fprintf(stderr, "couldn't set MARK");
                 exit(1);
