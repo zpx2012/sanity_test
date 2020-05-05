@@ -18,7 +18,7 @@ struct nfq_handle *h;
 struct nfq_q_handle *qh;
 char dst_ip[16];
 int raw_sd;
-
+const int mark = 3;
 
 static u_int32_t print_pkt (struct nfq_data *tb)
 {
@@ -132,23 +132,31 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         id = ntohl(ph->packet_id);
 
         packet_len = nfq_get_payload(nfa, &packet_data);
-        print_tcp_packet(packet_data);   
-        for (int i = 0; i < 3; ++i)
-        {
-                send_raw_packet(raw_sd, packet_data, packet_len);
+        struct iphdr *iph = (struct iphdr*)packet_data;          /* IPv4 header */
+        struct tcphdr *tcph = (struct tcphdr*)(packet_data + 20);        /* TCP header */
+        unsigned short payload_len = ntohs(iph->tot_len) - iph->ihl*4 - tcph->doff*4;
+        printf("payload_len:%d\n", payload_len);
+        if (!payload_len){
+                print_tcp_packet(packet_data);   
+                for (int i = 0; i < 3; ++i)
+                {
+                        send_raw_packet(raw_sd, packet_data, packet_len);
+                }
         }
         return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
 }
 
 void add_iprules(){
-        char buf[100];
-        snprintf(buf,100,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
+        char buf[200];
+        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, mark); 
+        system(buf);
+        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
         system(buf);
 }
 
 void delete_iprules(){
-        char buf[100];
-        snprintf(buf,100,"iptables -D OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
+        char buf[200];
+        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
         system(buf);
 }
 
@@ -203,6 +211,12 @@ int main(int argc, char **argv)
         raw_sd = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
         if(raw_sd < 0) {
                 fprintf(stderr, "couldn't open RAW socket\n");
+                exit(1);
+        }
+
+        if (setsockopt(sd, SOL_SOCKET, SO_MARK, &mark, sizeof(mark)) < 0)
+        {
+                fprintf(stderr, "couldn't set MARK");
                 exit(1);
         }
 
