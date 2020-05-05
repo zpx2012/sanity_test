@@ -17,6 +17,7 @@
 struct nfq_handle *h;
 struct nfq_q_handle *qh;
 char dst_ip[16];
+unsigned int sport;
 int raw_sd;
 const int mark = 3;
 
@@ -146,15 +147,17 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
 
 void add_iprules(){
         char buf[200];
-        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, mark); 
+        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
         system(buf);
-        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
+        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
         system(buf);
 }
 
 void delete_iprules(){
         char buf[200];
-        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip); 
+        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
+        system(buf);
+        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
         system(buf);
 }
 
@@ -195,12 +198,13 @@ int main(int argc, char **argv)
         int rv;
         char buf[4096] __attribute__ ((aligned));
 
-        if (argc < 2){
+        if (argc < 3){
                 printf("Please provide target IPaddress.\n");
                 exit(0);
         }
         strcpy(dst_ip, argv[1]);
         dst_ip[15] = '\0';
+        sport = atoi(argv[2]);
 
         add_iprules();
 
