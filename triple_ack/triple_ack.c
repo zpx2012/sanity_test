@@ -147,17 +147,17 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
 
 void add_iprules(){
         char buf[200];
-        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
+        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
         system(buf);
-        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
+        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
         system(buf);
 }
 
 void delete_iprules(){
         char buf[200];
-        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
+        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
         system(buf);
-        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol --sport %d tcp --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
+        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
         system(buf);
 }
 
