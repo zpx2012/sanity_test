@@ -133,7 +133,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         struct iphdr *iph = (struct iphdr*)packet_data;          /* IPv4 header */
         struct tcphdr *tcph = (struct tcphdr*)(packet_data + 20);        /* TCP header */
         unsigned short payload_len = ntohs(iph->tot_len) - iph->ihl*4 - tcph->doff*4;
-        printf("payload_len:%d\n", payload_len);
+        // printf("payload_len:%d\n", payload_len);
         if (!payload_len){
                 print_tcp_packet(packet_data);   
                 for (int i = 0; i < 3; ++i)
@@ -252,13 +252,6 @@ int main(int argc, char **argv)
 
         fd = nfq_fd(h);
 
-        // para el tema del loss:   while ((rv = recv(fd, buf, sizeof(buf), 0)) && rv >= 0)
-
-        while ((rv = recv(fd, buf, sizeof(buf), 0)))
-        {
-                printf("pkt received\n");
-                nfq_handle_packet(h, buf, rv);
-        }
         
         for (;;) {
                 if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
