@@ -110,8 +110,8 @@ int send_raw_packet(size_t sd, unsigned char *buf, uint16_t len) {
         int ret = sendto(sd, buf, len, 0, (struct sockaddr*) &sin, sizeof(sin));
         if (ret < 0)
                 fprintf(stderr, "send_raw_packet returns error\n");
-        // else
-        //         printf("send 1 packet.\n");
+        else
+                printf("send 1 packet.\n");
         return ret;
 }
 
