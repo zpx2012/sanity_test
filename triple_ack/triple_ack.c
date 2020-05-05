@@ -10,6 +10,13 @@
 #include <linux/ip.h>
 #include <linux/tcp.h>
 
+
+struct nfq_handle *h;
+struct nfq_q_handle *qh;
+char dst_ip[16];
+int raw_sd;
+
+
 static u_int32_t print_pkt (struct nfq_data *tb)
 {
         int id = 0;
@@ -71,8 +78,6 @@ void print_tcp_packet(unsigned char *buf) {
     struct tcphdr *tcph = (struct tcphdr*)(buf + 20);        /* TCP header */
     u_int16_t sport, dport;           /* Source and destination ports */
     u_int32_t saddr, daddr;           /* Source and destination addresses */
-    unsigned char *user_data;   /* TCP data begin pointer */
-    unsigned char *it;          /* TCP data iterator */
 
     /* Convert network endianness to host endiannes */
     saddr = ntohl(iph->saddr);
@@ -86,41 +91,50 @@ void print_tcp_packet(unsigned char *buf) {
     /* ----- Print all needed information from received TCP packet ------ */
 
     /* Print packet route */
-    printf("print_tcp: %pI4h:%d -> %pI4h:%d\n", &saddr, sport,
-                              &daddr, dport);
+    printf("print_tcp: %s:%d -> %s:%d seq=%x ack=%x\n", inet_ntoa(saddr), sport,
+                              inet_ntoa(daddr), dport, ntohl(tcph->seq),ntohl(tcph->ack_seq));
 
-    /* Print TCP packet data (payload) */
-    // printf("print_tcp: data:\n");
-    // for (it = user_data; it != tail; ++it) {
-    //     char c = *(char *)it;
-
-    //     if (c == '\0')
-    //         break;
-
-    //     printf("%c", c);
-    // }
     printf("\n\n");
 
- }
+}
+
+int send_raw_packet(size_t sd, unsigned char *buf, uint16_t len) {
+        //send packet on raw socket
+        struct sockaddr_in sin; 
+        sin.sin_family = AF_INET;
+        sin.sin_port = ntohs(22);
+        sin.sin_addr.s_addr = ((struct iphdr*)buf)->daddr;
+        
+        int ret = sendto(sd, buf, len, 0, (struct sockaddr*) &sin, sizeof(sin));
+        if (ret < 0)
+                fprintf(stderr, "send_raw_packet returns error\n");
+        else
+                printf("send 1 packet.\n");
+        return ret;
+}
+
+
+
 
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
 {
         // u_int32_t id = print_pkt(nfa);
         u_int32_t id;
         unsigned char* packet_data;
+        int packet_len, i;
 
-        struct nfqnl_msg_packet_hdr *ph;
-        ph = nfq_get_msg_packet_hdr(nfa);    
-        nfq_get_payload(nfa, &packet_data);
+        // struct nfqnl_msg_packet_hdr *ph;
+        // ph = nfq_get_msg_packet_hdr(nfa);    
+        packet_len = nfq_get_payload(nfa, &packet_data);
         print_tcp_packet(packet_data);   
         id = ntohl(ph->packet_id);
-        printf("entering callback\n");
+        // printf("entering callback\n");
+        for (int i = 0; i < 3; ++i)
+        {
+                send_raw_packet(raw_sd, packet_data, packet_len);
+        }
         return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
 }
-
-struct nfq_handle *h;
-struct nfq_q_handle *qh;
-char dst_ip[16];
 
 void add_iprules(){
         char buf[100];
@@ -166,7 +180,7 @@ int main(int argc, char **argv)
 {
         signal(SIGINT, INThandler);
 
-        int raw_sd;
+
         int fd;
         int rv;
         char buf[4096] __attribute__ ((aligned));
@@ -229,7 +243,27 @@ int main(int argc, char **argv)
                 printf("pkt received\n");
                 nfq_handle_packet(h, buf, rv);
         }
-
+        
+        for (;;) {
+                if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
+                        printf("pkt received\n");
+                        nfq_handle_packet(h, buf, rv);
+                        continue;
+                }
+                /* if your application is too slow to digest the packets that
+                * are sent from kernel-space, the socket buffer that we use
+                * to enqueue packets may fill up returning ENOBUFS. Depending
+                * on your application, this error may be ignored. Please, see
+                * the doxygen documentation of this library on how to improve
+                * this situation.
+                */
+                if (rv < 0 && errno == ENOBUFS) {
+                        printf("losing packets!\n");
+                        continue;
+                }
+                perror("recv failed");
+                // break;
+        }
 
 
         exit(0);
