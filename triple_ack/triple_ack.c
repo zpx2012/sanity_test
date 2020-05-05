@@ -9,6 +9,9 @@
 #include <signal.h>
 #include <linux/ip.h>
 #include <linux/tcp.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <errno.h>
 
 struct nfq_handle *h;
@@ -74,24 +77,27 @@ static u_int32_t print_pkt (struct nfq_data *tb)
         
 void print_tcp_packet(unsigned char *buf) {
 
-    struct iphdr *iph = (struct iphdr*)buf;          /* IPv4 header */
-    struct tcphdr *tcph = (struct tcphdr*)(buf + 20);        /* TCP header */
-    u_int16_t sport, dport;           /* Source and destination ports */
-    u_int32_t saddr, daddr;           /* Source and destination addresses */
+        struct iphdr *iph = (struct iphdr*)buf;          /* IPv4 header */
+        struct tcphdr *tcph = (struct tcphdr*)(buf + 20);        /* TCP header */
+        u_int16_t sport, dport;           /* Source and destination ports */
+        struct sockaddr_in source,dest;
 
-    /* Convert network endianness to host endiannes */
-    saddr = ntohl(iph->saddr);
-    daddr = ntohl(iph->daddr);
-    sport = ntohs(tcph->source);
-    dport = ntohs(tcph->dest);
+        /* Convert network endianness to host endiannes */
+        memset(&source, 0, sizeof(source));
+        source.sin_addr.s_addr = iph->saddr;
+     
+        memset(&dest, 0, sizeof(dest));
+        dest.sin_addr.s_addr = iph->daddr;
+        sport = ntohs(tcph->source);
+        dport = ntohs(tcph->dest);
 
-    /* ----- Print all needed information from received TCP packet ------ */
+        /* ----- Print all needed information from received TCP packet ------ */
 
-    /* Print packet route */
-    printf("print_tcp: %s:%d -> %s:%d seq=%x ack=%x\n", inet_ntoa(saddr), sport,
-                              inet_ntoa(daddr), dport, ntohl(tcph->seq),ntohl(tcph->ack_seq));
+        /* Print packet route */
+        printf("print_tcp: %s:%d -> %s:%d seq=%x ack=%x\n", inet_ntoa(source.sin_addr), sport,
+                              inet_ntoa(dest.sin_addr), dport, ntohl(tcph->seq),ntohl(tcph->ack_seq));
 
-    printf("\n\n");
+        printf("\n\n");
 
 }
 
