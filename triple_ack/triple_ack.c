@@ -94,8 +94,8 @@ void print_tcp_packet(unsigned char *buf) {
         /* ----- Print all needed information from received TCP packet ------ */
 
         /* Print packet route */
-        printf("%s:%d -> %s:%d seq=%x ack=%x\n", inet_ntoa(source.sin_addr), sport,
-                              inet_ntoa(dest.sin_addr), dport, ntohl(tcph->seq),ntohl(tcph->ack_seq));
+        printf("%s:%d -> ", inet_ntoa(source.sin_addr), sport);
+        printf("%s:%d seq=%x ack=%x\n", inet_ntoa(dest.sin_addr), dport, ntohl(tcph->seq),ntohl(tcph->ack_seq));
 
 }
 
