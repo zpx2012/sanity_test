@@ -110,8 +110,8 @@ int send_raw_packet(size_t sd, unsigned char *buf, uint16_t len) {
         int ret = sendto(sd, buf, len, 0, (struct sockaddr*) &sin, sizeof(sin));
         if (ret < 0)
                 fprintf(stderr, "send_raw_packet returns error\n");
-        else
-                printf("send 1 packet.\n");
+        // else
+        //         printf("send 1 packet.\n");
         return ret;
 }
 
@@ -136,7 +136,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         unsigned short payload_len = ntohs(iph->tot_len) - iph->ihl*4 - tcph->doff*4;
         // printf("payload_len:%d\n", payload_len);
         if (!payload_len){
-                print_tcp_packet(packet_data);   
+                // print_tcp_packet(packet_data);   
                 for (int i = 0; i < 3; ++i)
                 {
                         send_raw_packet(raw_sd, packet_data, packet_len);
