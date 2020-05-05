@@ -9,7 +9,7 @@
 #include <signal.h>
 #include <linux/ip.h>
 #include <linux/tcp.h>
-
+#include <errno.h>
 
 struct nfq_handle *h;
 struct nfq_q_handle *qh;
@@ -85,9 +85,6 @@ void print_tcp_packet(unsigned char *buf) {
     sport = ntohs(tcph->source);
     dport = ntohs(tcph->dest);
 
-    /* Calculate pointers for begin and end of TCP packet data */
-    user_data = (unsigned char *)((unsigned char *)tcph + (tcph->doff * 4));
-
     /* ----- Print all needed information from received TCP packet ------ */
 
     /* Print packet route */
@@ -123,12 +120,13 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         unsigned char* packet_data;
         int packet_len, i;
 
-        // struct nfqnl_msg_packet_hdr *ph;
-        // ph = nfq_get_msg_packet_hdr(nfa);    
+        // printf("entering callback\n");
+        struct nfqnl_msg_packet_hdr *ph;
+        ph = nfq_get_msg_packet_hdr(nfa);    
+        id = ntohl(ph->packet_id);
+
         packet_len = nfq_get_payload(nfa, &packet_data);
         print_tcp_packet(packet_data);   
-        id = ntohl(ph->packet_id);
-        // printf("entering callback\n");
         for (int i = 0; i < 3; ++i)
         {
                 send_raw_packet(raw_sd, packet_data, packet_len);
