@@ -14,7 +14,6 @@ else
 	cat data/$(hostname).csv | while IFS=',' read ip hm;do
 		echo $ip $hm
 		screen -dmS curl_ack bash -c "while true;do bash ~/sanity_test/curl_dler.sh $ip $hm 120 3data $stime 5000;done"
-		sleep 120
 		screen -dmS curl_ctl bash -c "while true;do bash ~/sanity_test/curl_dler.sh $ip $hm 120 ctl $stime 5001;done"
 	done
 fi
