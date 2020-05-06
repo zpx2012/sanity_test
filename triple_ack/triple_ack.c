@@ -20,7 +20,6 @@ char dst_ip[16];
 unsigned int sport;
 int raw_sd, mode, copy_num;
 const int mark = 3;
-int ;
 
 static u_int32_t print_pkt (struct nfq_data *tb)
 {
