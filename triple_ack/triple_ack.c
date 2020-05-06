@@ -18,9 +18,9 @@ struct nfq_handle *h;
 struct nfq_q_handle *qh;
 char dst_ip[16];
 unsigned int sport;
-int raw_sd;
+int raw_sd, mode, copy_num;
 const int mark = 3;
-int mode;
+int ;
 
 static u_int32_t print_pkt (struct nfq_data *tb)
 {
@@ -124,7 +124,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         // u_int32_t id = print_pkt(nfa);
         u_int32_t id;
         unsigned char* packet_data;
-        int packet_len, i, num = 3;
+        int packet_len, i;
 
         // printf("entering callback\n");
         struct nfqnl_msg_packet_hdr *ph;
@@ -137,9 +137,9 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         unsigned short payload_len = ntohs(iph->tot_len) - iph->ihl*4 - tcph->doff*4;
         // printf("payload_len:%d\n", payload_len);
         if ((!payload_len && !mode) || (payload_len && mode)){
-                printf("sent %d packets len = %d.\n", num, payload_len);
+                printf("sent %d packets len = %d.\n", copy_num, payload_len);
                 // print_tcp_packet(packet_data);   
-                for (int i = 0; i < num; ++i)
+                for (int i = 0; i < copy_num; ++i)
                 {
                         send_raw_packet(raw_sd, packet_data, packet_len);
                 }
@@ -215,14 +215,15 @@ int main(int argc, char **argv)
         int rv;
         char buf[4096] __attribute__ ((aligned));
 
-        if (argc < 4){
-                printf("Usage: dst_ip client_port mode[0:client/1:server]\n");
+        if (argc < 5){
+                printf("Usage: dst_ip client_port copy_num mode[0:client/1:server]\n");
                 exit(0);
         }
         strcpy(dst_ip, argv[1]);
         dst_ip[15] = '\0';
         sport = atoi(argv[2]);
-        mode = atoi(argv[3]);
+        copy_num = atoi(argv[3]);
+        mode = atoi(argv[4]);
 
         add_iprules();
 
