@@ -20,6 +20,7 @@ char dst_ip[16];
 unsigned int sport;
 int raw_sd;
 const int mark = 3;
+int mode;
 
 static u_int32_t print_pkt (struct nfq_data *tb)
 {
@@ -123,7 +124,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         // u_int32_t id = print_pkt(nfa);
         u_int32_t id;
         unsigned char* packet_data;
-        int packet_len, i;
+        int packet_len, i, num = 3;
 
         // printf("entering callback\n");
         struct nfqnl_msg_packet_hdr *ph;
@@ -135,10 +136,10 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         struct tcphdr *tcph = (struct tcphdr*)(packet_data + 20);        /* TCP header */
         unsigned short payload_len = ntohs(iph->tot_len) - iph->ihl*4 - tcph->doff*4;
         // printf("payload_len:%d\n", payload_len);
-        if (!payload_len){
-                printf("sent 3 ack packets.\n");
+        if ((!payload_len && !mode) || (payload_len && mode)){
+                printf("sent %d packets len = %d.\n", num, payload_len);
                 // print_tcp_packet(packet_data);   
-                for (int i = 0; i < 3; ++i)
+                for (int i = 0; i < num; ++i)
                 {
                         send_raw_packet(raw_sd, packet_data, packet_len);
                 }
@@ -148,18 +149,33 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
 
 void add_iprules(){
         char buf[200];
-        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
-        system(buf);
-        snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
-        system(buf);
+        if (mode == 0){
+                snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
+                system(buf);
+                snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
+                system(buf);
+        }
+        else if (mode == 1){
+                snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --dport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
+                system(buf);
+                snprintf(buf,200,"iptables -A OUTPUT -d %s --protocol tcp --dport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
+                system(buf);               
+        }
 }
 
 void delete_iprules(){
-        char buf[200];
-        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
-        system(buf);
-        snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
-        system(buf);
+        if (mode == 0){
+                snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
+                system(buf);
+                snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
+                system(buf);
+        }
+        else if (mode == 1){
+                snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --dport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
+                system(buf);
+                snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --dport %d --tcp-flags ACK ACK -j NFQUEUE", dst_ip, sport); 
+                system(buf);               
+        }
 }
 
 void close_nfq(){
@@ -194,18 +210,18 @@ int main(int argc, char **argv)
 {
         signal(SIGINT, INThandler);
 
-
         int fd;
         int rv;
         char buf[4096] __attribute__ ((aligned));
 
-        if (argc < 3){
-                printf("Please provide target IPaddress.\n");
+        if (argc < 4){
+                printf("Usage: dst_ip client_port mode[0:client/1:server]\n");
                 exit(0);
         }
         strcpy(dst_ip, argv[1]);
         dst_ip[15] = '\0';
         sport = atoi(argv[2]);
+        mode = atoi(argv[3]);
 
         add_iprules();
 
