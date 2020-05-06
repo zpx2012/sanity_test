@@ -164,6 +164,7 @@ void add_iprules(){
 }
 
 void delete_iprules(){
+        char buf[200];
         if (mode == 0){
                 snprintf(buf,200,"iptables -D OUTPUT -d %s --protocol tcp --sport %d --tcp-flags ACK ACK -m mark --mark %d -j ACCEPT", dst_ip, sport, mark); 
                 system(buf);
