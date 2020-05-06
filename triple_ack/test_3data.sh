@@ -4,7 +4,7 @@ gcc triple_ack.c -o triple_ack -lnfnetlink -lnetfilter_queue
 cd data
 if [[ $1 == s ]]; then
 	cat $(hostname).csv | while read ip hm port cnt; do 
-		sudo ./triple_ack $ip $port $cnt 1
+		sudo ./triple_ack $ip $port 4 1
 	done
 else
 	stime=$(date -u +'%Y%m%d%H%M')
