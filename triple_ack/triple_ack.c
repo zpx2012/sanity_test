@@ -227,7 +227,7 @@ int main(int argc, char **argv)
         add_iprules();
 
         //setup of raw socket to send packets
-        printf("setting up raw socket");
+        printf("setting up raw socket\n");
         raw_sd = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
         if(raw_sd < 0) {
                 fprintf(stderr, "couldn't open RAW socket\n");
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
 
         if (setsockopt(raw_sd, SOL_SOCKET, SO_MARK, &mark, sizeof(mark)) < 0)
         {
-                fprintf(stderr, "couldn't set MARK");
+                fprintf(stderr, "couldn't set MARK\n");
                 exit(1);
         }
 
