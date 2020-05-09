@@ -210,10 +210,11 @@ void INThandler(int sig)
         exit(0);
 }
 
-void pool_handler(struct thread_data thr_data){
-        nfq_handle_packet(h, thr_data.buf, thr_data.len);
-        printf("free %p\n", thr_data.buf);
-        free(thr_data.buf);
+void pool_handler(struct thread_data* thr_data){
+        nfq_handle_packet(h, thr_data->buf, thr_data->len);
+        printf("free %p\n", thr_data->buf);
+        free(thr_data->buf);
+        free(thr_data);
 }
 
 
@@ -224,7 +225,7 @@ int main(int argc, char **argv)
         int fd;
         int rv;
         char buf[4096] __attribute__ ((aligned));
-        struct thread_data thr_data;
+        struct thread_data* thr_data;
 
         if (argc < 5){
                 printf("Usage: dst_ip client_port copy_num mode[0:client/1:server]\n");
@@ -296,15 +297,22 @@ int main(int argc, char **argv)
         for (;;) {
                 if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
                         printf("pkt received\n");
-                        thr_data.len = rv;
-                        thr_data.buf = (char *)malloc(rv);
-                        if (!thr_data.buf){
+                        thr_data = malloc(sizeof(struct thread_data));
+                        if (!thr_data)
+                        {
                                 fprintf(stderr, "error during thr_data malloc\n");
+                                continue;                                /* code */
+                        }
+                        thr_data->len = rv;
+                        thr_data->buf = (char *)malloc(rv);
+                        if (!thr_data.buf){
+                                fprintf(stderr, "error during thr_data->buf malloc\n");
                                 continue;
                         }
-                        strncpy(thr_data.buf, buf, rv);
-                        if(thr_pool_queue(pool, pool_handler, (void *)NULL) < 0){
+                        strncpy(thr_data->buf, buf, rv);
+                        if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
                                 fprintf(stderr, "error during thr_pool_queue\n");
+                                continue;
                         }
                         // printf("before nfq_handle_packet: buf %p\n", buf);
                         // nfq_handle_packet(h, buf, rv);
