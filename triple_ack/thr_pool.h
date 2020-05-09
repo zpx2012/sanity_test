@@ -3,7 +3,7 @@
  */
 
 #include <pthread.h>
-
+#include <sys/types.h>
 /*
  * The thr_pool_t type is opaque to the client.
  * It is created by thr_pool_create() and must be passed
