@@ -131,7 +131,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         unsigned char* packet_data;
         int packet_len, i;
 
-        printf("entering callback\n");
+        printf("entering callback:%p\n", nfmsg);
         struct nfqnl_msg_packet_hdr *ph;
         ph = nfq_get_msg_packet_hdr(nfa);    
         id = ntohl(ph->packet_id);
