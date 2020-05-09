@@ -305,7 +305,7 @@ int main(int argc, char **argv)
                         }
                         thr_data->len = rv;
                         thr_data->buf = (char *)malloc(rv);
-                        if (!thr_data.buf){
+                        if (!thr_data->buf){
                                 fprintf(stderr, "error during thr_data->buf malloc\n");
                                 continue;
                         }
