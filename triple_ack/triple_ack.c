@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
+// #include "thr_pool.h"
 
 struct nfq_handle *h;
 struct nfq_q_handle *qh;
@@ -20,6 +21,11 @@ char dst_ip[16];
 unsigned int sport;
 int raw_sd, mode, copy_num;
 const int mark = 3;
+
+struct thread_data{
+   int  len;
+   char *buf;
+};
 
 static u_int32_t print_pkt (struct nfq_data *tb)
 {
@@ -125,7 +131,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         unsigned char* packet_data;
         int packet_len, i;
 
-        // printf("entering callback\n");
+        printf("entering callback\n");
         struct nfqnl_msg_packet_hdr *ph;
         ph = nfq_get_msg_packet_hdr(nfa);    
         id = ntohl(ph->packet_id);
@@ -195,7 +201,7 @@ void close_nfq(){
 
 
 
-void  INThandler(int sig)
+void INThandler(int sig)
 {
         printf("entering INThandler\n");
         signal(sig, SIG_IGN);
@@ -204,6 +210,9 @@ void  INThandler(int sig)
         exit(0);
 }
 
+void pool_handler(struct thread_data thr_data){
+        nfq_handle_packet(h, thr_data.buf, thr_data.len);
+}
 
 
 int main(int argc, char **argv)
@@ -213,6 +222,7 @@ int main(int argc, char **argv)
         int fd;
         int rv;
         char buf[4096] __attribute__ ((aligned));
+        // struct thread_data thr_data;
 
         if (argc < 5){
                 printf("Usage: dst_ip client_port copy_num mode[0:client/1:server]\n");
@@ -225,6 +235,12 @@ int main(int argc, char **argv)
         mode = atoi(argv[4]);
 
         add_iprules();
+
+        // thr_pool_t* pool = thr_pool_create(4, 10, 300, NULL);
+        // if (!pool){
+        //         fprintf(stderr, "couldn't create thr_pool\n");
+        //         exit(1);                
+        // }
 
         //setup of raw socket to send packets
         printf("setting up raw socket\n");
@@ -278,7 +294,19 @@ int main(int argc, char **argv)
         for (;;) {
                 if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
                         // printf("pkt received\n");
+                        // thr_data.len = rv;
+                        // thr_data.buf = (char *)malloc(rv);
+                        // if (!thr_data.buf){
+                        //         fprintf(stderr, "error during thr_data malloc\n");
+                        //         continue;
+                        // }
+                        // strncpy(thr_data.buf, buf, rv);
+                        // if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
+                        //         fprintf(stderr, "error during thr_pool_queue\n");
+                        // }
+                        printf("before nfq_handle_packet: buf %p\n", buf);
                         nfq_handle_packet(h, buf, rv);
+                        printf("after nfq_handle_packet\n");
                         continue;
                 }
                 /* if your application is too slow to digest the packets that
