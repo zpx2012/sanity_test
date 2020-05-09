@@ -144,7 +144,7 @@ worker_thread(void *arg)
 	job_t *job;
 	void *(*func)(void *);
 	active_t active;
-	timestruc_t ts;
+	struct timespec ts;
 
 	/*
 	 * This is the worker's main loop.  It will only be left
