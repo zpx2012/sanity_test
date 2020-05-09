@@ -8,10 +8,11 @@
 #endif
 
 #include "thr_pool.h"
+#include <sys/time.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <errno.h>
-#include <sys/time.h>
+
 /*
  * FIFO queued job
  */
@@ -46,7 +47,7 @@ struct thr_pool {
 	job_t		*pool_tail;	/* tail of FIFO job queue */
 	pthread_attr_t	pool_attr;	/* attributes of the workers */
 	int		pool_flags;	/* see below */
-	uint_t		pool_linger;	/* seconds before idle workers exit */
+	unsigned int		pool_linger;	/* seconds before idle workers exit */
 	int		pool_minimum;	/* minimum number of worker threads */
 	int		pool_maximum;	/* maximum number of worker threads */
 	int		pool_nthreads;	/* current number of worker threads */
@@ -257,7 +258,7 @@ clone_attributes(pthread_attr_t *new_attr, pthread_attr_t *old_attr)
 }
 
 thr_pool_t *
-thr_pool_create(uint_t min_threads, uint_t max_threads, uint_t linger,
+thr_pool_create(unsigned int min_threads, unsigned int max_threads, unsigned int linger,
 	pthread_attr_t *attr)
 {
 	thr_pool_t	*pool;
