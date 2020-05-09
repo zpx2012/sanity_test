@@ -303,7 +303,7 @@ int main(int argc, char **argv)
                                 continue;
                         }
                         strncpy(thr_data.buf, buf, rv);
-                        if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
+                        if(thr_pool_queue(pool, pool_handler, (void *)NULL) < 0){
                                 fprintf(stderr, "error during thr_pool_queue\n");
                         }
                         // printf("before nfq_handle_packet: buf %p\n", buf);
