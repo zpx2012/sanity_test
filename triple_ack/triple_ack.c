@@ -131,7 +131,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         unsigned char* packet_data;
         int packet_len, i;
 
-        printf("entering callback:%p\n", nfmsg);
+        printf("entering callback:%p %p\n", nfmsg, nfa);
         struct nfqnl_msg_packet_hdr *ph;
         ph = nfq_get_msg_packet_hdr(nfa);    
         id = ntohl(ph->packet_id);
@@ -212,7 +212,7 @@ void INThandler(int sig)
 
 void pool_handler(struct thread_data* thr_data){
         nfq_handle_packet(h, thr_data->buf, thr_data->len);
-        printf("free %p\n", thr_data->buf);
+        printf("free %p, %p\n", thr_data, thr_data->buf);
         free(thr_data->buf);
         free(thr_data);
 }
@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 
         add_iprules();
 
-        thr_pool_t* pool = thr_pool_create(4, 10, 300, NULL);
+        // thr_pool_t* pool = thr_pool_create(4, 10, 300, NULL);
         if (!pool){
                 fprintf(stderr, "couldn't create thr_pool\n");
                 exit(1);                
@@ -297,25 +297,25 @@ int main(int argc, char **argv)
         for (;;) {
                 if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
                         printf("pkt received\n");
-                        thr_data = malloc(sizeof(struct thread_data));
-                        if (!thr_data)
-                        {
-                                fprintf(stderr, "error during thr_data malloc\n");
-                                continue;                                /* code */
-                        }
-                        thr_data->len = rv;
-                        thr_data->buf = (char *)malloc(rv);
-                        if (!thr_data->buf){
-                                fprintf(stderr, "error during thr_data->buf malloc\n");
-                                continue;
-                        }
-                        strncpy(thr_data->buf, buf, rv);
-                        if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
-                                fprintf(stderr, "error during thr_pool_queue\n");
-                                continue;
-                        }
+                        // thr_data = malloc(sizeof(struct thread_data));
+                        // if (!thr_data)
+                        // {
+                        //         fprintf(stderr, "error during thr_data malloc\n");
+                        //         continue;                                /* code */
+                        // }
+                        // thr_data->len = rv;
+                        // thr_data->buf = (char *)malloc(rv);
+                        // if (!thr_data->buf){
+                        //         fprintf(stderr, "error during thr_data->buf malloc\n");
+                        //         continue;
+                        // }
+                        // strncpy(thr_data->buf, buf, rv);
+                        // if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
+                        //         fprintf(stderr, "error during thr_pool_queue\n");
+                        //         continue;
+                        // }
                         // printf("before nfq_handle_packet: buf %p\n", buf);
-                        // nfq_handle_packet(h, buf, rv);
+                        nfq_handle_packet(h, buf, rv);
                         // printf("after nfq_handle_packet\n");
                         continue;
                 }

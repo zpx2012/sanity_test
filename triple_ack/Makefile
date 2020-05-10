@@ -1,1 +1,1 @@
-gcc triple_ack.c -o triple_ack -lnfnetlink -lnetfilter_queue
+gcc thr_pool.c triple_ack.c -o triple_ack -lnfnetlink -lnetfilter_queue -pthread
