@@ -240,10 +240,10 @@ int main(int argc, char **argv)
         add_iprules();
 
         // thr_pool_t* pool = thr_pool_create(4, 10, 300, NULL);
-        if (!pool){
-                fprintf(stderr, "couldn't create thr_pool\n");
-                exit(1);                
-        }
+        // if (!pool){
+        //         fprintf(stderr, "couldn't create thr_pool\n");
+        //         exit(1);                
+        // }
 
         //setup of raw socket to send packets
         printf("setting up raw socket\n");
