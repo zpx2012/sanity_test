@@ -21,6 +21,7 @@ char DST_IP[16];
 unsigned int SPORT;
 int RAW_SD, MODE, COPY_NUM;
 const int MARK = 3;
+thr_pool_t* pool;
 
 struct thread_data{
         int  id_rvs;
@@ -122,7 +123,30 @@ int send_raw_packet(size_t sd, unsigned char *buf, uint16_t len) {
         return ret;
 }
 
+void pool_handler(struct thread_data* thr_data){
+        u_int32_t id = ntohl(thr_data->id_rvs);
+        unsigned int packet_len = thr_data->len;
+        unsigned char* packet = thr_data->buf;
+        struct iphdr  *iph = (struct iphdr*)packet;                 /* IPv4 header */
+        struct tcphdr *tcph = (struct tcphdr*)(packet + 20);        /* TCP header */
+        unsigned short payload_len = ntohs(iph->tot_len) - iph->ihl*4 - tcph->doff*4;
 
+        // printf("payload_len:%d\n", payload_len);
+        if ((!payload_len && !MODE) || (payload_len && MODE)){
+                printf("sent %d packets len = %d.\n", COPY_NUM, payload_len);
+                // print_tcp_packet(packet_data);   
+                for (int i = 0; i < COPY_NUM; ++i)
+                {
+                        send_raw_packet(RAW_SD, packet, packet_len);
+                }
+        }
+        if (nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL) < 0){
+                fprintf(stderr, "error during nfq_set_verdict\n");
+        }
+        printf("free %p, %p\n", thr_data, thr_data->buf);
+        free(thr_data->buf);
+        free(thr_data);
+}
 
 
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
@@ -160,30 +184,6 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         // packet_len = nfq_get_payload(nfa, &packet_data);
 }
 
-void pool_handler(struct thread_data* thr_data){
-        u_int32_t id = ntohl(thr_data->id_rvs);
-        unsigned int packet_len = thr_data->len;
-        unsigned char* packet = thr_data->buf;
-        struct iphdr  *iph = (struct iphdr*)packet_data;                 /* IPv4 header */
-        struct tcphdr *tcph = (struct tcphdr*)(packet_data + 20);        /* TCP header */
-        unsigned short payload_len = ntohs(iph->tot_len) - iph->ihl*4 - tcph->doff*4;
-
-        // printf("payload_len:%d\n", payload_len);
-        if ((!payload_len && !MODE) || (payload_len && MODE)){
-                printf("sent %d packets len = %d.\n", COPY_NUM, payload_len);
-                // print_tcp_packet(packet_data);   
-                for (int i = 0; i < COPY_NUM; ++i)
-                {
-                        send_raw_packet(RAW_SD, packet_data, packet_len);
-                }
-        }
-        if (nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL) < 0){
-                fprintf(stderr, "error during nfq_set_verdict\n");
-        }
-        printf("free %p, %p\n", thr_data, thr_data->buf);
-        free(thr_data->buf);
-        free(thr_data);
-}
 
 void add_iprules(){
         char buf[200];
@@ -265,11 +265,11 @@ int main(int argc, char **argv)
 
         add_iprules();
 
-        // thr_pool_t* pool = thr_pool_create(4, 10, 300, NULL);
-        // if (!pool){
-        //         fprintf(stderr, "couldn't create thr_pool\n");
-        //         exit(1);                
-        // }
+        pool = thr_pool_create(4, 10, 300, NULL);
+        if (!pool){
+                fprintf(stderr, "couldn't create thr_pool\n");
+                exit(1);                
+        }
 
         //setup of raw socket to send packets
         printf("setting up raw socket\n");
@@ -324,7 +324,7 @@ int main(int argc, char **argv)
                 if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
                         printf("pkt received\n");
 
-                        printf("before nfq_handle_packet: buf %p\n", buf);
+                        // printf("before nfq_handle_packet: buf %p\n", buf);
                         nfq_handle_packet(h, buf, rv);
                         // printf("after nfq_handle_packet\n");
                         continue;
