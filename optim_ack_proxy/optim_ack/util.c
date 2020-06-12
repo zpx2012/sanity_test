@@ -591,9 +591,10 @@ void locate_gfw(char *remote_ip)
 }
 
 
-void optimistic_ack(int local_port)
+void optimistic_ack(void* data)
 {
     unsigned int seq, ack;
+    int local_port = (int) data;
     
     //local_port = rand() % 20000 + 30000; // generate random port (30000-49999)
 

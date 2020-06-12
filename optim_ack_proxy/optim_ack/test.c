@@ -434,7 +434,7 @@ int create_server_sock(char *addr, int port)
 
     x = listen(s, 5);
     if (x < 0)
-        log_error(1, "listen %s:%d", addr, port);
+        log_error("listen %s:%d", addr, port);
     log_exp("listening on %s port %d", addr, port);
 
     return s;
