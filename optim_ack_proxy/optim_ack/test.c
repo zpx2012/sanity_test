@@ -169,20 +169,20 @@ int teardown_nfq()
 }
 
 //
-void generate_iptables_rules(char* rules_pool, int* pool_len, int local_port){
-    char* cmd = malloc(200);
+void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
+    char* cmd = (char*) malloc(200);
     sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     rules_pool[*pool_len] = cmd;
     *pool_len++;
     
-    cmd = malloc(200);
+    cmd = (char*) malloc(200);
     sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     rules_pool[*pool_len] = cmd;
     *pool_len++;
     
 }
 
-void exec_iptables_rules(char* rules_pool, int start, int end, char action)
+void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 {
     char cmd[1000];
     for (int i = start; i < end; i++){
@@ -420,7 +420,7 @@ int create_server_sock(char *addr, int port)
 
     s = socket(AF_INET, SOCK_STREAM, 0);
     if (s < 0)
-        log_err("socket");
+        log_error("socket");
 
     addrlen = sizeof(client_addr);
     memset(&client_addr, '\0', addrlen);
@@ -430,11 +430,11 @@ int create_server_sock(char *addr, int port)
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &on, 4);
     x = bind(s, (struct sockaddr *)&client_addr, addrlen);
     if (x < 0)
-        log_err("bind %s:%d", addr, port);
+        log_error("bind %s:%d", addr, port);
 
     x = listen(s, 5);
     if (x < 0)
-        log_err(1, "listen %s:%d", addr, port);
+        log_error(1, "listen %s:%d", addr, port);
     log_exp("listening on %s port %d", addr, port);
 
     return s;
@@ -566,7 +566,7 @@ int main(int argc, char *argv[])
     char* iptable_rules[100];
     int iptable_rules_len = 0;
 
-    master_sock = create_server_sock(localaddr, localport);
+    master_sock = create_server_sock(local_ip, local_port);
     for (;;)
     {
         if ((client_sock = wait_for_connection(master_sock)) < 0)
@@ -574,7 +574,7 @@ int main(int argc, char *argv[])
 
         // Get the request payload
         int read_size;
-        while (read_size = recv(client_sock , payload_sk , BUF_SIZE , 0)) <= 0);
+        while ((read_size = recv(client_sock , payload_sk , BUF_SIZE , 0)) <= 0);
 
 #define SUBCONN_NUM 3
 
