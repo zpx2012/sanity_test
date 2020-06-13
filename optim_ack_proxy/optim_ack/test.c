@@ -196,7 +196,7 @@ void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     rules_pool[(*pool_len)++] = cmd;
 
     cmd = (char*) malloc(200);
-    sprintf(cmd, "iptables -A OUTPUT -t raw -p tcp -d %s --dport %u --sport %u --tcp-flags RST,ACK RST -j DROP", remote_ip, remote_port, local_port);
+    sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %u --sport %u --tcp-flags RST,ACK RST -j DROP", remote_ip, remote_port, local_port);
     rules_pool[(*pool_len)++] = cmd;
 
     // cmd = (char*) malloc(200);
