@@ -1,11 +1,13 @@
 
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
+#include "globals.h"
 
 void send_SYN(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128);
 void send_ACK(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128);
 void send_request(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128);
 unsigned int wait_SYN_ACK(unsigned int ack = 0, int timeout = 1, unsigned short local_port = 8000);
+unsigned int wait_data(unsigned int ack = 0, unsigned int seq = 1, unsigned short local_port = 8000, char* pkt_data = pkt_data);
 
 void regular_tcp_fastopen_send(char* payload, int len);
 void raw_tcp_fastopen_cookie(char* payload, unsigned int seq = 0);
@@ -25,7 +27,6 @@ void send_FIN_ACK(char *payload, unsigned int ack, unsigned int seq = 1, unsigne
 
 unsigned int wait_SYN();
 unsigned int wait_ACK(unsigned int ack = 0);
-unsigned int wait_data(unsigned int ack = 0);
 unsigned int wait_FIN();
 unsigned int wait_FIN_ACK();
 unsigned int wait_RST();

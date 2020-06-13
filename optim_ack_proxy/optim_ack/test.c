@@ -507,7 +507,7 @@ void* optimistic_ack(void* threadid)
         return voidptr;
     }
     pthread_mutex_lock(&mutex_subconn);
-    subconn_info[i].ini_seq_rem = ack;
+    subconn_info[id].ini_seq_rem = ack;
     pthread_mutex_unlock(&mutex_subconn);
     ack++;
     send_ACK(payload_sk, ack, seq, local_port);
