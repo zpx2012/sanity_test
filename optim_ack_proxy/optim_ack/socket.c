@@ -10,7 +10,7 @@
 #include "util.h"
 
 
-void send_SYN(char* payload, unsigned int ack, unsigned int seq = 1, int local_port = 8000, unsigned char ttl = 128)
+void send_SYN(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128)
 {
     struct tcphdr_opts opts;
     opts.size = 0;
@@ -25,7 +25,7 @@ void send_SYN(char* payload, unsigned int ack, unsigned int seq = 1, int local_p
 }
 
 
-void send_ACK(char* payload, unsigned int ack, unsigned int seq = 1, int local_port = 8000, unsigned char ttl = 128)
+void send_ACK(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128)
 {
     struct tcphdr_opts opts;
     opts.size = 0;
@@ -40,7 +40,7 @@ void send_ACK(char* payload, unsigned int ack, unsigned int seq = 1, int local_p
 }
 
 
-void send_request(char* payload, unsigned int ack, unsigned int seq = 1, int local_port = 8000, unsigned char ttl = 128)
+void send_request(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128)
 {
     struct tcphdr_opts opts;
     opts.size = 0;
@@ -55,15 +55,16 @@ void send_request(char* payload, unsigned int ack, unsigned int seq = 1, int loc
 }
 
 
-unsigned int wait_SYN_ACK(int local_port = 8000, unsigned int ack = 0, int timeout = 1)
+unsigned int wait_SYN_ACK(unsigned int ack = 0, int timeout = 1, unsigned short local_port = 8000, char* pkt_data = pkt_data)
 {
     unsigned int recv_seq = 0, recv_ack = 0;
     unsigned char tcp_flags = TH_SYN|TH_ACK;
+    size_t pkt_len;
     int succ = -1;
     timespec _start, _end;
     clock_gettime(CLOCK_REALTIME, &_start);
     do{
-        succ = wait_packet(local_ip, local_port, remote_ip, remote_port, tcp_flags, pkt_data, &pkt_len, &recv_seq, &recv_ack);
+        succ = wait_packet(local_ip, local_port, remote_ip, remote_port, tcp_flags, pkt_data, pkt_len, &recv_seq, &recv_ack);
         if(ack != 0 && recv_ack != ack) succ = -1;
         //if(succ != 0) printf("failed to get seq\n");
         clock_gettime(CLOCK_REALTIME, &_end);
@@ -78,7 +79,25 @@ unsigned int wait_SYN_ACK(int local_port = 8000, unsigned int ack = 0, int timeo
     return recv_seq;
 }
 
+unsigned int wait_data(unsigned int ack = 0, unsigned int seq = 1, unsigned short local_port = 8000, char* pkt_data = pkt_data)
+{
+    unsigned int recv_seq = 0, recv_ack = 0;
+    unsigned char tcp_flags = TH_ACK;
+    size_t pkt_len;
 
+    int succ = -1;
+    do{
+        succ = wait_packet(local_ip, local_port, remote_ip, remote_port, tcp_flags, pkt_data, &pkt_len, &recv_seq, &recv_ack);
+        if(ack != 0 && recv_ack != ack) succ = -1;
+        if(seq != 1 && recv_seq != seq) succ = -1;
+        if(pkt_len == 0) succ = -1;
+        //if(succ != 0) printf("failed to get seq\n");
+    }
+    while(succ != 0);
+
+    printf("seq from data: %u\n", recv_seq);
+    return pkt_len;
+}
 
 
 
@@ -339,23 +358,6 @@ unsigned int wait_ACK(unsigned int ack = 0)
 
     //printf("seq from ACK: %u\n", recv_seq);
     return recv_seq;
-}
-
-unsigned int wait_data(unsigned int ack = 0)
-{
-    unsigned int recv_seq = 0, recv_ack = 0;
-    unsigned char tcp_flags = TH_ACK;
-    int succ = -1;
-    do{
-        succ = wait_packet(local_ip, local_port, remote_ip, remote_port, tcp_flags, pkt_data, &pkt_len, &recv_seq, &recv_ack);
-        if(ack != 0 && recv_ack != ack) succ = -1;
-        if(pkt_len == 0) succ = -1;
-        //if(succ != 0) printf("failed to get seq\n");
-    }
-    while(succ != 0);
-
-    printf("seq from data: %u\n", recv_seq);
-    return recv_seq+pkt_len;
 }
 
 unsigned int wait_FIN()

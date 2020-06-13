@@ -38,5 +38,13 @@ extern void* nfq_loop(void *arg);
 
 extern int opt_measure;
 
+// #define SUBCONN_NUM 3
+// struct subconn_info
+// {
+//     unsigned short local_port;
+//     unsigned int ini_seq_rem;//remote sequence number
+// };
+// extern struct subconn_info subconn_info[SUBCONN_NUM];
+
 #endif
 
