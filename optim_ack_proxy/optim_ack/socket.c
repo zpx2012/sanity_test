@@ -64,7 +64,7 @@ unsigned int wait_SYN_ACK(unsigned int ack = 0, int timeout = 1, unsigned short 
     timespec _start, _end;
     clock_gettime(CLOCK_REALTIME, &_start);
     do{
-        succ = wait_packet(local_ip, local_port, remote_ip, remote_port, tcp_flags, pkt_data, pkt_len, &recv_seq, &recv_ack);
+        succ = wait_packet(local_ip, local_port, remote_ip, remote_port, tcp_flags, pkt_data, &pkt_len, &recv_seq, &recv_ack);
         if(ack != 0 && recv_ack != ack) succ = -1;
         //if(succ != 0) printf("failed to get seq\n");
         clock_gettime(CLOCK_REALTIME, &_end);

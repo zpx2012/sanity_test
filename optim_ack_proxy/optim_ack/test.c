@@ -19,6 +19,7 @@
 #include "util.h"
 #include "cache.h"
 #include "redis.h"
+#include "hping2.h"
 
 
 #define NF_QUEUE_NUM 6
@@ -40,7 +41,6 @@ int opt_measure = 0;
  */
 
 #define SUBCONN_NUM 3
-#define MARK 33
 // Optimistic Ack
 struct subconn_info
 {
@@ -52,6 +52,7 @@ pthread_mutex_t mutex_subconn;
 int ack_pacing;
 unsigned int seq_next_global = 1;
 int client_sock;
+const int MARK = 66;
 
 struct nfq_handle *g_nfq_h;
 struct nfq_q_handle *g_nfq_qh;
@@ -313,12 +314,12 @@ int process_tcp_packet(struct mypacket *packet)
     log_exp("%s:%d -> %s:%d <%s> seq %u ack %u ttl %u plen %d", sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), ntohl(tcphdr->th_seq), ntohl(tcphdr->th_ack), iphdr->ttl, packet->payload_len);
 
     /* Check if the dest IP address is the one of our interface */
-    if (cmp_ip(local_ip, &iphdr->daddr))
+    if (cmp_ip(local_ip, iphdr->daddr))
     {
 //      printf("destination IP does not match\n");
         return -1;
     }
-    if (cmp_ip(remote_ip, &iphdr->saddr))
+    if (cmp_ip(remote_ip, iphdr->saddr))
     {
 //      printf("source IP does not match\n");
         return -1;
@@ -336,8 +337,8 @@ int process_tcp_packet(struct mypacket *packet)
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
     }
 
-    while(!subconn_info[i].ini_seq_rem); //make sure ini_seq_rem has been set
-    if(seq - subconn_info[i].ini_seq_rem != seq_next_global)
+    while(!subconn_info[subconn_id].ini_seq_rem); //make sure ini_seq_rem has been set
+    if(seq - subconn_info[subconn_id].ini_seq_rem != seq_next_global)
         return -1;
     
     //find the exact segment, send it to the client
@@ -489,7 +490,7 @@ void* optimistic_ack(void* threadid)
     void* voidptr = NULL;
     char pkt_data_local[10000];
 
-    unsigned short local_port = subconn_info[i].local_port;
+    unsigned short local_port = subconn_info[id].local_port;
 
     seq = rand();
 
@@ -548,7 +549,7 @@ int main(int argc, char *argv[])
     // strncpy(remote_host_name, argv[4], 63);
     // strncpy(local_host_name, argv[5], 63);
 
-    ack_pacing = atoi(argv[4])
+    ack_pacing = atoi(argv[4]);
 
     /* records are saved in folder results */
     /* create the directory if not exist */

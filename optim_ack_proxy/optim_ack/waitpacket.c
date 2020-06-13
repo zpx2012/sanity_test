@@ -33,13 +33,15 @@ static void human_dump(void *packet, int size);
 //static struct in_addr src, dst;
 
 
-int cmp_ip(char* ip_str, struct in_addr* ip_inaddr){
-	struct sockaddr_in sockaddr;
-    sockaddr.sin_family = AF_INET;
+int cmp_ip(const char* ip_str, u_int32_t ip_inaddr){
+	// struct sockaddr_in sockaddr;
+    // sockaddr.sin_family = AF_INET;
     // store this IP address in struct sockaddr_in:
-    inet_pton(AF_INET, ip_str, &(sockaddr.sin_addr));
+	// in_addr_t in_addr = inet_addr(ip_str);
+    // inet_pton(AF_INET, ip_str, &(sockaddr.sin_addr));
+	return inet_addr(ip_str) == ip_inaddr
 	
-	return memcmp(ip_inaddr, &sockaddr.sin_addr, sizeof(sockaddr.sin_addr);
+	// return memcmp(ip_inaddr, &sockaddr.sin_addr, sizeof(sockaddr.sin_addr));
 }
 
 
@@ -89,12 +91,12 @@ int wait_packet(const char* local_ip, unsigned short local_port, const char* rem
     //	handle_hcmp(ip_packet, ip_size);
     
     /* Check if the dest IP address is the one of our interface */
-    if (cmp_ip(local_ip, &ip.daddr))
+    if (cmp_ip(local_ip, ip.daddr))
     {
 //      printf("destination IP does not match\n");
         return -1;
     }
-    if (cmp_ip(remote_ip, &ip.saddr))
+    if (cmp_ip(remote_ip, ip.saddr))
     {
 //      printf("source IP does not match\n");
         return -1;

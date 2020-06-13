@@ -464,7 +464,7 @@ int	read_packet(void *packet, int size);
 void	scanmain(void);
 u_int32_t hp_rand(void);
 
-int cmp_ip(char* ip_str, struct in_addr* ip_inaddr);
+int cmp_ip(char* ip_str, u_int32_t ip_inaddr);
 
 void create_tcp_timestamp_option(struct tcphdr_opts* tcp_opts, unsigned int timestamp);
 
