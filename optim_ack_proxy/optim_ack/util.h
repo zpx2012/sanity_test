@@ -13,6 +13,7 @@ void* optimistic_ack(void* data);
 
 char* ip2str(u_int32_t ip, char *str);
 u_int32_t str2ip(const char *str);
+int cmp_ip(char* ip_str, u_int32_t ip_inaddr);
 
 char* tcp_flags_str(u_int8_t flags);
 
