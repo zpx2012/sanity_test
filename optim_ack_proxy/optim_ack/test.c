@@ -650,7 +650,7 @@ int main(int argc, char *argv[])
 
             // Add iptables rules
             generate_iptables_rules(iptable_rules, &iptable_rules_len, local_port);
-            exec_iptables_rules(iptable_rules, iptable_rules_len-2, iptable_rules_len, 'A');
+            exec_iptables_rules(iptable_rules, iptable_rules_len-3, iptable_rules_len, 'A');
             printf("%d: iptables rules added\n", i);
 
 
