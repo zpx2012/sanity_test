@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
 {
     int opt;
 
-    if (argc <= 5) {
+    if (argc <= 4) {
         printf("Usage: %s <remote_ip> <remote_port> <local_port> <ack_pacing> \n", argv[0]);
         exit(-1);
     }
