@@ -195,6 +195,10 @@ void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -m mark --mark %d -j ACCEPT", remote_ip, remote_port, local_port, MARK);
     rules_pool[(*pool_len)++] = cmd;
 
+    cmd = (char*) malloc(200);
+    sprintf(cmd, "iptables -A OUTPUT -t raw -p tcp -d %s --dport %u --sport %u --tcp-flags RST,ACK RST -j DROP", remote_ip, remote_port, local_port);
+    rules_pool[(*pool_len)++] = cmd;
+
     // cmd = (char*) malloc(200);
     // sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     // rules_pool[(*pool_len)++] = cmd;
@@ -317,12 +321,12 @@ int process_tcp_packet(struct mypacket *packet)
     if (inet_addr(local_ip) == iphdr->daddr)
     {
 //      printf("destination IP does not match\n");
-        return -1;
+        return 0;
     }
     if (inet_addr(remote_ip) == iphdr->saddr)
     {
 //      printf("source IP does not match\n");
-        return -1;
+        return 0;
     }
 
     // Find out which subconn
@@ -336,17 +340,21 @@ int process_tcp_packet(struct mypacket *packet)
     if (subconn_id == -1){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
     }
-
-    while(!subconn_info[subconn_id].ini_seq_rem); //make sure ini_seq_rem has been set
-    if(seq - subconn_info[subconn_id].ini_seq_rem != seq_next_global)
-        return -1;
+    printf("%d: found local port %d\n", subconn_id, dport);
     
+    while(!subconn_info[subconn_id].ini_seq_rem); //make sure ini_seq_rem has been set
+    printf("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_info[subconn_id].ini_seq_rem, seq_next_global);
+    if(seq - subconn_info[subconn_id].ini_seq_rem != seq_next_global)
+        return 0;
+    printf("%d: found segment\n", subconn_id);
+
     //find the exact segment, send it to the client
     if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
         log_error("process_tcp_packet: send error %d", errno);
-        return -1;
+        return 0;
     }
     seq_next_global += packet->payload_len;
+    printf("%d: sent segment to client, update seq_global\n", subconn_id);
     return 0;
 }
 
@@ -393,7 +401,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
             packet.tcphdr = tcp_hdr(pkt_data);
             packet.payload = tcp_payload(pkt_data);
             packet.payload_len = packet.len - packet.iphdr->ihl*4 - packet.tcphdr->th_off*4;
-            //show_packet(&packet);
+            show_packet(&packet);
             ret = process_tcp_packet(&packet);
             break;
         default:
@@ -479,6 +487,7 @@ int wait_for_connection(int s)
     }
     // get_hinfo_from_sockaddr(peer, len, client_hostname);
     // set_nonblock(newsock);
+    printf("Accept one connection %d\n",newsock);
     return (newsock);
 }
 
@@ -497,6 +506,7 @@ void* optimistic_ack(void* threadid)
     int retry = 4;
     while (retry) {
         send_SYN("", 0, seq, local_port);
+        printf("%d: Sent SYN\n", id);
         seq++;
         ack = wait_SYN_ACK(seq, 1, local_port, pkt_data_local);
         if (ack != 0) break;
@@ -506,17 +516,20 @@ void* optimistic_ack(void* threadid)
         log_exp("Give up.");
         return voidptr;
     }
+    printf("%d: Received SYN/ACK\n", id);
     pthread_mutex_lock(&mutex_subconn);
     subconn_info[id].ini_seq_rem = ack;
     pthread_mutex_unlock(&mutex_subconn);
     ack++;
     send_ACK(payload_sk, ack, seq, local_port);
+    printf("%d: Sent ACK and request\n", id);
     seq += strlen(payload_sk);
 
     //Wait for first data packet
     int payload_len = wait_data(seq, ack, local_port, pkt_data_local);
     
     //Send Optim Acks, pacing
+    printf("%d: Received first data, payload_len = %d, start optim ack\n", id, payload_len);
     for (int i = 1; !nfq_stop; i++){
         send_ACK("", ack+i*payload_len, seq, local_port);
         usleep(ack_pacing);
@@ -528,7 +541,7 @@ int main(int argc, char *argv[])
 {
     int opt;
 
-    if (argc != 6) {
+    if (argc <= 5) {
         printf("Usage: %s <remote_ip> <remote_port> <local_port> <ack_pacing> \n", argv[0]);
         exit(-1);
     }
@@ -615,22 +628,27 @@ int main(int argc, char *argv[])
         // Get the request payload
         int read_size;
         while ((read_size = recv(client_sock , payload_sk , BUF_SIZE , 0)) <= 0);
-
+        printf("Receive client's request\n");
         pthread_t subconn_thread[SUBCONN_NUM];
         for (int i = 0; i < SUBCONN_NUM; i++){
             int local_port = rand() % 20000 + 30000; 
             subconn_info[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
             subconn_info[i].ini_seq_rem = 0;
+            printf("%d: local port = %d\n", i, local_port);
 
             // Add iptables rules
             generate_iptables_rules(iptable_rules, &iptable_rules_len, local_port);
             exec_iptables_rules(iptable_rules, iptable_rules_len-2, iptable_rules_len, 'A');
+            printf("%d: iptables rules added\n", i);
+
 
             // Create outgoing connections
             if (pthread_create(&subconn_thread[i], NULL, optimistic_ack, (void *)i) != 0){
                 log_error("Fail to create optimistic_ack thread.");
                 exit(EXIT_FAILURE);
             }
+            printf("%d: optimistic ack thread created\n", i);
+
         }
 
     }
