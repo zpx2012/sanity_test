@@ -192,16 +192,21 @@ int teardown_nfq()
 //
 void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     char* cmd = (char*) malloc(200);
-    sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
-    rules_pool[(*pool_len)++] = cmd;
-
-    cmd = (char*) malloc(200);
     sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -m mark --mark %d -j ACCEPT", remote_ip, remote_port, local_port, MARK);
     rules_pool[(*pool_len)++] = cmd;
+    printf("%d\n", *pool_len);
+
+    cmd = (char*) malloc(200);
+    sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    rules_pool[(*pool_len)++] = cmd;
+    printf("%d\n", *pool_len);
+
+
 
     cmd = (char*) malloc(200);
     sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %u --sport %u --tcp-flags RST,ACK RST -j DROP", remote_ip, remote_port, local_port);
     rules_pool[(*pool_len)++] = cmd;
+    printf("%d\n", *pool_len);
 
     // cmd = (char*) malloc(200);
     // sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
@@ -217,6 +222,7 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 {
     char cmd[1000];
     for (int i = start; i < end; i++){
+        printf("cmd %d: -%c %s\n", i, action, rules_pool[i];)
         sprintf(cmd, "iptables -%c %s", action, rules_pool[i]);
         system(cmd);
     }
