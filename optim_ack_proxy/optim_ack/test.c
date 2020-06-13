@@ -401,7 +401,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
             packet.tcphdr = tcp_hdr(pkt_data);
             packet.payload = tcp_payload(pkt_data);
             packet.payload_len = packet.len - packet.iphdr->ihl*4 - packet.tcphdr->th_off*4;
-            show_packet(&packet);
+            // show_packet(&packet);
             ret = process_tcp_packet(&packet);
             break;
         default:
