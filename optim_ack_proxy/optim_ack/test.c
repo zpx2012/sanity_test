@@ -53,6 +53,10 @@ int ack_pacing;
 unsigned int seq_next_global = 1;
 int client_sock;
 const int MARK = 66;
+char* iptable_rules[100];
+int iptable_rules_len = 0;
+
+
 
 struct nfq_handle *g_nfq_h;
 struct nfq_q_handle *g_nfq_qh;
@@ -234,9 +238,13 @@ void cleanup()
 
     teardown_nfq();
 
-    stop_redis_server();
+    // stop_redis_server();
 
     pthread_mutex_destroy(&mutex_subconn);
+
+    exec_iptables_rules(iptable_rules, 0, iptable_rules_len, 'D');
+    for(int i = 0; i < iptable_rules_len; i++)
+        free(iptable_rules[i]);
 
 }
 
@@ -284,9 +292,9 @@ void init()
         exit(EXIT_FAILURE);
     }
 
-    start_redis_server();
+    // start_redis_server();
 
-    connect_to_redis();
+    // connect_to_redis();
 
     pthread_mutex_init(&mutex_subconn, NULL);
 }
@@ -616,8 +624,6 @@ int main(int argc, char *argv[])
     */
 
     int master_sock;
-    char* iptable_rules[100];
-    int iptable_rules_len = 0;
 
     master_sock = create_server_sock(local_ip, local_port);
     for (;;)
@@ -656,9 +662,6 @@ int main(int argc, char *argv[])
     nfq_stop = 1;
 
     cleanup();
-    exec_iptables_rules(iptable_rules, 0, iptable_rules_len, 'D');
-    for(int i = 0; i < iptable_rules_len; i++)
-        free(iptable_rules[i]);
 
     return 0;
 }
