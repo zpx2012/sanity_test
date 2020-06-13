@@ -222,7 +222,7 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 {
     char cmd[1000];
     for (int i = start; i < end; i++){
-        printf("cmd %d: -%c %s\n", i, action, rules_pool[i];)
+        printf("cmd %d: -%c %s\n", i, action, rules_pool[i]);
         sprintf(cmd, "iptables -%c %s", action, rules_pool[i]);
         system(cmd);
     }
