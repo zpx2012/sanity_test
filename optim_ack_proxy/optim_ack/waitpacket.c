@@ -39,7 +39,7 @@ int cmp_ip(const char* ip_str, u_int32_t ip_inaddr){
     // store this IP address in struct sockaddr_in:
 	// in_addr_t in_addr = inet_addr(ip_str);
     // inet_pton(AF_INET, ip_str, &(sockaddr.sin_addr));
-	return inet_addr(ip_str) == ip_inaddr
+	return inet_addr(ip_str) == ip_inaddr;
 	
 	// return memcmp(ip_inaddr, &sockaddr.sin_addr, sizeof(sockaddr.sin_addr));
 }

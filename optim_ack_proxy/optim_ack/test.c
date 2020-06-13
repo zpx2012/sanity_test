@@ -19,7 +19,7 @@
 #include "util.h"
 #include "cache.h"
 #include "redis.h"
-#include "hping2.h"
+#include "socket.h"
 
 
 #define NF_QUEUE_NUM 6
