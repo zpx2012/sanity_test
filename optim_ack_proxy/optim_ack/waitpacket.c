@@ -91,15 +91,31 @@ int wait_packet(const char* local_ip, unsigned short local_port, const char* rem
     //if (opt_sign)
     //	handle_hcmp(ip_packet, ip_size);
     
+    struct sockaddr_in local_addr;
+    struct sockaddr_in remote_addr;
+    local_addr.sin_family = AF_INET;
+    remote_addr.sin_family = AF_INET;
+    // store this IP address in struct sockaddr_in:
+    inet_pton(AF_INET, local_ip, &(local_addr.sin_addr));
+    inet_pton(AF_INET, remote_ip, &(remote_addr.sin_addr));
+
+//    char temp[INET_ADDRSTRLEN+1];
+//    inet_ntop(AF_INET, &(ip.saddr), temp, INET_ADDRSTRLEN);
+//    char temp2[INET_ADDRSTRLEN+1];
+//    inet_ntop(AF_INET, &(ip.daddr), temp2, INET_ADDRSTRLEN);
+//    printf("src IP: %s\n", temp);
+//    printf("dest IP: %s\n", temp2);
+//    printf("local IP: %s\n", local_ip);
+	
     /* Check if the dest IP address is the one of our interface */
-    if (cmp_ip(local_ip, ip.daddr))
+    if (memcmp(&ip.daddr, &local_addr.sin_addr, sizeof(ip.daddr)))
     {
-     	// log_exp("wait packet: destination IP does not match\n");
+     	log_exp("wait packet: destination IP does not match\n");
         return -1;
     }
-    if (cmp_ip(remote_ip, ip.saddr))
+    if (memcmp(&ip.saddr, &remote_addr.sin_addr, sizeof(ip.saddr)))
     {
-     	// log_exp("wait packet: source IP does not match\n");
+     	log_exp("wait packet: source IP does not match\n");
         return -1;
     }
 
