@@ -94,12 +94,12 @@ int wait_packet(const char* local_ip, unsigned short local_port, const char* rem
     /* Check if the dest IP address is the one of our interface */
     if (cmp_ip(local_ip, ip.daddr))
     {
-     	log_exp("wait packet: destination IP does not match\n");
+     	// log_exp("wait packet: destination IP does not match\n");
         return -1;
     }
     if (cmp_ip(remote_ip, ip.saddr))
     {
-     	log_exp("wait packet: source IP does not match\n");
+     	// log_exp("wait packet: source IP does not match\n");
         return -1;
     }
 
