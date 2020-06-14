@@ -40,7 +40,7 @@ int opt_measure = 0;
  * Global variables
  */
 
-#define SUBCONN_NUM 1
+#define SUBCONN_NUM 5
 // Optimistic Ack
 struct subconn_info
 {
@@ -397,7 +397,9 @@ int process_tcp_packet(struct mypacket *packet)
                 return 0;
             }
 
-            if(seq_rel != seq_next_global)
+            if(seq_rel != seq_next_global){
+                log_exp("wait packet: seq number does not match. recv: %d, wanting: %d\n", seq_rel, seq_next_global);
+            }
                 return 0;
             log_exp("Found segment %u", seq_next_global);
 
