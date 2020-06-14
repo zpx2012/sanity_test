@@ -413,7 +413,6 @@ int process_tcp_packet(struct mypacket *packet)
 
         default:
             log_error("Invalid tcp flags");
-            break;
     }
 
     // log_exp("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_info[subconn_id].ini_seq_rem, seq_next_global);
