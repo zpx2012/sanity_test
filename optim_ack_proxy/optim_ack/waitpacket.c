@@ -17,6 +17,7 @@
 
 #include "hping2.h"
 #include "util.h"
+#include "logging.h"
 
 static int icmp_unreach_rtt(void *quoted_ip, int size,
 		int *seqp, float *ms_delay);
