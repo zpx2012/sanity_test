@@ -93,12 +93,12 @@ int wait_packet(const char* local_ip, unsigned short local_port, const char* rem
     /* Check if the dest IP address is the one of our interface */
     if (cmp_ip(local_ip, ip.daddr))
     {
-//      printf("destination IP does not match\n");
+     	log_exp("wait packet: destination IP does not match\n");
         return -1;
     }
     if (cmp_ip(remote_ip, ip.saddr))
     {
-//      printf("source IP does not match\n");
+     	log_exp("wait packet: source IP does not match\n");
         return -1;
     }
 
@@ -133,12 +133,12 @@ int wait_packet(const char* local_ip, unsigned short local_port, const char* rem
 
             if (dst_port != local_port && local_port != 0) 
             {
-                //printf("destination port does not match. recv: %d, wanting: %d\n", dst_port, local_port);
+                log_exp("wait packet: destination port does not match. recv: %d, wanting: %d\n", dst_port, local_port);
                 return -1;
             }
             if (src_port != remote_port && remote_port != 0) 
             {
-                //printf("source port does not match. recv: %d, wanting: %d\n", src_port, remote_port);
+                log_exp("wait packet: source port does not match. recv: %d, wanting: %d\n", src_port, remote_port);
                 return -1;
             }
             //printf("src Port: %d\n", src_port);
@@ -146,7 +146,7 @@ int wait_packet(const char* local_ip, unsigned short local_port, const char* rem
             //printf("TCP flags: %s\n", tcp_flags_str(tcp.th_flags));
             if (tcp.th_flags != tcp_flags)
             {
-                printf("tcp flags does not match. recv: %d, wanting: %d\n", tcp.th_flags, tcp_flags);
+                log_exp("wait packet: tcp flags does not match. recv: %d, wanting: %d\n", tcp.th_flags, tcp_flags);
                 return -1;
             }
             enc_packet = ip_packet + iphdr_size + tcphdr_size;
