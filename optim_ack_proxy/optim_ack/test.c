@@ -369,13 +369,15 @@ int process_tcp_packet(struct mypacket *packet)
     */
     switch (tcphdr->th_flags){
         case TH_SYN|TH_ACK:
+        {
             subconn_info[subconn_id].ini_seq_rem = ack;
             send_ACK(payload_sk, ack+1, seq, dport);
             log_exp("%d: Received SYN/ACK. Sent ACK and request", subconn_id);
             break;
-
+        }
         
         case TH_ACK:
+        {
             if (!subconn_info[subconn_id].ini_seq_rem){
                 log_error("process_tcp_packet: ini_seq_rem not set");
                 return 0;
@@ -410,7 +412,7 @@ int process_tcp_packet(struct mypacket *packet)
             seq_next_global += packet->payload_len;
             log_exp("Sent segment to client, update seq_global to %u", seq_next_global);
             break;
-
+        }
         default:
             log_error("Invalid tcp flags");
     }
