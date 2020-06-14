@@ -192,28 +192,28 @@ int teardown_nfq()
 //
 void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     char* cmd = (char*) malloc(200);
-    sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -m mark --mark %d -j ACCEPT", remote_ip, remote_port, local_port, MARK);
+    slog_exp(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -m mark --mark %d -j ACCEPT", remote_ip, remote_port, local_port, MARK);
     rules_pool[(*pool_len)++] = cmd;
-    printf("%d\n", *pool_len);
+    log_exp("%d\n", *pool_len);
 
     cmd = (char*) malloc(200);
-    sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    slog_exp(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     rules_pool[(*pool_len)++] = cmd;
-    printf("%d\n", *pool_len);
+    log_exp("%d\n", *pool_len);
 
 
 
     cmd = (char*) malloc(200);
-    sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %u --sport %u --tcp-flags RST,ACK RST -j DROP", remote_ip, remote_port, local_port);
+    slog_exp(cmd, "OUTPUT -t raw -p tcp -d %s --dport %u --sport %u --tcp-flags RST,ACK RST -j DROP", remote_ip, remote_port, local_port);
     rules_pool[(*pool_len)++] = cmd;
-    printf("%d\n", *pool_len);
+    log_exp("%d\n", *pool_len);
 
     // cmd = (char*) malloc(200);
-    // sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    // slog_exp(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     // rules_pool[(*pool_len)++] = cmd;
 
     // cmd = (char*) malloc(200);
-    // sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -m mark --mark %d -j ACCEPT", remote_ip, remote_port, local_port, MARK);
+    // slog_exp(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -m mark --mark %d -j ACCEPT", remote_ip, remote_port, local_port, MARK);
     // rules_pool[(*pool_len)++] = cmd;
     
 }
@@ -222,8 +222,8 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 {
     char cmd[1000];
     for (int i = start; i < end; i++){
-        printf("cmd %d: -%c %s\n", i, action, rules_pool[i]);
-        sprintf(cmd, "iptables -%c %s", action, rules_pool[i]);
+        log_exp("cmd %d: -%c %s\n", i, action, rules_pool[i]);
+        slog_exp(cmd, "iptables -%c %s", action, rules_pool[i]);
         system(cmd);
     }
 }
@@ -232,9 +232,9 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 // void exec_remove_iptables_rules()
 // {
 //     char cmd[1000];
-//     sprintf(cmd, "iptables -D INPUT -p tcp -s %s --sport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, NF_QUEUE_NUM);
+//     slog_exp(cmd, "iptables -D INPUT -p tcp -s %s --sport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, NF_QUEUE_NUM);
 //     system(cmd);
-//     sprintf(cmd, "iptables -D OUTPUT -t raw -p tcp -d %s --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, NF_QUEUE_NUM);
+//     slog_exp(cmd, "iptables -D OUTPUT -t raw -p tcp -d %s --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, NF_QUEUE_NUM);
 //     system(cmd);
 // }
 
@@ -331,15 +331,19 @@ int process_tcp_packet(struct mypacket *packet)
 
     log_exp("%s:%d -> %s:%d <%s> seq %u ack %u ttl %u plen %d", sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), ntohl(tcphdr->th_seq), ntohl(tcphdr->th_ack), iphdr->ttl, packet->payload_len);
 
+    /* Check if it is data packet */
+    if (tcphdr->th_flags != TH_ACK)
+        return 0;
+
     /* Check if the dest IP address is the one of our interface */
     if (inet_addr(local_ip) == iphdr->daddr)
     {
-//      printf("destination IP does not match\n");
+//      log_exp("destination IP does not match\n");
         return 0;
     }
     if (inet_addr(remote_ip) == iphdr->saddr)
     {
-//      printf("source IP does not match\n");
+//      log_exp("source IP does not match\n");
         return 0;
     }
 
@@ -354,13 +358,13 @@ int process_tcp_packet(struct mypacket *packet)
     if (subconn_id == -1){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
     }
-    printf("%d: found local port %d\n", subconn_id, dport);
+    log_exp("%d: found local port %d\n", subconn_id, dport);
     
     while(!subconn_info[subconn_id].ini_seq_rem); //make sure ini_seq_rem has been set
-    printf("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_info[subconn_id].ini_seq_rem, seq_next_global);
+    log_exp("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_info[subconn_id].ini_seq_rem, seq_next_global);
     if(seq - subconn_info[subconn_id].ini_seq_rem != seq_next_global)
         return 0;
-    printf("%d: found segment\n", subconn_id);
+    log_exp("%d: found segment\n", subconn_id);
 
     //find the exact segment, send it to the client
     if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
@@ -368,7 +372,7 @@ int process_tcp_packet(struct mypacket *packet)
         return 0;
     }
     seq_next_global += packet->payload_len;
-    printf("%d: sent segment to client, update seq_global\n", subconn_id);
+    log_exp("%d: sent segment to client, update seq_global\n", subconn_id);
     return 0;
 }
 
@@ -422,10 +426,12 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
             log_error("Invalid protocol: %d", packet.iphdr->protocol);
     }
     
-    if (ret == 0)
-        nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
-    else
-        nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+    nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    log_exp("verdict: accpet");
+    // if (ret == 0)
+    //     nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    // else
+    //     nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
         
     // return <0 to stop processing
     return 0;
@@ -446,7 +452,7 @@ void *nfq_loop(void *arg)
         }
         else {
             if (errno != EAGAIN && errno != EWOULDBLOCK) {
-                log_debug("recv() ret %d errno: %d", rv, errno);
+                // log_debug("recv() ret %d errno: %d", rv, errno);
             }
             usleep(100); //10000
         }
@@ -501,7 +507,7 @@ int wait_for_connection(int s)
     }
     // get_hinfo_from_sockaddr(peer, len, client_hostname);
     // set_nonblock(newsock);
-    printf("Accept one connection %d\n",newsock);
+    log_exp("Accept one connection %d\n",newsock);
     return (newsock);
 }
 
@@ -520,9 +526,9 @@ void* optimistic_ack(void* threadid)
     int retry = 4;
     while (retry) {
         send_SYN("", 0, seq, local_port);
-        printf("%d: Sent SYN\n", id);
+        log_exp("%d: Sent SYN\n", id);
         seq++;
-        ack = wait_SYN_ACK(seq, 1, local_port, pkt_data_local);
+        ack = wait_SYN_ACK(seq, 5, local_port, pkt_data_local);
         if (ack != 0) break;
         retry--;
     }
@@ -530,20 +536,20 @@ void* optimistic_ack(void* threadid)
         log_exp("Give up.");
         return voidptr;
     }
-    printf("%d: Received SYN/ACK\n", id);
+    log_exp("%d: Received SYN/ACK\n", id);
     pthread_mutex_lock(&mutex_subconn);
     subconn_info[id].ini_seq_rem = ack;
     pthread_mutex_unlock(&mutex_subconn);
     ack++;
     send_ACK(payload_sk, ack, seq, local_port);
-    printf("%d: Sent ACK and request\n", id);
+    log_exp("%d: Sent ACK and request\n", id);
     seq += strlen(payload_sk);
 
     //Wait for first data packet
     int payload_len = wait_data(seq, ack, local_port, pkt_data_local);
     
     //Send Optim Acks, pacing
-    printf("%d: Received first data, payload_len = %d, start optim ack\n", id, payload_len);
+    log_exp("%d: Received first data, payload_len = %d, start optim ack\n", id, payload_len);
     for (int i = 1; !nfq_stop; i++){
         send_ACK("", ack+i*payload_len, seq, local_port);
         usleep(ack_pacing);
@@ -556,7 +562,7 @@ int main(int argc, char *argv[])
     int opt;
 
     if (argc <= 4) {
-        printf("Usage: %s <remote_ip> <remote_port> <local_port> <ack_pacing> \n", argv[0]);
+        log_exp("Usage: %s <remote_ip> <remote_port> <local_port> <ack_pacing> \n", argv[0]);
         exit(-1);
     }
 
@@ -589,13 +595,13 @@ int main(int argc, char *argv[])
     char time_str[20];
     char tmp[64];
 
-    sprintf(hostname_pair_path, "results/%s-%s", local_ip, remote_ip);
+    slog_exp(hostname_pair_path, "results/%s-%s", local_ip, remote_ip);
     mkdir(hostname_pair_path, 0755);
 
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     strftime(time_str, 20, "%Y%m%d_%H%M%S", timeinfo);
-    sprintf(result_path, "%s/%s", hostname_pair_path, time_str);
+    slog_exp(result_path, "%s/%s", hostname_pair_path, time_str);
     mkdir(result_path, 0755);
 
     init();
@@ -609,7 +615,7 @@ int main(int argc, char *argv[])
     }
     
     /* init experiment log */
-    sprintf(tmp, "%s/experiment.log", result_path);
+    slog_exp(tmp, "%s/experiment.log", result_path);
     init_exp_log(tmp);
 
     log_exp("Local IP: %s", local_ip);
@@ -640,18 +646,18 @@ int main(int argc, char *argv[])
         // Get the request payload
         int read_size;
         while ((read_size = recv(client_sock , payload_sk , BUF_SIZE , 0)) <= 0);
-        printf("Receive client's request\n");
+        log_exp("Receive client's request\n");
         pthread_t subconn_thread[SUBCONN_NUM];
         for (int i = 0; i < SUBCONN_NUM; i++){
             int local_port = rand() % 20000 + 30000; 
             subconn_info[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
             subconn_info[i].ini_seq_rem = 0;
-            printf("%d: local port = %d\n", i, local_port);
+            log_exp("%d: local port = %d\n", i, local_port);
 
             // Add iptables rules
             generate_iptables_rules(iptable_rules, &iptable_rules_len, local_port);
             exec_iptables_rules(iptable_rules, iptable_rules_len-3, iptable_rules_len, 'A');
-            printf("%d: iptables rules added\n", i);
+            log_exp("%d: iptables rules added\n", i);
 
 
             // Create outgoing connections
@@ -659,7 +665,7 @@ int main(int argc, char *argv[])
                 log_error("Fail to create optimistic_ack thread.");
                 exit(EXIT_FAILURE);
             }
-            printf("%d: optimistic ack thread created\n", i);
+            log_exp("%d: optimistic ack thread created\n", i);
 
         }
 
