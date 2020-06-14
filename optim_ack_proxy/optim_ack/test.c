@@ -47,6 +47,7 @@ struct subconn_info
     unsigned short local_port;
     unsigned int ini_seq_rem;//remote sequence number
 
+    pthread_t thread;
     unsigned int seq_optim_start;// local sequence number for optim ack to start
     unsigned int ack_optim_start;// local ack number for optim ack to start
     unsigned int payload_len;
@@ -386,14 +387,14 @@ int process_tcp_packet(struct mypacket *packet)
                 subconn_info[subconn_id].payload_len = packet->payload_len;
 
                 // Create outgoing connections
-                if (pthread_create(&subconn_thread[subconn_id], NULL, optimistic_ack, (void *)subconn_id) != 0){
+                if (pthread_create(&subconn_info[subconn_id].thread, NULL, optimistic_ack, (void *)subconn_id) != 0){
                     log_error("Fail to create optimistic_ack thread.");
                     exit(EXIT_FAILURE);
                 }
                 log_exp("optimistic ack thread created");
             }
             else if(seq_rel != 1 && !subconn_info[subconn_id].payload_len){
-                log_error("Not first data packet but optimistic ack thread is not created.")
+                log_error("Not first data packet but optimistic ack thread is not created.");
                 return 0;
             }
 
@@ -409,6 +410,7 @@ int process_tcp_packet(struct mypacket *packet)
             seq_next_global += packet->payload_len;
             log_exp("Sent segment to client, update seq_global to %u", seq_next_global);
             break;
+
         default:
             log_error("Invalid tcp flags");
             break;
@@ -690,7 +692,6 @@ int main(int argc, char *argv[])
         int read_size;
         while ((read_size = recv(client_sock , payload_sk , BUF_SIZE , 0)) <= 0);
         log_exp("Receive client's request %d", read_size);
-        pthread_t subconn_thread[SUBCONN_NUM];
         for (int i = 0; i < SUBCONN_NUM; i++){
             int local_port = rand() % 20000 + 30000; 
             subconn_info[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
@@ -704,7 +705,7 @@ int main(int argc, char *argv[])
 
             // Send SYN
             send_SYN("", 0, rand(), local_port);
-            log_exp("%d: Sent SYN", id);
+            log_exp("%d: Sent SYN", i);
         }
 
     }
