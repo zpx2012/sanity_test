@@ -373,6 +373,7 @@ int process_tcp_packet(struct mypacket *packet)
         }
         
         case TH_ACK:
+        case TH_PUSH|TH_ACK:
         {
             if (!subconn_info[subconn_id].ini_seq_rem){
                 log_error("process_tcp_packet: ini_seq_rem not set");
