@@ -46,6 +46,10 @@ struct subconn_info
 {
     unsigned short local_port;
     unsigned int ini_seq_rem;//remote sequence number
+
+    unsigned int seq_optim_start;// local sequence number for optim ack to start
+    unsigned int ack_optim_start;// local ack number for optim ack to start
+    unsigned int payload_len;
 };
 struct subconn_info subconn_info[SUBCONN_NUM];
 pthread_mutex_t mutex_subconn;
@@ -305,8 +309,6 @@ void init()
     pthread_mutex_init(&mutex_subconn, NULL);
 }
 
-
-
 /* Process TCP packets
  * Return 0 to accept packet, otherwise to drop packet 
  */
@@ -331,10 +333,6 @@ int process_tcp_packet(struct mypacket *packet)
 
     log_exp("%s:%d -> %s:%d <%s> seq %u ack %u ttl %u plen %d", sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), ntohl(tcphdr->th_seq), ntohl(tcphdr->th_ack), iphdr->ttl, packet->payload_len);
 
-    /* Check if it is data packet */
-    if (tcphdr->th_flags != TH_ACK)
-        return 0;
-
     /* Check if the dest IP address is the one of our interface */
     if (inet_addr(local_ip) == iphdr->daddr)
     {
@@ -358,33 +356,74 @@ int process_tcp_packet(struct mypacket *packet)
     if (subconn_id == -1){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
     }
-    log_exp("%d: found local port %d\n", subconn_id, dport);
+    log_exp("Subconn %d,  local port %d", subconn_id, dport);
     
-    while(!subconn_info[subconn_id].ini_seq_rem); //make sure ini_seq_rem has been set
-    log_exp("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_info[subconn_id].ini_seq_rem, seq_next_global);
-    if(seq - subconn_info[subconn_id].ini_seq_rem != seq_next_global)
-        return 0;
-    log_exp("%d: found segment\n", subconn_id);
+    /*
+    * 1. Received SYN/ACK: find the local port, send ACK and request
+    * 2. Received data packet: send it to client
+    *        if seq - init_seq == 1: //first data packet
+    *            if subconn_info[id].optimack_start == false:
+    *                  get the payload len, start the optim ack
+    *    
+    */
+    switch (tcphdr->th_flags){
+        case TH_SYN|TH_ACK:
+            subconn_info[subconn_id].ini_seq_rem = ack;
+            send_ACK(payload_sk, ack+1, seq, dport);
+            log_exp("%d: Received SYN/ACK. Sent ACK and request", subconn_id);
+            break;
 
-    //find the exact segment, send it to the client
-    if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
-        log_error("process_tcp_packet: send error %d", errno);
-        return 0;
+        
+        case TH_ACK:
+            if (!subconn_info[subconn_id].ini_seq_rem){
+                log_error("process_tcp_packet: ini_seq_rem not set");
+                return 0;
+            }
+            int seq_rel = seq - subconn_info[subconn_id].ini_seq_rem;
+            if (seq_rel == 1 && !subconn_info[subconn_id].payload_len){
+                subconn_info[subconn_id].seq_optim_start = ack;
+                subconn_info[subconn_id].ack_optim_start = seq;
+                subconn_info[subconn_id].payload_len = packet->payload_len;
+
+                // Create outgoing connections
+                if (pthread_create(&subconn_thread[subconn_id], NULL, optimistic_ack, (void *)subconn_id) != 0){
+                    log_error("Fail to create optimistic_ack thread.");
+                    exit(EXIT_FAILURE);
+                }
+                log_exp("optimistic ack thread created");
+            }
+            else if(seq_rel != 1 && !subconn_info[subconn_id].payload_len){
+                log_error("Not first data packet but optimistic ack thread is not created.")
+                return 0;
+            }
+
+            if(seq_rel != seq_next_global)
+                return 0;
+            log_exp("Found segment %u", seq_next_global);
+
+            //find the exact segment, send it to the client
+            if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
+                log_error("process_tcp_packet: send error %d", errno);
+                return 0;
+            }
+            seq_next_global += packet->payload_len;
+            log_exp("Sent segment to client, update seq_global to %u", seq_next_global);
+            break;
+        default:
+            log_error("Invalid tcp flags");
+            break;
     }
-    seq_next_global += packet->payload_len;
-    log_exp("%d: sent segment to client, update seq_global\n", subconn_id);
+
+    // log_exp("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_info[subconn_id].ini_seq_rem, seq_next_global);
+
     return 0;
 }
+
 
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, 
               struct nfq_data *nfa, void *data)
 {
-    //log_debug("entering callback");
-    //u_int32_t id = print_pkt(nfa);
-    //char buf[1025];
-    //nfq_snprintf_xml(buf, 1024, nfa, NFQ_XML_ALL);
-    //log_debug("%s", buf);
-    
+
     struct nfqnl_msg_packet_hdr *ph;
     ph = nfq_get_msg_packet_hdr(nfa);
     if (!ph) {
@@ -397,20 +436,11 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     // get data (IP header + TCP header + payload)
     unsigned char *pkt_data;
     int plen = nfq_get_payload(nfa, &pkt_data);
-    //if (plen >= 0)
-    //    log_debug("payload_len=%d", plen);
-    //hex_dump(pkt_data, plen);
 
     struct mypacket packet;
     packet.data = pkt_data;
     packet.len = plen;
     packet.iphdr = ip_hdr(pkt_data);
-    
-    // parse ip
-    // char sip[16], dip[16];
-    // ip2str(packet.iphdr->saddr, sip);
-    // ip2str(packet.iphdr->daddr, dip);
-    //log_debugv("This packet goes from %s to %s.", sip, dip);
 
     int ret = 0;
 
@@ -419,7 +449,6 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
             packet.tcphdr = tcp_hdr(pkt_data);
             packet.payload = tcp_payload(pkt_data);
             packet.payload_len = packet.len - packet.iphdr->ihl*4 - packet.tcphdr->th_off*4;
-            // show_packet(&packet);
             ret = process_tcp_packet(&packet);
             break;
         default:
@@ -511,51 +540,65 @@ int wait_for_connection(int s)
     return (newsock);
 }
 
-
-void* optimistic_ack(void* threadid)
-{
-    unsigned int seq, ack;
+void* optimistic_ack(void* threadid){
     int id = (long) threadid;
-    void* voidptr = NULL;
-    char pkt_data_local[10000];
-
     unsigned short local_port = subconn_info[id].local_port;
+    unsigned int ack = subconn_info[id].ack_optim_start;
+    unsigned int seq = subconn_info[id].seq_optim_start;
+    unsigned int payload_len = subconn_info[id].payload_len;
 
-    seq = rand();
-
-    int retry = 4;
-    while (retry) {
-        send_SYN("", 0, seq, local_port);
-        printf("%d: Sent SYN\n", id);
-        seq++;
-        ack = wait_SYN_ACK(seq, 5, local_port, pkt_data_local);
-        if (ack != 0) break;
-        retry--;
-    }
-    if (retry == 0) {
-        log_exp("Give up.");
-        return voidptr;
-    }
-    log_exp("%d: Received SYN/ACK\n", id);
-    pthread_mutex_lock(&mutex_subconn);
-    subconn_info[id].ini_seq_rem = ack;
-    pthread_mutex_unlock(&mutex_subconn);
-    ack++;
-    send_ACK(payload_sk, ack, seq, local_port);
-    log_exp("%d: Sent ACK and request\n", id);
-    seq += strlen(payload_sk);
-
-    //Wait for first data packet
-    int payload_len = wait_data(seq, ack, local_port, pkt_data_local);
-    
-    //Send Optim Acks, pacing
-    log_exp("%d: Received first data, payload_len = %d, start optim ack\n", id, payload_len);
+    log_exp("Subconn %d: optim ack start", id);
     for (int i = 1; !nfq_stop; i++){
         send_ACK("", ack+i*payload_len, seq, local_port);
         usleep(ack_pacing);
     }
-
 }
+
+
+// void* optimistic_ack_old(void* threadid)
+// {
+//     unsigned int seq, ack;
+//     int id = (long) threadid;
+//     void* voidptr = NULL;
+//     char pkt_data_local[10000];
+
+//     unsigned short local_port = subconn_info[id].local_port;
+
+//     seq = rand();
+
+//     int retry = 4;
+//     while (retry) {
+//         send_SYN("", 0, seq, local_port);
+//         printf("%d: Sent SYN\n", id);
+//         seq++;
+//         ack = wait_SYN_ACK(seq, 5, local_port, pkt_data_local);
+//         if (ack != 0) break;
+//         retry--;
+//     }
+//     if (retry == 0) {
+//         log_exp("Give up.");
+//         return voidptr;
+//     }
+//     log_exp("%d: Received SYN/ACK\n", id);
+//     pthread_mutex_lock(&mutex_subconn);
+//     subconn_info[id].ini_seq_rem = ack;
+//     pthread_mutex_unlock(&mutex_subconn);
+//     ack++;
+//     send_ACK(payload_sk, ack, seq, local_port);
+//     log_exp("%d: Sent ACK and request\n", id);
+//     seq += strlen(payload_sk);
+
+//     //Wait for first data packet
+//     int payload_len = wait_data(seq, ack, local_port, pkt_data_local);
+    
+//     //Send Optim Acks, pacing
+//     log_exp("%d: Received first data, payload_len = %d, start optim ack\n", id, payload_len);
+//     for (int i = 1; !nfq_stop; i++){
+//         send_ACK("", ack+i*payload_len, seq, local_port);
+//         usleep(ack_pacing);
+//     }
+
+// }
 
 int main(int argc, char *argv[])
 {
@@ -646,27 +689,22 @@ int main(int argc, char *argv[])
         // Get the request payload
         int read_size;
         while ((read_size = recv(client_sock , payload_sk , BUF_SIZE , 0)) <= 0);
-        printf("Receive client's request\n");
+        log_exp("Receive client's request %d", read_size);
         pthread_t subconn_thread[SUBCONN_NUM];
         for (int i = 0; i < SUBCONN_NUM; i++){
             int local_port = rand() % 20000 + 30000; 
             subconn_info[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
             subconn_info[i].ini_seq_rem = 0;
-            printf("%d: local port = %d\n", i, local_port);
+            log_exp("%d: local port = %d", i, local_port);
 
             // Add iptables rules
             generate_iptables_rules(iptable_rules, &iptable_rules_len, local_port);
             exec_iptables_rules(iptable_rules, iptable_rules_len-3, iptable_rules_len, 'A');
-            printf("%d: iptables rules added\n", i);
+            log_exp("%d: iptables rules added", i);
 
-
-            // Create outgoing connections
-            if (pthread_create(&subconn_thread[i], NULL, optimistic_ack, (void *)i) != 0){
-                log_error("Fail to create optimistic_ack thread.");
-                exit(EXIT_FAILURE);
-            }
-            printf("%d: optimistic ack thread created\n", i);
-
+            // Send SYN
+            send_SYN("", 0, rand(), local_port);
+            log_exp("%d: Sent SYN", id);
         }
 
     }
