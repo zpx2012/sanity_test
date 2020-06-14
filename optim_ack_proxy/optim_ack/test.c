@@ -199,19 +199,14 @@ void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     char* cmd = (char*) malloc(200);
     sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -m mark --mark %d -j ACCEPT", remote_ip, remote_port, local_port, MARK);
     rules_pool[(*pool_len)++] = cmd;
-    log_exp("%d\n", *pool_len);
 
     cmd = (char*) malloc(200);
     sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     rules_pool[(*pool_len)++] = cmd;
-    log_exp("%d\n", *pool_len);
-
-
 
     cmd = (char*) malloc(200);
     sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %u --sport %u --tcp-flags RST,ACK RST -j DROP", remote_ip, remote_port, local_port);
     rules_pool[(*pool_len)++] = cmd;
-    log_exp("%d\n", *pool_len);
 
     // cmd = (char*) malloc(200);
     // sprintf(cmd, "OUTPUT -t raw -p tcp -d %s --dport %d --sport %d  -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
@@ -227,7 +222,7 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 {
     char cmd[1000];
     for (int i = start; i < end; i++){
-        printf("cmd %d: -%c %s\n", i, action, rules_pool[i]);
+        // printf("cmd %d: -%c %s\n", i, action, rules_pool[i]);
         sprintf(cmd, "iptables -%c %s", action, rules_pool[i]);
         system(cmd);
     }
@@ -371,7 +366,7 @@ int process_tcp_packet(struct mypacket *packet)
         case TH_SYN|TH_ACK:
         {
             subconn_info[subconn_id].ini_seq_rem = ack;
-            send_ACK(payload_sk, ack+1, seq, dport);
+            send_ACK(payload_sk, seq+1, ack, dport);
             log_exp("%d: Received SYN/ACK. Sent ACK and request", subconn_id);
             break;
         }
@@ -459,7 +454,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     }
     
     nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
-    log_exp("verdict: accpet");
+    // log_exp("verdict: accpet");
     // if (ret == 0)
     //     nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
     // else
@@ -486,7 +481,7 @@ void *nfq_loop(void *arg)
             if (errno != EAGAIN && errno != EWOULDBLOCK) {
                 // log_debug("recv() ret %d errno: %d", rv, errno);
             }
-            usleep(100); //10000
+            // usleep(100); //10000
         }
     }
 }
