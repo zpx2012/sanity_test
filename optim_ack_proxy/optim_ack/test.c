@@ -322,8 +322,8 @@ int process_tcp_packet(struct mypacket *packet)
     unsigned int seq, ack;
     sport = ntohs(tcphdr->th_sport);
     dport = ntohs(tcphdr->th_dport);
-    seq = tcphdr->th_seq;
-    ack = tcphdr->th_ack;
+    seq = htonl(tcphdr->th_seq);
+    ack = htonl(tcphdr->th_ack);
     //log_debug("[TCP] This packet goes from %s:%d to %s:%d", sip, sport, dip, dport);
     //log_debug("TCP flags: %s", tcp_flags_str(tcphdr->th_flags));
 
