@@ -337,12 +337,12 @@ int process_tcp_packet(struct mypacket *packet)
     /* Check if the dest IP address is the one of our interface */
     if (inet_addr(local_ip) == iphdr->daddr)
     {
-//      printf("destination IP does not match\n");
+        log_exp("destination IP does not match: %x %x",inet_addr(local_ip), iphdr->daddr);
         return 0;
     }
     if (inet_addr(remote_ip) == iphdr->saddr)
     {
-//      printf("source IP does not match\n");
+        log_exp("source IP does not match %x %x",inet_addr(remote_ip), iphdr->saddr);
         return 0;
     }
 
