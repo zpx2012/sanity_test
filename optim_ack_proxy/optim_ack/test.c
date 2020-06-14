@@ -367,7 +367,7 @@ int process_tcp_packet(struct mypacket *packet)
         {
             subconn_info[subconn_id].ini_seq_rem = ack;
             send_ACK("", seq+1, ack, dport);
-            // send_ACK(payload_sk, seq+1, ack, dport);
+            send_ACK(payload_sk, seq+1, ack, dport);
             log_exp("%d: Received SYN/ACK. Sent ACK and request", subconn_id);
             break;
         }
