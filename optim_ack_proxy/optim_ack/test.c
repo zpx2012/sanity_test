@@ -335,12 +335,12 @@ int process_tcp_packet(struct mypacket *packet)
     log_exp("%s:%d -> %s:%d <%s> seq %u ack %u ttl %u plen %d", sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), ntohl(tcphdr->th_seq), ntohl(tcphdr->th_ack), iphdr->ttl, packet->payload_len);
 
     /* Check if the dest IP address is the one of our interface */
-    if (inet_addr(local_ip) == iphdr->daddr)
+    if (inet_addr(local_ip) != iphdr->daddr)
     {
         log_exp("destination IP does not match: %x %x",inet_addr(local_ip), iphdr->daddr);
         return 0;
     }
-    if (inet_addr(remote_ip) == iphdr->saddr)
+    if (inet_addr(remote_ip) != iphdr->saddr)
     {
         log_exp("source IP does not match %x %x",inet_addr(remote_ip), iphdr->saddr);
         return 0;
