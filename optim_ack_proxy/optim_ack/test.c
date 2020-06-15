@@ -40,7 +40,7 @@ int opt_measure = 0;
  * Global variables
  */
 
-#define SUBCONN_NUM 5
+#define SUBCONN_NUM 1
 // Optimistic Ack
 struct subconn_info
 {
@@ -398,9 +398,10 @@ int process_tcp_packet(struct mypacket *packet)
             }
 
             if(seq_rel != seq_next_global){
-                log_exp("wait packet: seq number does not match. recv: %d, wanting: %d\n", seq_rel, seq_next_global);
-            }
+                log_exp("seq number does not match. recv: %d, wanting: %d\n", seq_rel, seq_next_global);
                 return 0;
+            }
+                
             log_exp("Found segment %u", seq_next_global);
 
             //find the exact segment, send it to the client
@@ -602,6 +603,17 @@ void* optimistic_ack(void* threadid){
 
 // }
 
+void* recv_idle(void* arg){
+    int sock = (long) arg;
+    int read_size = 0;
+    char buffer[100];
+    while (true){
+        read_size = recv(sock , buffer , 100 , 0);
+        sleep(1);
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     int opt;
@@ -708,6 +720,12 @@ int main(int argc, char *argv[])
             log_exp("%d: Sent SYN", i);
         }
 
+        //Create idle recv thread
+        pthread_t recv_thread;
+        if (pthread_create(&recv_thread, NULL, recv_idle, (void*)client_sock) != 0){
+            log_error("Fail to create recv thread.");
+            exit(EXIT_FAILURE);
+    }
     }
 
     nfq_stop = 1;
