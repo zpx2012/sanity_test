@@ -40,7 +40,7 @@ int opt_measure = 0;
  * Global variables
  */
 
-#define SUBCONN_NUM 1
+#define SUBCONN_NUM 3
 // Optimistic Ack
 struct subconn_info
 {
