@@ -398,7 +398,8 @@ int process_tcp_packet(struct mypacket *packet)
                 }
             if (all_ack_sent){
                 for (int i = 0; i < SUBCONN_NUM; i++){
-                    send_ACK(payload_sk, subconn_infos[subconn_id].cur_seq_rem+1, subconn_infos[subconn_id].cur_seq_loc, subconn_infos[i].local_port);
+                    send_ACK(payload_sk, subconn_infos[i].cur_seq_rem+1, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
+                    usleep(10);
 
                 }
                 log_exp("All ACK sent, sent request");
