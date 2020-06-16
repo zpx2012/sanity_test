@@ -263,6 +263,11 @@ void signal_handler(int signum)
     exit(EXIT_FAILURE);
 }
 
+void init_subconn(){
+    for(int i = 0; i < SUBCONN_NUM;i++)
+        memset(&subconn_infos[i], 0, sizeof(struct subconn_info));
+}
+
 
 void init()
 {
@@ -306,11 +311,6 @@ void init()
 
     pthread_mutex_init(&mutex_subconn, NULL);
     init_subconn();
-}
-
-void init_subconn(){
-    for(int i = 0; i < SUBCONN_NUM;i++)
-        memset(&subconn_infos[i], 0, sizeof(struct subconn_info));
 }
 
 /* Bug: sub connections are not syncronized; one is way ahead, the others fall behind
