@@ -46,13 +46,15 @@ struct subconn_info
 {
     unsigned short local_port;
     unsigned int ini_seq_rem;//remote sequence number
+    unsigned int ini_seq_loc;//local sequence number
 
     pthread_t thread;
-    unsigned int seq_optim_start;// local sequence number for optim ack to start
-    unsigned int ack_optim_start;// local ack number for optim ack to start
+    short ack_sent;
+    unsigned int cur_seq_rem;// local sequence number for optim ack to start
+    unsigned int cur_seq_loc;// local ack number for optim ack to start
     unsigned int payload_len;
 };
-struct subconn_info subconn_info[SUBCONN_NUM];
+struct subconn_info subconn_infos[SUBCONN_NUM];
 pthread_mutex_t mutex_subconn;
 int ack_pacing;
 unsigned int seq_next_global = 1;
@@ -303,7 +305,20 @@ void init()
     // connect_to_redis();
 
     pthread_mutex_init(&mutex_subconn, NULL);
+    init_subconn();
 }
+
+void init_subconn(){
+    for(int i = 0; i < SUBCONN_NUM;i++)
+        memset(&subconn_infos[i], 0, sizeof(struct subconn_info));
+}
+
+/* Bug: sub connections are not syncronized; one is way ahead, the others fall behind
+ * Solution: 
+ *      1. Wait until all connections finishe threeway handshake, then send request all together
+ *      2. Wait until all connections receive the first data packet, then start optimistic ack, opt ack thread send one ack for each subconn each round
+ *      3. Keep an array to track the gaps, while get global seq going and send discontinued packets to client, later send the gaps when arrived
+*/
 
 /* Process TCP packets
  * Return 0 to accept packet, otherwise to drop packet 
@@ -344,7 +359,7 @@ int process_tcp_packet(struct mypacket *packet)
     // Find out which subconn
     int subconn_id = -1;
     for(int i = 0; i < SUBCONN_NUM; i++){
-        if (subconn_info[i].local_port == dport){
+        if (subconn_infos[i].local_port == dport){
             subconn_id = i;
             break;
         }
@@ -358,41 +373,71 @@ int process_tcp_packet(struct mypacket *packet)
     * 1. Received SYN/ACK: find the local port, send ACK and request
     * 2. Received data packet: send it to client
     *        if seq - init_seq == 1: //first data packet
-    *            if subconn_info[id].optimack_start == false:
+    *            if subconn_infos[id].optimack_start == false:
     *                  get the payload len, start the optim ack
     *    
     */
     switch (tcphdr->th_flags){
         case TH_SYN|TH_ACK:
         {
-            subconn_info[subconn_id].ini_seq_rem = seq;
             send_ACK("", seq+1, ack, dport);
-            send_ACK(payload_sk, seq+1, ack, dport);
-            log_exp("%d: Received SYN/ACK. Sent ACK and request", subconn_id);
+            subconn_infos[subconn_id].ini_seq_rem = seq;
+            subconn_infos[subconn_id].ini_seq_loc = ack-1;
+            subconn_infos[subconn_id].cur_seq_rem = seq;
+            subconn_infos[subconn_id].cur_seq_loc = ack;
+            subconn_infos[subconn_id].ack_sent = 1;            
+            // send_ACK(payload_sk, seq+1, ack, dport);
+            log_exp("%d: Received SYN/ACK. Sent ACK", subconn_id);
+            
+            //check if all subconns receive syn/ack
+            int all_ack_sent = 1;
+            for (int i = 0; i < SUBCONN_NUM; i++)
+                if (!subconn_infos[i].ack_sent){
+                    all_ack_sent = 0;
+                    break;
+                }
+            if (all_ack_sent){
+                for (int i = 0; i < SUBCONN_NUM; i++){
+                    send_ACK(payload_sk, subconn_infos[subconn_id].cur_seq_rem+1, subconn_infos[subconn_id].cur_seq_loc, subconn_infos[i].local_port);
+
+                }
+                log_exp("All ACK sent, sent request");
+            }
             break;
         }
         
         case TH_ACK:
         case TH_PUSH|TH_ACK:
         {
-            if (!subconn_info[subconn_id].ini_seq_rem){
+            if (!subconn_infos[subconn_id].ini_seq_rem){
                 log_error("process_tcp_packet: ini_seq_rem not set");
                 return 0;
             }
-            int seq_rel = seq - subconn_info[subconn_id].ini_seq_rem;
-            if (seq_rel == 1 && !subconn_info[subconn_id].payload_len){
-                subconn_info[subconn_id].seq_optim_start = ack;
-                subconn_info[subconn_id].ack_optim_start = seq;
-                subconn_info[subconn_id].payload_len = packet->payload_len;
+            int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
+            if (seq_rel == 1 && !subconn_infos[subconn_id].payload_len){
+                subconn_infos[subconn_id].cur_seq_loc = ack;
+                subconn_infos[subconn_id].cur_seq_rem = seq;
+                subconn_infos[subconn_id].payload_len = packet->payload_len;
 
-                // Create outgoing connections
-                if (pthread_create(&subconn_info[subconn_id].thread, NULL, optimistic_ack, (void *)subconn_id) != 0){
-                    log_error("Fail to create optimistic_ack thread.");
-                    exit(EXIT_FAILURE);
+                // check if all subconns received 
+                int all_data_recv = 1;
+                for (int i = 0; i < SUBCONN_NUM; i++)
+                    if (!subconn_infos[i].payload_len){
+                        all_data_recv = 0;
+                        break;
+                    }
+                if (all_data_recv){
+                    // Create outgoing connections
+                    pthread_t thread;
+                    if (pthread_create(&thread, NULL, optimistic_ack, NULL) != 0){
+                        log_error("Fail to create optimistic_ack thread.");
+                        exit(EXIT_FAILURE);
+                    }
+                    log_exp("optimistic ack thread created");
                 }
-                log_exp("optimistic ack thread created");
+
             }
-            else if(seq_rel != 1 && !subconn_info[subconn_id].payload_len){
+            else if(seq_rel != 1 && !subconn_infos[subconn_id].payload_len){
                 log_error("Not first data packet but optimistic ack thread is not created.");
                 return 0;
             }
@@ -417,7 +462,7 @@ int process_tcp_packet(struct mypacket *packet)
             log_error("Invalid tcp flags");
     }
 
-    // log_exp("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_info[subconn_id].ini_seq_rem, seq_next_global);
+    // log_exp("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_infos[subconn_id].ini_seq_rem, seq_next_global);
 
     return 0;
 }
@@ -544,17 +589,14 @@ int wait_for_connection(int s)
 }
 
 void* optimistic_ack(void* threadid){
-    int id = (long) threadid;
-    unsigned short local_port = subconn_info[id].local_port;
-    unsigned int ack = subconn_info[id].ack_optim_start;
-    unsigned int seq = subconn_info[id].seq_optim_start;
-    unsigned int payload_len = subconn_info[id].payload_len;
 
-    log_exp("Subconn %d: optim ack start", id);
-    for (int i = 1; !nfq_stop; i++){
-        send_ACK("", ack+i*payload_len, seq, local_port);
+    log_exp("Optim ack starts");
+    for (int k = 1; !nfq_stop; k++){
+        for (int i = 0; i < SUBCONN_NUM; i++)
+            send_ACK("",subconn_infos[i].cur_seq_rem+k*subconn_infos[i].payload_len, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
         usleep(ack_pacing);
     }
+    log_exp("Optim ack ends");
 }
 
 
@@ -565,7 +607,7 @@ void* optimistic_ack(void* threadid){
 //     void* voidptr = NULL;
 //     char pkt_data_local[10000];
 
-//     unsigned short local_port = subconn_info[id].local_port;
+//     unsigned short local_port = subconn_infos[id].local_port;
 
 //     seq = rand();
 
@@ -584,7 +626,7 @@ void* optimistic_ack(void* threadid){
 //     }
 //     log_exp("%d: Received SYN/ACK\n", id);
 //     pthread_mutex_lock(&mutex_subconn);
-//     subconn_info[id].ini_seq_rem = ack;
+//     subconn_infos[id].ini_seq_rem = ack;
 //     pthread_mutex_unlock(&mutex_subconn);
 //     ack++;
 //     send_ACK(payload_sk, ack, seq, local_port);
@@ -706,8 +748,8 @@ int main(int argc, char *argv[])
         log_exp("Receive client's request %d", read_size);
         for (int i = 0; i < SUBCONN_NUM; i++){
             int local_port = rand() % 20000 + 30000; 
-            subconn_info[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
-            subconn_info[i].ini_seq_rem = 0;
+            subconn_infos[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
+            subconn_infos[i].ini_seq_rem = 0;
             log_exp("%d: local port = %d", i, local_port);
 
             // Add iptables rules
