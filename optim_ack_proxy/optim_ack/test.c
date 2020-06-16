@@ -9,8 +9,10 @@
 #include <signal.h>
 #include <errno.h>
 #include <pthread.h>
-
 #include <sys/stat.h>
+
+#include <iostream> 
+#include <vector>
 
 #include <linux/netfilter.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
@@ -62,7 +64,7 @@ int client_sock;
 const int MARK = 66;
 char* iptable_rules[100];
 int iptable_rules_len = 0;
-
+std::vector<unsigned int> gaps;
 
 
 struct nfq_handle *g_nfq_h;
