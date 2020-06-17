@@ -448,7 +448,7 @@ int process_tcp_packet(struct mypacket *packet)
         {
             if(!packet->payload_len)
                 return 0;
-                
+
             if (!subconn_infos[subconn_id].ini_seq_rem){
                 log_error("process_tcp_packet: ini_seq_rem not set");
                 return 0;
@@ -500,7 +500,6 @@ int process_tcp_packet(struct mypacket *packet)
                     return 0;
                 delete_seq_gaps(seq_rel);
                 log_exp("Found gap %u. Delete gap.", seq_rel);
-
             }
             else {
                 seq_next_global += packet->payload_len;
@@ -515,6 +514,16 @@ int process_tcp_packet(struct mypacket *packet)
             log_exp("Sent segment %d to client", seq_rel);
             break;
                 
+        }
+        case TH_FIN|TH_ACK:
+        {
+            send_FIN_ACK("", seq+1, ack, dport);
+            log_exp("Subconn %d: Received FIN/ACK. Sent FIN/ACK.", subconn_id);
+            if (!seq_gaps.size()){
+                log_exp("No gaps left. Close client connection.");
+                close(client_sock);
+            }
+            break;
         }
         default:
             log_error("Invalid tcp flags");

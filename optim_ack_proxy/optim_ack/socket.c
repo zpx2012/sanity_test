@@ -55,6 +55,20 @@ void send_request(char* payload, unsigned int ack, unsigned int seq = 1, unsigne
 }
 
 
+void send_FIN_ACK(char *payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128)
+{
+    struct tcphdr_opts opts;
+    opts.size = 0;
+
+    struct tcphdr_bsd header;
+    header.th_flags = TH_FIN | TH_ACK;
+    header.th_seq = seq;
+    header.th_ack = ack;
+    header.th_win = 29200;
+
+    send_tcp(local_port, remote_port, &header, &opts, local_ip, remote_ip, ttl, NULL, (u_char*)payload, strlen(payload), 1);
+}
+
 unsigned int wait_SYN_ACK(unsigned int ack = 0, int timeout = 1, unsigned short local_port = 8000, char* pkt_data = pkt_data)
 {
     unsigned int recv_seq = 0, recv_ack = 0;
@@ -308,20 +322,6 @@ void send_FIN(char *payload, unsigned int ack, unsigned int seq = 1, unsigned ch
 
     struct tcphdr_bsd header;
     header.th_flags = TH_FIN;
-    header.th_seq = seq;
-    header.th_ack = ack;
-    header.th_win = 29200;
-
-    send_tcp(local_port, remote_port, &header, &opts, local_ip, remote_ip, ttl, NULL, (u_char*)payload, strlen(payload), 1);
-}
-
-void send_FIN_ACK(char *payload, unsigned int ack, unsigned int seq = 1, unsigned char ttl = 128)
-{
-    struct tcphdr_opts opts;
-    opts.size = 0;
-
-    struct tcphdr_bsd header;
-    header.th_flags = TH_FIN | TH_ACK;
     header.th_seq = seq;
     header.th_ack = ack;
     header.th_win = 29200;
