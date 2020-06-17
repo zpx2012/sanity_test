@@ -489,35 +489,27 @@ int process_tcp_packet(struct mypacket *packet)
             if(seq_rel > seq_next_global){
                 log_exp("Insert gaps: %d, to: %d\n", seq_rel, seq_next_global);
                 insert_seq_gaps(seq_rel, seq_next_global, packet->payload_len);
-                return 0;
             }
             else if (seq_rel < seq_next_global){
                 log_exp("seq_rel < seq_next_global. recv: %d, wanting: %d\n", seq_rel, seq_next_global);
                 int ret = find_seq_gaps(seq_rel);
                 if (!ret)
                     return 0;
-                log_exp("Found gap %u", seq_next_global);
-
-                //find the exact segment, send it to the client
-                if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
-                    log_error("process_tcp_packet: send error %d", errno);
-                    return 0;
-                }
                 delete_seq_gaps(seq_rel);
-                return 0;
+                log_exp("Found gap %u. Delete gap.", seq_rel);
+
             }
             else {
-                
-                log_exp("Found segment %u", seq_next_global);
-
-                //find the exact segment, send it to the client
-                if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
-                    log_error("process_tcp_packet: send error %d", errno);
-                    return 0;
-                }
                 seq_next_global += packet->payload_len;
-                log_exp("Sent segment to client, update seq_global to %u", seq_next_global);
+                log_exp("Found segment %u, update seq_global to %u", seq_rel, seq_next_global);
             }
+
+            //send it to the client
+            if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
+                log_error("process_tcp_packet: send error %d", errno);
+                return 0;
+            }
+            log_exp("Sent segment %d to client", seq_rel);
             break;
                 
         }
