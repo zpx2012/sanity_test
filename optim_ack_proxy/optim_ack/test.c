@@ -412,7 +412,7 @@ int process_tcp_packet(struct mypacket *packet)
                 log_error("process_tcp_packet: ini_seq_rem not set");
                 return -1;
             }
-            int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
+            unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
             if (seq_rel == 1 && !subconn_infos[subconn_id].payload_len){
                 subconn_infos[subconn_id].cur_seq_loc = ack;
                 subconn_infos[subconn_id].cur_seq_rem = seq;
