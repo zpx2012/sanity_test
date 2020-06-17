@@ -449,8 +449,14 @@ int process_tcp_packet(struct mypacket *packet)
             *
             */
             if(seq_rel > seq_next_global){
-                log_exp("Insert gaps: %d, to: %d\n", seq_rel, seq_next_global);
+                if ((seq_rel-seq_next_global) % packet->payload_len != 0){
+                    log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
+                    return -1;
+                }
                 insert_seq_gaps(seq_next_global, seq_rel, packet->payload_len);
+                seq_next_global = seq_rel;
+                log_exp("Inserted gaps: %d, to: %d. Update seq_global to %d", seq_next_global,seq_rel, seq_rel);
+
             }
             else if (seq_rel < seq_next_global){
                 log_exp("seq_rel < seq_next_global. recv: %d, wanting: %d", seq_rel, seq_next_global);
