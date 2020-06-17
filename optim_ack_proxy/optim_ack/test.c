@@ -41,7 +41,7 @@ int opt_measure = 0;
  * Global variables
  */
 
-#define SUBCONN_NUM 10
+#define SUBCONN_NUM 3
 // Optimistic Ack
 struct subconn_info
 {
@@ -339,10 +339,6 @@ int process_tcp_packet(struct mypacket *packet)
     dport = ntohs(tcphdr->th_dport);
     seq = htonl(tcphdr->th_seq);
     ack = htonl(tcphdr->th_ack);
-    //log_debug("[TCP] This packet goes from %s:%d to %s:%d", sip, sport, dip, dport);
-    //log_debug("TCP flags: %s", tcp_flags_str(tcphdr->th_flags));
-
-    log_exp("%s:%d -> %s:%d <%s> seq %u ack %u ttl %u plen %d", sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), ntohl(tcphdr->th_seq), ntohl(tcphdr->th_ack), iphdr->ttl, packet->payload_len);
 
     /* Check if the dest IP address is the one of our interface */
     if (inet_addr(local_ip) != iphdr->daddr)
@@ -367,8 +363,8 @@ int process_tcp_packet(struct mypacket *packet)
     if (subconn_id == -1){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
     }
-    log_exp("Subconn %d,  local port %d", subconn_id, dport);
-    
+    log_exp("Subconn %d: %s:%d -> %s:%d <%s> seq %u ack %u ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), seq-subconn_infos[subconn_id].ini_seq_rem , ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, packet->payload_len);
+
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
     * 2. Received data packet: send it to client
@@ -402,6 +398,7 @@ int process_tcp_packet(struct mypacket *packet)
                 }
                 log_exp("All ACK sent, sent request");
             }
+            return -1;
             break;
         }
         
@@ -409,11 +406,11 @@ int process_tcp_packet(struct mypacket *packet)
         case TH_PUSH|TH_ACK:
         {
             if(!packet->payload_len)
-                return 0;
+                return -1;
 
             if (!subconn_infos[subconn_id].ini_seq_rem){
                 log_error("process_tcp_packet: ini_seq_rem not set");
-                return 0;
+                return -1;
             }
             int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
             if (seq_rel == 1 && !subconn_infos[subconn_id].payload_len){
@@ -435,13 +432,13 @@ int process_tcp_packet(struct mypacket *packet)
                         log_error("Fail to create optimistic_ack thread.");
                         exit(EXIT_FAILURE);
                     }
-                    log_exp("optimistic ack thread created");
+                    log_exp("-------------------\n\noptimistic ack thread created\n\n-------------------");
                 }
 
             }
             else if(seq_rel != 1 && !subconn_infos[subconn_id].payload_len){
                 log_error("Not first data packet but optimistic ack thread is not created.");
-                return 0;
+                return -1;
             }
 
             /* if seq > seq_global and seq-seq_global % payload_len == 0
@@ -453,13 +450,13 @@ int process_tcp_packet(struct mypacket *packet)
             */
             if(seq_rel > seq_next_global){
                 log_exp("Insert gaps: %d, to: %d\n", seq_rel, seq_next_global);
-                insert_seq_gaps(seq_rel, seq_next_global, packet->payload_len);
+                insert_seq_gaps(seq_next_global, seq_rel, packet->payload_len);
             }
             else if (seq_rel < seq_next_global){
-                log_exp("seq_rel < seq_next_global. recv: %d, wanting: %d\n", seq_rel, seq_next_global);
+                log_exp("seq_rel < seq_next_global. recv: %d, wanting: %d", seq_rel, seq_next_global);
                 int ret = find_seq_gaps(seq_rel);
                 if (!ret)
-                    return 0;
+                    return -1;
                 delete_seq_gaps(seq_rel);
                 log_exp("Found gap %u. Delete gap.", seq_rel);
             }
@@ -471,9 +468,10 @@ int process_tcp_packet(struct mypacket *packet)
             //send it to the client
             if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
                 log_error("process_tcp_packet: send error %d", errno);
-                return 0;
+                return -1;
             }
             log_exp("Sent segment %d to client", seq_rel);
+            return -1;
             break;
                 
         }
@@ -485,6 +483,7 @@ int process_tcp_packet(struct mypacket *packet)
                 log_exp("No gaps left. Close client connection.");
                 close(client_sock);
             }
+            return -1;
             break;
         }
         default:
@@ -532,12 +531,16 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
             log_error("Invalid protocol: %d", packet.iphdr->protocol);
     }
     
-    nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    // nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
     // log_exp("verdict: accpet");
-    // if (ret == 0)
-    //     nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
-    // else
-    //     nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+    if (ret == 0){
+        nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+        log_exp("verdict: accpet\n");
+    }
+    else{
+        nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+        log_exp("verdict: drop\n");
+    }
         
     // return <0 to stop processing
     return 0;
