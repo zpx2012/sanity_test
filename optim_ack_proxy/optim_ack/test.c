@@ -20,7 +20,6 @@
 
 #include "logging.h"
 #include "util.h"
-#include "cache.h"
 #include "socket.h"
 
 
