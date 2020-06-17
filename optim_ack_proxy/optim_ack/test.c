@@ -363,7 +363,7 @@ int process_tcp_packet(struct mypacket *packet)
     if (subconn_id == -1){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
     }
-    log_exp("Subconn %d: %s:%d -> %s:%d <%s> seq %u ack %u ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), seq-subconn_infos[subconn_id].ini_seq_rem , ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, packet->payload_len);
+    log_exp("Subconn %d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, packet->payload_len);
 
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
