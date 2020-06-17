@@ -64,7 +64,7 @@ int client_sock;
 const int MARK = 66;
 char* iptable_rules[100];
 int iptable_rules_len = 0;
-std::vector<unsigned int> gaps;
+std::set<unsigned int> seq_gaps;
 
 
 struct nfq_handle *g_nfq_h;
@@ -315,6 +315,41 @@ void init()
     init_subconn();
 }
 
+
+int find_seq_gaps(unsigned int seq){
+    if (seq < *seq_gaps.begin())
+        return 0;
+    return seq_gaps.find(seq) != seq_gaps.end();
+    // for (size_t i = 0; i < seq_gaps.size(); i++)
+    // {
+    //     if (seq < seq_gaps.at(i))
+    //         return -1;
+    //     else if(seq == seq_gaps.at(i))
+    //         return i;
+    // }
+    // return -1;
+}
+
+void insert_seq_gaps(unsigned int start, unsigned int end, unsigned int step){
+    for(; start < end; start += step)
+        seq_gaps.insert(start);
+
+    // unsigned int last = seq_gaps.at(seq_gaps.size()-1);
+    // if (start > last){
+    //     for(; start < end; start += step)
+    //         seq_gaps.push_back(start);
+    // }
+    // else if (start < last) {
+    //     for(; start < end; start += step){
+
+    //     }       
+    // }
+}
+
+void delete_seq_gaps(unsigned int val){
+    return seq_gaps.erase(val);
+}
+
 /* Bug: sub connections are not syncronized; one is way ahead, the others fall behind
  * Solution: 
  *      1. Wait until all connections finishe threeway handshake, then send request all together
@@ -443,21 +478,47 @@ int process_tcp_packet(struct mypacket *packet)
                 return 0;
             }
 
-            if(seq_rel != seq_next_global){
-                log_exp("seq number does not match. recv: %d, wanting: %d\n", seq_rel, seq_next_global);
+            /* if seq > seq_global and seq-seq_global % payload_len == 0
+            *      add all seq in between to the vector
+            * else if seq < seq_global:
+            *      search the vector
+            *      if found, send the data, erase the seq from the vector
+            *
+            */
+            if(seq_rel > seq_next_global){
+                log_exp("Insert gaps: %d, to: %d\n", seq_rel, seq_next_global);
+                insert_seq_gaps(seq_rel, seq_next_global, packet->payload_len);
                 return 0;
             }
-                
-            log_exp("Found segment %u", seq_next_global);
+            else if (seq_rel < seq_next_global){
+                log_exp("seq_rel < seq_next_global. recv: %d, wanting: %d\n", seq_rel, seq_next_global);
+                int ret = find_seq_gaps(seq_rel);
+                if (!ret)
+                    return 0;
+                log_exp("Found gap %u", seq_next_global);
 
-            //find the exact segment, send it to the client
-            if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
-                log_error("process_tcp_packet: send error %d", errno);
+                //find the exact segment, send it to the client
+                if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
+                    log_error("process_tcp_packet: send error %d", errno);
+                    return 0;
+                }
+                delete_seq_gaps(seq_rel);
                 return 0;
             }
-            seq_next_global += packet->payload_len;
-            log_exp("Sent segment to client, update seq_global to %u", seq_next_global);
+            else {
+                
+                log_exp("Found segment %u", seq_next_global);
+
+                //find the exact segment, send it to the client
+                if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
+                    log_error("process_tcp_packet: send error %d", errno);
+                    return 0;
+                }
+                seq_next_global += packet->payload_len;
+                log_exp("Sent segment to client, update seq_global to %u", seq_next_global);
+            }
             break;
+                
         }
         default:
             log_error("Invalid tcp flags");
