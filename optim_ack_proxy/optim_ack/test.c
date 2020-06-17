@@ -348,7 +348,7 @@ void insert_seq_gaps(unsigned int start, unsigned int end, unsigned int step){
 }
 
 void delete_seq_gaps(unsigned int val){
-    return seq_gaps.erase(val);
+    seq_gaps.erase(val);
 }
 
 /* Bug: sub connections are not syncronized; one is way ahead, the others fall behind
