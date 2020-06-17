@@ -21,7 +21,6 @@
 #include "logging.h"
 #include "util.h"
 #include "cache.h"
-#include "redis.h"
 #include "socket.h"
 
 
@@ -104,36 +103,6 @@ char payload_sk[BUF_SIZE];// = "GET /?keyword=ultrasurf HTTP/1.1\r\nHOST: whatev
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, 
               struct nfq_data *nfa, void *data);
 
-
-int start_redis_server()
-{
-    int ret;
-    log_info("Starting redis server.");
-    ret = system("redis-server redis.conf");
-    if (ret != 0) {
-        log_error("Failed to start redis server.");
-        return -1;
-    }
-
-    return 0;
-}
-
-int stop_redis_server()
-{
-    FILE *fp = fopen("redis.pid", "r");
-    if (fp == NULL) {
-        log_warn("Redis server is not running?");
-        return -1;
-    }
-
-    char s[10] = "";
-    fread(s, 1, 10, fp);
-    pid_t redis_pid = strtol(s, NULL, 10);
-    log_info("Killing redis server (pid %d).", redis_pid);
-    kill(redis_pid, SIGTERM);
-
-    return 0;
-}
 
 int setup_nfq()
 {
@@ -249,8 +218,6 @@ void cleanup()
 
     teardown_nfq();
 
-    // stop_redis_server();
-
     pthread_mutex_destroy(&mutex_subconn);
 
     exec_iptables_rules(iptable_rules, 0, iptable_rules_len, 'D');
@@ -307,10 +274,6 @@ void init()
         log_error("unable to setup netfilter_queue");
         exit(EXIT_FAILURE);
     }
-
-    // start_redis_server();
-
-    // connect_to_redis();
 
     pthread_mutex_init(&mutex_subconn, NULL);
     init_subconn();
