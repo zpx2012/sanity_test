@@ -697,9 +697,21 @@ void* recv_idle(void* arg){
     char buffer[100];
     while (true){
         read_size = recv(sock , buffer , 100 , 0);
+        if(read_size == 0)
+        {
+            log_exp("Client disconnected");
+            break;
+        }
+        else if(read_size == -1)
+        {
+            // log("recv failed");
+        }
         sleep(1);
     }
+    log_exp("recv_idle exit");
+    pthread_exit(NULL);
 }
+
 
 
 int main(int argc, char *argv[])
