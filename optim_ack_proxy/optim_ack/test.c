@@ -64,7 +64,7 @@ const int MARK = 66;
 char* iptable_rules[100];
 int iptable_rules_len = 0;
 std::set<unsigned int> seq_gaps;
-
+int optim_ack_stop;
 
 struct nfq_handle *g_nfq_h;
 struct nfq_q_handle *g_nfq_qh;
@@ -427,12 +427,13 @@ int process_tcp_packet(struct mypacket *packet)
                     }
                 if (all_data_recv){
                     // Create outgoing connections
+                    optim_ack_stop = 0;
                     pthread_t thread;
                     if (pthread_create(&thread, NULL, optimistic_ack, NULL) != 0){
                         log_error("Fail to create optimistic_ack thread.");
                         exit(EXIT_FAILURE);
                     }
-                    log_exp("-------------------\n\noptimistic ack thread created\n\n-------------------");
+                    log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
                 }
 
             }
@@ -453,13 +454,12 @@ int process_tcp_packet(struct mypacket *packet)
                     log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
                     return -1;
                 }
+                log_exp("Insert gaps: %d, to: %d. Update seq_global to %d", seq_next_global,seq_rel, seq_rel);
                 insert_seq_gaps(seq_next_global, seq_rel, packet->payload_len);
                 seq_next_global = seq_rel;
-                log_exp("Inserted gaps: %d, to: %d. Update seq_global to %d", seq_next_global,seq_rel, seq_rel);
-
             }
             else if (seq_rel < seq_next_global){
-                log_exp("seq_rel < seq_next_global. recv: %d, wanting: %d", seq_rel, seq_next_global);
+                log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
                 int ret = find_seq_gaps(seq_rel);
                 if (!ret)
                     return -1;
@@ -468,7 +468,7 @@ int process_tcp_packet(struct mypacket *packet)
             }
             else {
                 seq_next_global += packet->payload_len;
-                log_exp("Found segment %u, update seq_global to %u", seq_rel, seq_next_global);
+                log_exp("Found seg %u, update seq_global to %u", seq_rel, seq_next_global);
             }
 
             //send it to the client
@@ -476,7 +476,7 @@ int process_tcp_packet(struct mypacket *packet)
                 log_error("process_tcp_packet: send error %d", errno);
                 return -1;
             }
-            log_exp("Sent segment %d to client", seq_rel);
+            log_exp("Sent seg %d to client", seq_rel);
             return -1;
             break;
                 
@@ -484,10 +484,17 @@ int process_tcp_packet(struct mypacket *packet)
         case TH_FIN|TH_ACK:
         {
             send_FIN_ACK("", seq+1, ack, dport);
-            log_exp("Subconn %d: Received FIN/ACK. Sent FIN/ACK.", subconn_id);
+            optim_ack_stop = 1;
+            log_exp("Subconn %d: Received FIN/ACK. Sent FIN/ACK. Stop optim ack thread.", subconn_id);
             if (!seq_gaps.size()){
                 log_exp("No gaps left. Close client connection.");
                 close(client_sock);
+            }
+            else{
+                log_exp("Gap left: %d", seq_gaps.size());
+                for(std::auto itr; itr < seq_gaps.end();itr++)
+                    printf("%u ", *itr);
+                printf("\n");
             }
             return -1;
             break;
@@ -629,12 +636,13 @@ int wait_for_connection(int s)
 void* optimistic_ack(void* threadid){
 
     log_exp("Optim ack starts");
-    for (int k = 1; !nfq_stop; k++){
+    for (int k = 1; !optim_ack_stop ; k++){
         for (int i = 0; i < SUBCONN_NUM; i++)
             send_ACK("",subconn_infos[i].cur_seq_rem+k*subconn_infos[i].payload_len, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
         usleep(ack_pacing);
     }
     log_exp("Optim ack ends");
+    pthread_exit(NULL);
 }
 
 
