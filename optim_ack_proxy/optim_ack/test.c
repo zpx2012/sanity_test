@@ -450,10 +450,10 @@ int process_tcp_packet(struct mypacket *packet)
             *
             */
             if(seq_rel > seq_next_global){
-                if ((seq_rel-seq_next_global) % packet->payload_len != 0){
-                    log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
-                    return -1;
-                }
+                // if ((seq_rel-seq_next_global) % packet->payload_len != 0){
+                //     log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
+                //     return -1;
+                // }
                 log_exp("Insert gaps: %d, to: %d. Update seq_global to %d", seq_next_global,seq_rel, seq_rel);
                 insert_seq_gaps(seq_next_global, seq_rel, packet->payload_len);
                 seq_next_global = seq_rel;
@@ -492,7 +492,7 @@ int process_tcp_packet(struct mypacket *packet)
             }
             else{
                 log_exp("Gap left: %d", seq_gaps.size());
-                for(std::set<unsigned int>::iterator itr; itr != seq_gaps.end();itr++)
+                for(std::set<unsigned int>::iterator itr=seq_gaps.begin(); itr != seq_gaps.end();itr++)
                     printf("%u ", *itr);
                 printf("\n");
             }
