@@ -492,7 +492,7 @@ int process_tcp_packet(struct mypacket *packet)
             }
             else{
                 log_exp("Gap left: %d", seq_gaps.size());
-                for(std::iterator itr; itr < seq_gaps.end();itr++)
+                for(std::iterator<unsigned int> itr; itr < seq_gaps.end();itr++)
                     printf("%u ", *itr);
                 printf("\n");
             }
