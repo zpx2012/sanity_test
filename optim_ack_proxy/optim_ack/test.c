@@ -320,7 +320,7 @@ void save_seq_gaps_to_file(){
     char tmp[64];
     sprintf(tmp, "%s/seq_gaps.txt", result_path);
     std::ofstream output_file(tmp);
-    std::ostream_iterator<std::int> output_iterator(output_file, "\n");
+    std::ostream_iterator<std::string> output_iterator(output_file, "\n");
     std::copy(seq_gaps.begin(), seq_gaps.end(), output_iterator);
 }
 
