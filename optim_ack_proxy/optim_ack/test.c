@@ -12,6 +12,8 @@
 #include <sys/stat.h>
 
 #include <iostream> 
+#include <fstream>
+#include <iterator>
 #include <vector>
 #include <set>
 
@@ -65,6 +67,7 @@ char* iptable_rules[100];
 int iptable_rules_len = 0;
 std::set<unsigned int> seq_gaps;
 int optim_ack_stop;
+char hostname_pair_path[64], result_path[64];
 
 struct nfq_handle *g_nfq_h;
 struct nfq_q_handle *g_nfq_qh;
@@ -311,6 +314,14 @@ void insert_seq_gaps(unsigned int start, unsigned int end, unsigned int step){
 
 void delete_seq_gaps(unsigned int val){
     seq_gaps.erase(val);
+}
+
+void save_seq_gaps_to_file(){
+    char tmp[64];
+    sprintf(tmp, "%s/seq_gaps.txt", result_path);
+    std::ofstream output_file(tmp);
+    std::ostream_iterator<std::int> output_iterator(output_file, "\n");
+    std::copy(seq_gaps.begin(), seq_gaps.end(), output_iterator);
 }
 
 /* Bug: sub connections are not syncronized; one is way ahead, the others fall behind
@@ -744,8 +755,6 @@ int main(int argc, char *argv[])
     /* records are saved in folder results */
     /* create the directory if not exist */
     mkdir("results", 0755);
-
-    char hostname_pair_path[64], result_path[64];
 
     time_t rawtime;
     struct tm * timeinfo;
