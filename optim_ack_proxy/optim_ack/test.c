@@ -454,9 +454,9 @@ int process_tcp_packet(struct mypacket *packet)
                 //     log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
                 //     return -1;
                 // }
-                log_exp("Insert gaps: %d, to: %d. Update seq_global to %d", seq_next_global,seq_rel, seq_rel);
+                log_exp("Insert gaps: %d, to: %d. Update seq_global to %d", seq_next_global,seq_rel, seq_rel+packet->payload_len);
                 insert_seq_gaps(seq_next_global, seq_rel, packet->payload_len);
-                seq_next_global = seq_rel;
+                seq_next_global = seq_rel + packet->payload_len;
             }
             else if (seq_rel < seq_next_global){
                 log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
