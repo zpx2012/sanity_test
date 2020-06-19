@@ -231,7 +231,7 @@ void cleanup()
 void signal_handler(int signum)
 {
     log_debug("Signal %d recved.", signum);
-    if(signum == EPIPE){
+    if(signum == SIGPIPE){
         log_exp("Receive EPIPE.");
         return;
     }
