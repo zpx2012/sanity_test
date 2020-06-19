@@ -319,7 +319,7 @@ void delete_seq_gaps(unsigned int val){
 void save_seq_gaps_to_file(){
     char tmp[64];
     sprintf(tmp, "%s/seq_gaps.txt", result_path);
-    // std::ofstream output_file("./seq_gaps.txt");
+    std::ofstream output_file(tmp);
     std::ostream_iterator<unsigned int> output_iterator(output_file, "\n");
     std::copy(seq_gaps.begin(), seq_gaps.end(), output_iterator);
 }
