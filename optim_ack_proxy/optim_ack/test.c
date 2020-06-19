@@ -547,6 +547,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     // get data (IP header + TCP header + payload)
     unsigned char *pkt_data;
     int plen = nfq_get_payload(nfa, &pkt_data);
+    log_exp("id: %d, plen %d", id, plen);
 
     struct mypacket packet;
     packet.data = pkt_data;
@@ -596,9 +597,9 @@ void *nfq_loop(void *arg)
         }
         else {
             if (errno != EAGAIN && errno != EWOULDBLOCK) {
-                // log_debug("recv() ret %d errno: %d", rv, errno);
+                log_debug("recv() ret %d errno: %d", rv, errno);
             }
-            // usleep(100); //10000
+            usleep(10); //10000
         }
     }
 }
