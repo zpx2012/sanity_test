@@ -231,6 +231,10 @@ void cleanup()
 void signal_handler(int signum)
 {
     log_debug("Signal %d recved.", signum);
+    if(signum == EPIPE){
+        log_exp("Receive EPIPE.");
+        return;
+    }
     cleanup();
     exit(EXIT_FAILURE);
 }
@@ -271,6 +275,11 @@ void init()
         log_error("register SIGSEGV handler failed.");
         exit(EXIT_FAILURE);
     }
+    if (signal(SIGPIPE, signal_handler) == SIG_ERR) {
+        log_error("register SIGPIPE handler failed.");
+        exit(EXIT_FAILURE);
+    }
+
 
     if (setup_nfq() == -1) {
         log_error("unable to setup netfilter_queue");
