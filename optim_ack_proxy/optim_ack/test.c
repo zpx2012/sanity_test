@@ -373,6 +373,7 @@ int process_tcp_packet(struct mypacket *packet)
     }
     if (subconn_id == -1){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
+        return -1;
     }
     log_exp("Subconn %d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, packet->payload_len);
 
@@ -503,8 +504,9 @@ int process_tcp_packet(struct mypacket *packet)
             }
             else{
                 log_exp("Gap left: %d", seq_gaps.size());
-                for(std::set<unsigned int>::iterator itr=seq_gaps.begin(); itr != seq_gaps.end();itr++)
-                    printf("%u ", *itr);
+                save_seq_gaps_to_file();
+                // for(std::set<unsigned int>::iterator itr=seq_gaps.begin(); itr != seq_gaps.end();itr++)
+                //     printf("%u ", *itr);
                 printf("\n");
             }
             return -1;
