@@ -150,7 +150,7 @@ int setup_nfq()
     log_debug("nfq queue handler: %p", g_nfq_qh);
 
     log_debug("setting copy_packet mode");
-    if (nfq_set_mode(g_nfq_qh, NFQNL_COPY_PACKET, 0xffff) < 0) {
+    if (nfq_set_mode(g_nfq_qh, NFQNL_COPY_PACKET, 0x0400) < 0) {
         log_error("can't set packet_copy mode");
         return -1;
     }
@@ -222,7 +222,7 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 {
     char cmd[1000];
     for (int i = start; i < end; i++){
-        log_exp("cmd %d: -%c %s\n", i, action, rules_pool[i]);
+        log_exp("cmd %d: -%c %s", i, action, rules_pool[i]);
         sprintf(cmd, "iptables -%c %s", action, rules_pool[i]);
         system(cmd);
     }
