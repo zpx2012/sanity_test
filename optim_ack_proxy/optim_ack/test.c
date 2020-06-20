@@ -42,7 +42,7 @@ int opt_measure = 0;
 /*
  * Global variables
  */
-#ifndef
+#ifndef SUBCONN_NUM
 #define SUBCONN_NUM 3
 #endif
 // Optimistic Ack
