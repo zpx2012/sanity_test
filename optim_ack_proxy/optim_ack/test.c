@@ -27,6 +27,10 @@
 
 /*
  * Bug 2020-06-20: Unresolved gaps
+ *      - (1) Received the first fragment(256), lost the second, later other subconn sends full packet(536)
+ *      _ (2) Received fragment(256), previous full packet is lost(536), two gaps(256) are inseted, later one full packet is received, one gap is deleted
+ *
+ * Bug 2020-06-20: In CN VPS, When ack_pacing < 5000, the connection goes stall
 */
 
 
@@ -185,7 +189,8 @@ void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     rules_pool[(*pool_len)++] = cmd;
 
     cmd = (char*) malloc(200);
-    sprintf(cmd, "INPUT -m conntrack --ctstate NEW,ESTABLISHED -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    // sprintf(cmd, "INPUT -m conntrack --ctstate NEW,ESTABLISHED -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     rules_pool[(*pool_len)++] = cmd;
 
     cmd = (char*) malloc(200);
@@ -206,7 +211,7 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
 {
     char cmd[1000];
     for (int i = start; i < end; i++){
-        // printf("cmd %d: -%c %s\n", i, action, rules_pool[i]);
+        log_exp("cmd %d: -%c %s\n", i, action, rules_pool[i]);
         sprintf(cmd, "iptables -%c %s", action, rules_pool[i]);
         system(cmd);
     }
