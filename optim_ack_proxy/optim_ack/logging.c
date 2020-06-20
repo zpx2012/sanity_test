@@ -16,7 +16,7 @@ static FILE *exp_log_file;
 int opt_logging_to_file = 0;
 
 // Logging level: 0 - error, 1 - warning, 2 - info, 3 - debug, 4 - debug (verbose)
-int opt_logging_level = 3;
+int opt_logging_level = 4;
 
 
 int init_log()
@@ -109,13 +109,19 @@ void log_func(int level, const char *fmt, ...)
 
     va_start(ap, fmt);
     vsnprintf(buffer, sizeof(buffer), fmt, ap);
-    if (opt_logging_to_file && log_file != NULL) {
-        //fprintf(log_file, "%lf [%s] %s\n", time_ts, LEVEL_STR[level], buffer);
-        fprintf(log_file, "%s [%s] %s\n", time_str, LEVEL_STR[level], buffer);
-    } else {
-        //fprintf(stdout, "%lf [%s] %s\n", time_ts, LEVEL_STR[level], buffer);
-        fprintf(stdout, "%s [%s] %s\n", time_str, LEVEL_STR[level], buffer);
+    if (exp_log_file != NULL) {
+        fprintf(exp_log_file, "%s [%s] %s\n", time_str, LEVEL_STR[level], buffer);
+        if (opt_logging_to_file == 0) {
+            fprintf(stdout, "%s [%s] %s\n", time_str, LEVEL_STR[level], buffer);
+        }
     }
+    // if (opt_logging_to_file && log_file != NULL) {
+    //     //fprintf(log_file, "%lf [%s] %s\n", time_ts, LEVEL_STR[level], buffer);
+    //     fprintf(log_file, "%s [%s] %s\n", time_str, LEVEL_STR[level], buffer);
+    // } else {
+    //     //fprintf(stdout, "%lf [%s] %s\n", time_ts, LEVEL_STR[level], buffer);
+    //     fprintf(stdout, "%s [%s] %s\n", time_str, LEVEL_STR[level], buffer);
+    // }
     va_end(ap);
 }
 
