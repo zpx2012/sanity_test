@@ -19,6 +19,8 @@
 
 #include <linux/netfilter.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
+#include <linux/netlink.h>
+#include <libnfnetlink/libnfnetlink.h>
 
 #include "logging.h"
 #include "util.h"
@@ -153,6 +155,11 @@ int setup_nfq()
         return -1;
     }
 
+#define NFQLENGTH 8048
+#define BUFLENGTH 4096
+    struct nfnl_handle* nfnl_hl = nfq_nfnlh(g_nfq_h);
+    nfnl_rcvbufsiz(nfnl_hl, NFQLENGTH * BUFLENGTH);
+
     g_nfq_fd = nfq_fd(g_nfq_h);
 
     return 0;
@@ -248,6 +255,7 @@ void signal_handler(int signum)
         log_exp("Receive EPIPE.");
         return;
     }
+    nfq_stop = 1;
     cleanup();
     exit(EXIT_FAILURE);
 }
