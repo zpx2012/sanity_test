@@ -162,7 +162,7 @@ int setup_nfq()
         return -1;
     }
     struct nfnl_handle* nfnl_hl = nfq_nfnlh(g_nfq_h);
-    nfnl_rcvbufsiz(nfnl_hl, NFQLENGTH * BUFLENGTH * 4);
+    nfnl_rcvbufsiz(nfnl_hl, NFQLENGTH * BUFLENGTH * 16);
 
     g_nfq_fd = nfq_fd(g_nfq_h);
 
