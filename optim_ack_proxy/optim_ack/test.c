@@ -155,7 +155,7 @@ int setup_nfq()
         return -1;
     }
 
-#define NFQLENGTH 1024*100
+#define NFQLENGTH 1024*200
 #define BUFLENGTH 4096
     if (nfq_set_queue_maxlen(g_nfq_qh, NFQLENGTH) < 0) {
         log_error("error during nfq_set_queue_maxlen()\n");
