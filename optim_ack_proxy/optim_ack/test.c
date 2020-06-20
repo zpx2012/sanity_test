@@ -157,6 +157,10 @@ int setup_nfq()
 
 #define NFQLENGTH 8048
 #define BUFLENGTH 4096
+    if (nfq_set_queue_maxlen(g_nfq_qh, NFQLENGTH) < 0) {
+        log_error("error during nfq_set_queue_maxlen()\n");
+        return -1;
+    }
     struct nfnl_handle* nfnl_hl = nfq_nfnlh(g_nfq_h);
     nfnl_rcvbufsiz(nfnl_hl, NFQLENGTH * BUFLENGTH);
 
