@@ -25,10 +25,17 @@
 #include "socket.h"
 
 
+/*
+ * Bug 2020-06-20: Unresolved gaps
+*/
+
+
+
+
+
+
+
 #define NF_QUEUE_NUM 6
-
-
-
 
 /* uncomment below unless you want to specify local ip */
 //#define LOCAL_IP ""
@@ -307,8 +314,10 @@ int find_seq_gaps(unsigned int seq){
 }
 
 void insert_seq_gaps(unsigned int start, unsigned int end, unsigned int step){
-    for(; start < end; start += step)
+    for(; start < end; start += step){
+        log_exp("insert gap %u", start);
         seq_gaps.insert(start);
+    }
 
     // unsigned int last = seq_gaps.at(seq_gaps.size()-1);
     // if (start > last){
