@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
 
         //Create idle recv thread
         pthread_t recv_thread;
-        if (pthread_create(&recv_thread, NULL, recv_idle, (intptr_t)client_sock) != 0){
+        if (pthread_create(&recv_thread, NULL, recv_idle, (void *)(intptr_t)client_sock) != 0){
             log_error("Fail to create recv thread.");
             exit(EXIT_FAILURE);
     }
