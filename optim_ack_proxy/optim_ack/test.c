@@ -601,7 +601,8 @@ int process_tcp_packet(struct thread_data* thr_data){
 }
 
 
-void pool_handler(struct thread_data* thr_data){
+void pool_handler(void* arg){
+    struct thread_data* thr_data = (struct thread_data*)arg;
     u_int32_t id = ntohl(thr_data->id_rvs);
     int ret = -1;
 

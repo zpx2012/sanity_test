@@ -46,9 +46,10 @@ create_worker(thr_pool_t *pool)
  * if necessary to keep the pool populated.
  */
 static void
-worker_cleanup(void *pool)
+worker_cleanup(void *arg)
 // worker_cleanup(thr_pool_t *pool)
 {
+    thr_pool_t *pool = (thr_pool_t *)arg;
     --pool->pool_nthreads;
     if (pool->pool_flags & POOL_DESTROY) {
         if (pool->pool_nthreads == 0)
@@ -74,8 +75,9 @@ notify_waiters(thr_pool_t *pool)
  * Called by a worker thread on return from a job.
  */
 static void
-job_cleanup(thr_pool_t *pool)
+job_cleanup(void *arg)
 {
+    thr_pool_t *pool = (thr_pool_t *)arg;
     pthread_t my_tid = pthread_self();
     active_t *activep;
     active_t **activepp;
@@ -276,7 +278,7 @@ thr_pool_queue(thr_pool_t *pool, void *(*func)(void *), void *arg)
 {
     job_t *job;
 
-    if ((job = (job *) malloc(sizeof (*job))) == NULL) {
+    if ((job = (job_t *) malloc(sizeof (*job))) == NULL) {
         errno = ENOMEM;
         return (-1);
     }
