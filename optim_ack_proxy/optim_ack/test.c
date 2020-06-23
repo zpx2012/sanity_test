@@ -605,17 +605,18 @@ void pool_handler(struct thread_data* thr_data){
     u_int32_t id = ntohl(thr_data->id_rvs);
     int ret = -1;
 
-    if (((struct myiphdr*)thr_data->buf)->protocol == 6)
+    int protocol = ((struct myiphdr*)thr_data->buf)->protocol;
+    if (protocol == 6)
         ret = process_tcp_packet(thr_data);
     else 
-        log_error("Invalid protocol: %d", packet.iphdr->protocol);
+        log_error("Invalid protocol: %d", protocol);
 
     if (ret == 0){
-        nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+        nfq_set_verdict(g_nfq_qh, id, NF_ACCEPT, 0, NULL);
         // log_exp("verdict: accpet\n");
     }
     else{
-        nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+        nfq_set_verdict(g_nfq_qh, id, NF_DROP, 0, NULL);
         // log_exp("verdict: drop\n");
     }
 }
@@ -624,7 +625,7 @@ void pool_handler(struct thread_data* thr_data){
 
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
 {
-        struct thread_data* thr_data = malloc(sizeof(struct thread_data));
+        struct thread_data* thr_data = (struct thread_data*)malloc(sizeof(struct thread_data));
         if (!thr_data)
         {
                 log_error("cb: error during thr_data malloc\n");
@@ -645,56 +646,56 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         return 0;
 }
 
-static int cb_old(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, 
-              struct nfq_data *nfa, void *data)
-{
+// static int cb_old(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, 
+//               struct nfq_data *nfa, void *data)
+// {
 
-    struct nfqnl_msg_packet_hdr *ph;
-    ph = nfq_get_msg_packet_hdr(nfa);
-    if (!ph) {
-        log_error("nfq_get_msg_packet_hdr failed");
-        return -1;
-    }
-    u_int32_t id = ntohl(ph->packet_id);
-    //log_debug("packet id: %d", id);
+//     struct nfqnl_msg_packet_hdr *ph;
+//     ph = nfq_get_msg_packet_hdr(nfa);
+//     if (!ph) {
+//         log_error("nfq_get_msg_packet_hdr failed");
+//         return -1;
+//     }
+//     u_int32_t id = ntohl(ph->packet_id);
+//     //log_debug("packet id: %d", id);
 
-    // get data (IP header + TCP header + payload)
-    unsigned char *pkt_data;
-    int plen = nfq_get_payload(nfa, &pkt_data);
-    log_exp("id: %d, plen %d", id, plen);
+//     // get data (IP header + TCP header + payload)
+//     unsigned char *pkt_data;
+//     int plen = nfq_get_payload(nfa, &pkt_data);
+//     log_exp("id: %d, plen %d", id, plen);
 
-    struct mypacket packet;
-    packet.data = pkt_data;
-    packet.len = plen;
-    packet.iphdr = ip_hdr(pkt_data);
+//     struct mypacket packet;
+//     packet.data = pkt_data;
+//     packet.len = plen;
+//     packet.iphdr = ip_hdr(pkt_data);
 
-    int ret = 0;
+//     int ret = 0;
 
-    switch (packet.iphdr->protocol) {
-        case 6: // TCP
-            packet.tcphdr = tcp_hdr(pkt_data);
-            packet.payload = tcp_payload(pkt_data);
-            packet.payload_len = packet.len - packet.iphdr->ihl*4 - packet.tcphdr->th_off*4;
-            ret = process_tcp_packet(&packet);
-            break;
-        default:
-            log_error("Invalid protocol: %d", packet.iphdr->protocol);
-    }
+//     switch (packet.iphdr->protocol) {
+//         case 6: // TCP
+//             packet.tcphdr = tcp_hdr(pkt_data);
+//             packet.payload = tcp_payload(pkt_data);
+//             packet.payload_len = packet.len - packet.iphdr->ihl*4 - packet.tcphdr->th_off*4;
+//             ret = process_tcp_packet(&packet);
+//             break;
+//         default:
+//             log_error("Invalid protocol: %d", packet.iphdr->protocol);
+//     }
     
-    // nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
-    // log_exp("verdict: accpet");
-    if (ret == 0){
-        nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
-        log_exp("verdict: accpet\n");
-    }
-    else{
-        nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-        log_exp("verdict: drop\n");
-    }
+//     // nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+//     // log_exp("verdict: accpet");
+//     if (ret == 0){
+//         nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+//         log_exp("verdict: accpet\n");
+//     }
+//     else{
+//         nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+//         log_exp("verdict: drop\n");
+//     }
         
-    // return <0 to stop processing
-    return 0;
-}
+//     // return <0 to stop processing
+//     return 0;
+// }
 
 void *nfq_loop(void *arg)
 {
