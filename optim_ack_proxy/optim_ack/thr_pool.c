@@ -324,7 +324,7 @@ thr_pool_destroy(thr_pool_t *pool)
     job_t *job;
 
     (void) pthread_mutex_lock(&pool->pool_mutex);
-    pthread_cleanup_push(&pthread_mutex_unlock, &pool->pool_mutex);
+    pthread_cleanup_push((void (*)(void*))&pthread_mutex_unlock, &pool->pool_mutex);
 
     /* mark the pool as being destroyed; wakeup idle workers */
     pool->pool_flags |= POOL_DESTROY;
