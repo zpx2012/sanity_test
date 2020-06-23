@@ -309,7 +309,7 @@ void
 thr_pool_wait(thr_pool_t *pool)
 {
     (void) pthread_mutex_lock(&pool->pool_mutex);
-    pthread_cleanup_push(&pthread_mutex_unlock, &pool->pool_mutex);
+    pthread_cleanup_push((void (*)(void*))&pthread_mutex_unlock, &pool->pool_mutex);
     while (pool->pool_head != NULL || pool->pool_active != NULL) {
         pool->pool_flags |= POOL_WAIT;
         (void) pthread_cond_wait(&pool->pool_waitcv, &pool->pool_mutex);
