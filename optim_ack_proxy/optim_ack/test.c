@@ -25,7 +25,7 @@
 #include "logging.h"
 #include "util.h"
 #include "socket.h"
-
+#include "thr_pool.h"
 
 /*
  * Bug 2020-06-20: Unresolved gaps
@@ -33,6 +33,7 @@
  *      _ (2) Received fragment(256), previous full packet is lost(536), two gaps(256) are inseted, later one full packet is received, one gap is deleted
  *
  * Bug 2020-06-20: In CN VPS, When ack_pacing < 5000, the connection goes stall
+ *      Solved: queue or rcvbuffer is full, increased using nfq_set_queue_maxlen, nfnl_rcvbufsiz
 */
 
 
@@ -72,7 +73,6 @@ struct subconn_info
     unsigned int payload_len;
 };
 struct subconn_info subconn_infos[SUBCONN_NUM];
-pthread_mutex_t mutex_subconn;
 int ack_pacing;
 unsigned int seq_next_global = 1;
 int client_sock;
@@ -80,9 +80,23 @@ const int MARK = 66;
 char* iptable_rules[100];
 int iptable_rules_len = 0;
 std::set<unsigned int> seq_gaps;
-int optim_ack_stop;
+int optim_ack_stop = 1;
 char hostname_pair_path[64], result_path[64];
 
+//Multithread
+struct thread_data{
+        unsigned int  id_rvs;
+        unsigned int  len;
+        unsigned char *buf;
+};
+thr_pool_t* pool;
+pthread_mutex_t mutex_seq_next_global = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_seq_gaps = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_subconn_infos = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_optim_ack_stop = PTHREAD_MUTEX_INITIALIZER;
+
+
+//Original 
 struct nfq_handle *g_nfq_h;
 struct nfq_q_handle *g_nfq_qh;
 int g_nfq_fd;
@@ -228,23 +242,17 @@ void exec_iptables_rules(char** rules_pool, int start, int end, char action)
     }
 }
 
-
-// void exec_remove_iptables_rules()
-// {
-//     char cmd[1000];
-//     sprintf(cmd, "iptables -D INPUT -p tcp -s %s --sport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, NF_QUEUE_NUM);
-//     system(cmd);
-//     sprintf(cmd, "iptables -D OUTPUT -t raw -p tcp -d %s --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, NF_QUEUE_NUM);
-//     system(cmd);
-// }
-
 void cleanup()
 {
     fin_log();
 
     teardown_nfq();
 
-    pthread_mutex_destroy(&mutex_subconn);
+    pthread_mutex_destroy(&mutex_seq_next_global);
+    pthread_mutex_destroy(&mutex_seq_gaps);
+    pthread_mutex_destroy(&mutex_subconn_infos);
+    pthread_mutex_destroy(&mutex_optim_ack_stop);
+
 
     exec_iptables_rules(iptable_rules, 0, iptable_rules_len, 'D');
     for(int i = 0; i < iptable_rules_len; i++)
@@ -311,8 +319,16 @@ void init()
         exit(EXIT_FAILURE);
     }
 
-    pthread_mutex_init(&mutex_subconn, NULL);
     init_subconn();
+
+    // pthread_mutex_init(&mutex_seq_next_global, NULL);
+    // pthread_mutex_init(&mutex_seq_gaps, NULL);
+
+    pool = thr_pool_create(4, 16, 300, NULL);
+    if (!pool){
+            log_error("couldn't create thr_pool\n");
+            exit(1);                
+    }
 }
 
 
@@ -370,11 +386,13 @@ void save_seq_gaps_to_file(){
 /* Process TCP packets
  * Return 0 to accept packet, otherwise to drop packet 
  */
-int process_tcp_packet(struct mypacket *packet)
-{
-    struct myiphdr *iphdr = packet->iphdr;
-    struct mytcphdr *tcphdr = packet->tcphdr;
-    unsigned char *payload = packet->payload;
+int process_tcp_packet(struct thread_data* thr_data){
+
+    struct myiphdr *iphdr = ip_hdr(thr_data->buf);
+    struct mytcphdr *tcphdr = tcp_hdr(thr_data->buf);
+    unsigned char *payload = tcp_payload(thr_data->buf);
+    unsigned int payload_len = thr_data->len - iphdr->ihl*4 - tcphdr->th_off*4;
+
 
     char sip[16], dip[16];
     ip2str(iphdr->saddr, sip);
@@ -411,7 +429,7 @@ int process_tcp_packet(struct mypacket *packet)
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
         return -1;
     }
-    log_exp("Subconn %d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, packet->payload_len);
+    log_exp("Subconn %d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
 
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
@@ -435,11 +453,13 @@ int process_tcp_packet(struct mypacket *packet)
             
             //check if all subconns receive syn/ack
             int all_ack_sent = 1;
+            pthread_mutex_lock(&mutex_subconn_infos);
             for (int i = 0; i < SUBCONN_NUM; i++)
                 if (!subconn_infos[i].ack_sent){
                     all_ack_sent = 0;
                     break;
                 }
+            pthread_mutex_unlock(&mutex_subconn_infos);
             if (all_ack_sent){
                 for (int i = 0; i < SUBCONN_NUM; i++){
                     send_ACK(payload_sk, subconn_infos[i].cur_seq_rem+1, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
@@ -453,7 +473,7 @@ int process_tcp_packet(struct mypacket *packet)
         case TH_ACK:
         case TH_PUSH|TH_ACK:
         {
-            if(!packet->payload_len)
+            if(!payload_len)
                 return -1;
 
             if (!subconn_infos[subconn_id].ini_seq_rem){
@@ -464,25 +484,29 @@ int process_tcp_packet(struct mypacket *packet)
             if (seq_rel == 1 && !subconn_infos[subconn_id].payload_len){
                 subconn_infos[subconn_id].cur_seq_loc = ack;
                 subconn_infos[subconn_id].cur_seq_rem = seq;
-                subconn_infos[subconn_id].payload_len = packet->payload_len;
+                subconn_infos[subconn_id].payload_len = payload_len;
 
-                // check if all subconns received 
-                int all_data_recv = 1;
-                for (int i = 0; i < SUBCONN_NUM; i++)
-                    if (!subconn_infos[i].payload_len){
-                        all_data_recv = 0;
-                        break;
+                pthread_mutex_lock(&mutex_optim_ack_stop);
+                if (optim_ack_stop) {
+                    // check if all subconns received 
+                    int all_data_recv = 1;
+                    for (int i = 0; i < SUBCONN_NUM; i++)
+                        if (!subconn_infos[i].payload_len){
+                            all_data_recv = 0;
+                            break;
+                        }
+                    if (all_data_recv){
+                        // Create outgoing connections
+                        optim_ack_stop = 0;
+                        pthread_t thread;
+                        if (pthread_create(&thread, NULL, optimistic_ack, NULL) != 0){
+                            log_error("Fail to create optimistic_ack thread.");
+                            exit(EXIT_FAILURE);
+                        }
+                        log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
                     }
-                if (all_data_recv){
-                    // Create outgoing connections
-                    optim_ack_stop = 0;
-                    pthread_t thread;
-                    if (pthread_create(&thread, NULL, optimistic_ack, NULL) != 0){
-                        log_error("Fail to create optimistic_ack thread.");
-                        exit(EXIT_FAILURE);
-                    }
-                    log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
                 }
+                pthread_mutex_unlock(&mutex_optim_ack_stop);
 
             }
             else if(seq_rel != 1 && !subconn_infos[subconn_id].payload_len){
@@ -497,34 +521,53 @@ int process_tcp_packet(struct mypacket *packet)
             *      if found, send the data, erase the seq from the vector
             *
             */
-            if(seq_rel > seq_next_global){
+            pthread_mutex_lock(&mutex_seq_next_global);
+
+            int offset = seq_rel - seq_next_global;
+            unsigned int append = 0;
+            if(offset > 0){
                 // if ((seq_rel-seq_next_global) % packet->payload_len != 0){
                 //     log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
                 //     return -1;
                 // }
-                log_exp("Insert gaps: %d, to: %d. Update seq_global to %d", seq_next_global,seq_rel, seq_rel+packet->payload_len);
-                insert_seq_gaps(seq_next_global, seq_rel, packet->payload_len);
-                seq_next_global = seq_rel + packet->payload_len;
+                log_exp("Insert gaps: %d, to: %d.", seq_next_global, seq_rel);
+                // pthread_mutex_lock(&mutex_seq_gaps);
+                insert_seq_gaps(seq_next_global, seq_rel, payload_len);
+                // pthread_mutex_unlock(&mutex_seq_gaps);
+                append = offset + payload_len;
+
             }
-            else if (seq_rel < seq_next_global){
-                log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
+            else if (offset < 0){
+                // log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
                 int ret = find_seq_gaps(seq_rel);
-                if (!ret)
+                if (!ret){
+                    pthread_mutex_unlock(&mutex_seq_next_global);
                     return -1;
+                }
+                // pthread_mutex_lock(&mutex_seq_gaps);
                 delete_seq_gaps(seq_rel);
+                // pthread_mutex_unlock(&mutex_seq_gaps);
                 log_exp("Found gap %u. Delete gap.", seq_rel);
             }
             else {
-                seq_next_global += packet->payload_len;
-                log_exp("Found seg %u, update seq_global to %u", seq_rel, seq_next_global);
+                append = payload_len;
+                log_exp("Found seg %u", seq_rel);
             }
 
+            if(append){
+                seq_next_global += append;
+                log_exp("Update seq_global to %u", seq_next_global);
+            }
+
+            pthread_mutex_unlock(&mutex_seq_next_global);
+
             //send it to the client
-            if (send(client_sock, packet->payload, packet->payload_len, 0) <= 0){
+            if (send(client_sock, payload, payload_len, 0) <= 0){
                 log_error("process_tcp_packet: send error %d", errno);
                 return -1;
             }
-            log_exp("Sent seg %d to client", seq_rel);
+            log_exp("Sent seg %d to client\n", seq_rel);
+
             return -1;
             break;
                 
@@ -558,7 +601,51 @@ int process_tcp_packet(struct mypacket *packet)
 }
 
 
-static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, 
+void pool_handler(struct thread_data* thr_data){
+    u_int32_t id = ntohl(thr_data->id_rvs);
+    int ret = -1;
+
+    if (((struct myiphdr*)thr_data->buf)->protocol == 6)
+        ret = process_tcp_packet(thr_data);
+    else 
+        log_error("Invalid protocol: %d", packet.iphdr->protocol);
+
+    if (ret == 0){
+        nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+        // log_exp("verdict: accpet\n");
+    }
+    else{
+        nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+        // log_exp("verdict: drop\n");
+    }
+}
+
+
+
+static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
+{
+        struct thread_data* thr_data = malloc(sizeof(struct thread_data));
+        if (!thr_data)
+        {
+                log_error("cb: error during thr_data malloc\n");
+                return -1;                                /* code */
+        }
+        thr_data->id_rvs = nfq_get_msg_packet_hdr(nfa)->packet_id;
+        thr_data->len = nfq_get_payload(nfa, &thr_data->buf);
+        if (!thr_data->buf){
+                log_error("cb: error during nfq_get_payload\n");
+                return -1;
+        }
+
+        if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
+                log_error("cb: error during thr_pool_queue\n");
+                return -1;
+        }
+
+        return 0;
+}
+
+static int cb_old(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, 
               struct nfq_data *nfa, void *data)
 {
 
