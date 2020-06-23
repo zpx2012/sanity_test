@@ -46,7 +46,8 @@ create_worker(thr_pool_t *pool)
  * if necessary to keep the pool populated.
  */
 static void
-worker_cleanup(thr_pool_t *pool)
+worker_cleanup(void *pool)
+// worker_cleanup(thr_pool_t *pool)
 {
     --pool->pool_nthreads;
     if (pool->pool_flags & POOL_DESTROY) {
@@ -226,7 +227,7 @@ thr_pool_create(uint_t min_threads, uint_t max_threads, uint_t linger,
         return (NULL);
     }
 
-    if ((pool = malloc(sizeof (*pool))) == NULL) {
+    if ((pool = (thr_pool_t *) malloc(sizeof (*pool))) == NULL) {
         errno = ENOMEM;
         return (NULL);
     }
@@ -275,7 +276,7 @@ thr_pool_queue(thr_pool_t *pool, void *(*func)(void *), void *arg)
 {
     job_t *job;
 
-    if ((job = malloc(sizeof (*job))) == NULL) {
+    if ((job = (job *) malloc(sizeof (*job))) == NULL) {
         errno = ENOMEM;
         return (-1);
     }

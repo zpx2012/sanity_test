@@ -46,8 +46,7 @@ create_worker(thr_pool_t *pool)
  * if necessary to keep the pool populated.
  */
 static void
-worker_cleanup(void *pool)
-// worker_cleanup(thr_pool_t *pool)
+worker_cleanup(thr_pool_t *pool)
 {
     --pool->pool_nthreads;
     if (pool->pool_flags & POOL_DESTROY) {
