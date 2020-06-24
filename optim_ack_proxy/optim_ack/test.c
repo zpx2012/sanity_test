@@ -606,7 +606,7 @@ void* pool_handler(void* arg){
     u_int32_t id = ntohl(thr_data->id_rvs);
     int ret = -1;
 
-    int protocol = ((struct myiphdr*)thr_data->buf)->protocol;
+    short protocol = ip_hdr(thr_data->buf)->protocol;
     if (protocol == 6)
         ret = process_tcp_packet(thr_data);
     else 
