@@ -388,6 +388,7 @@ void save_seq_gaps_to_file(){
  */
 int process_tcp_packet(struct thread_data* thr_data){
 
+    log_exp("process_tcp_packet: id %d", htonl(thr_data->id_rvs));
     struct myiphdr *iphdr = ip_hdr(thr_data->buf);
     struct mytcphdr *tcphdr = tcp_hdr(thr_data->buf);
     unsigned char *payload = tcp_payload(thr_data->buf);
@@ -538,9 +539,10 @@ int process_tcp_packet(struct thread_data* thr_data){
 
             }
             else if (offset < 0){
-                // log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
+                
                 int ret = find_seq_gaps(seq_rel);
                 if (!ret){
+                    log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
                     pthread_mutex_unlock(&mutex_seq_next_global);
                     return -1;
                 }
@@ -592,7 +594,7 @@ int process_tcp_packet(struct thread_data* thr_data){
             break;
         }
         default:
-            log_error("Invalid tcp flags");
+            log_error("Invalid tcp flags: %s",tcp_flags_str(tcphdr->th_flags));
     }
 
     // log_exp("%d: seq-%d, ini_seq_rem-%d, seq_global %d\n", subconn_id, seq, subconn_infos[subconn_id].ini_seq_rem, seq_next_global);
@@ -606,11 +608,12 @@ void* pool_handler(void* arg){
     u_int32_t id = ntohl(thr_data->id_rvs);
     int ret = -1;
 
+    log_exp("pool_handler: %d", id);
     short protocol = ip_hdr(thr_data->buf)->protocol;
     if (protocol == 6)
         ret = process_tcp_packet(thr_data);
     else 
-        log_error("Invalid protocol: %d", protocol);
+        log_error("Invalid protocol: 0x%04x", protocol);
 
     if (ret == 0){
         nfq_set_verdict(g_nfq_qh, id, NF_ACCEPT, 0, NULL);
@@ -632,6 +635,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
                 log_error("cb: error during thr_data malloc\n");
                 return -1;                                /* code */
         }
+        log_exp("cb: id %d, protocol 0x%04x", ntohl(nfq_get_msg_packet_hdr(nfa)->packet_id), ntohs(nfq_get_msg_packet_hdr(nfa)->hw_protocol));
         thr_data->id_rvs = nfq_get_msg_packet_hdr(nfa)->packet_id;
         thr_data->len = nfq_get_payload(nfa, &thr_data->buf);
         if (!thr_data->buf){
