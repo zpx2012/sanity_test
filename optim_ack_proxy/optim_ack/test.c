@@ -962,8 +962,11 @@ int main(int argc, char *argv[])
         if (pthread_create(&recv_thread, NULL, recv_idle, (void *)(intptr_t)client_sock) != 0){
             log_error("Fail to create recv thread.");
             exit(EXIT_FAILURE);
+        }
+        break;
     }
-    }
+
+    for(;;);
 
     nfq_stop = 1;
 
