@@ -635,7 +635,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
                 log_error("cb: error during thr_data malloc\n");
                 return -1;                                /* code */
         }
-        log_exp("cb: id %d, protocol 0x%04x", ntohl(nfq_get_msg_packet_hdr(nfa)->packet_id), ntohs(nfq_get_msg_packet_hdr(nfa)->hw_protocol));
+        log_exp("cb: id %d, protocol 0x%04x", ntohl(nfq_get_msg_packet_hdr(nfa)->packet_id), nfq_get_msg_packet_hdr(nfa)->hw_protocol);
         thr_data->id_rvs = nfq_get_msg_packet_hdr(nfa)->packet_id;
         thr_data->len = nfq_get_payload(nfa, &thr_data->buf);
         if (!thr_data->buf){
