@@ -472,7 +472,8 @@ int process_tcp_packet(struct thread_data* thr_data){
         }
         
         case TH_ACK:
-        case TH_PUSH|TH_ACK:
+        case TH_ACK | TH_PUSH:
+        case TH_ACK | TH_URG: 
         {
             if(!payload_len)
                 return -1;
@@ -624,6 +625,9 @@ void* pool_handler(void* arg){
 
         log_exp("%s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", sip, ntohs(tcphdr->th_sport), dip, ntohs(tcphdr->th_dport), tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, tcphdr->th_ack, iphdr->ttl, payload_len);
     }
+
+    free(thr_data->buf);
+    free(thr_data);
 
     if (ret == 0){
         nfq_set_verdict(g_nfq_qh, id, NF_ACCEPT, 0, NULL);
