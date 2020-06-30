@@ -214,8 +214,8 @@ void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     rules_pool[(*pool_len)++] = cmd;
 
     cmd = (char*) malloc(200);
-    // sprintf(cmd, "INPUT -m conntrack --ctstate NEW,ESTABLISHED -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
-    sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    sprintf(cmd, "INPUT -m conntrack --ctstate NEW,ESTABLISHED -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    // sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     rules_pool[(*pool_len)++] = cmd;
 
     cmd = (char*) malloc(200);
