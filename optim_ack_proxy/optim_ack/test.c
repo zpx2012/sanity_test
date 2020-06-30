@@ -612,8 +612,18 @@ void* pool_handler(void* arg){
     short protocol = ip_hdr(thr_data->buf)->protocol;
     if (protocol == 6)
         ret = process_tcp_packet(thr_data);
-    else 
-        log_error("Invalid protocol: 0x%04x", protocol);
+    else{ 
+        log_error("Invalid protocol: 0x%04x, len %d", protocol, thr_data->len);
+        struct myiphdr *iphdr = ip_hdr(thr_data->buf);
+        struct mytcphdr *tcphdr = tcp_hdr(thr_data->buf);
+        unsigned char *payload = tcp_payload(thr_data->buf);
+        unsigned int payload_len = thr_data->len - iphdr->ihl*4 - tcphdr->th_off*4;
+        char sip[16], dip[16];
+        ip2str(iphdr->saddr, sip);
+        ip2str(iphdr->daddr, dip);
+
+        log_exp("%s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", sip, ntohs(tcphdr->th_sport), dip, ntohs(tcphdr->th_dport), tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, tcphdr->th_ack, iphdr->ttl, payload_len);
+    }
 
     if (ret == 0){
         nfq_set_verdict(g_nfq_qh, id, NF_ACCEPT, 0, NULL);
