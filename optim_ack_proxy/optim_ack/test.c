@@ -214,8 +214,8 @@ void generate_iptables_rules(char** rules_pool, int* pool_len, int local_port){
     rules_pool[(*pool_len)++] = cmd;
 
     cmd = (char*) malloc(200);
-    sprintf(cmd, "INPUT -m conntrack --ctstate NEW,ESTABLISHED -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
-    // sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    // sprintf(cmd, "INPUT -m conntrack --ctstate NEW,ESTABLISHED -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
+    sprintf(cmd, "INPUT -p tcp -s %s --sport %d --dport %d -j NFQUEUE --queue-num %d", remote_ip, remote_port, local_port, NF_QUEUE_NUM);
     rules_pool[(*pool_len)++] = cmd;
 
     cmd = (char*) malloc(200);
@@ -487,6 +487,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 subconn_infos[subconn_id].cur_seq_loc = ack;
                 subconn_infos[subconn_id].cur_seq_rem = seq;
                 subconn_infos[subconn_id].payload_len = payload_len;
+                log_exp("subconn_info updated");
 
                 pthread_mutex_lock(&mutex_optim_ack_stop);
                 if (optim_ack_stop) {
@@ -512,7 +513,7 @@ int process_tcp_packet(struct thread_data* thr_data){
 
             }
             else if(seq_rel != 1 && !subconn_infos[subconn_id].payload_len){
-                log_error("Not first data packet but optimistic ack thread is not created.");
+                log_error("Not first data packet but subconn_info is not updated.");
                 return -1;
             }
 
@@ -624,6 +625,9 @@ void* pool_handler(void* arg){
         ip2str(iphdr->daddr, dip);
 
         log_exp("%s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", sip, ntohs(tcphdr->th_sport), dip, ntohs(tcphdr->th_dport), tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, tcphdr->th_ack, iphdr->ttl, payload_len);
+        unsigned char* hex_str = hex_dump_str(thr_data->buf, thr_data->len);
+        log_exp(hex_str);
+        free(hex_str);
     }
 
     // free(thr_data->buf);
