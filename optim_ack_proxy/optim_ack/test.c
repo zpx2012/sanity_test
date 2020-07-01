@@ -625,7 +625,7 @@ void* pool_handler(void* arg){
         ip2str(iphdr->daddr, dip);
 
         log_exp("%s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", sip, ntohs(tcphdr->th_sport), dip, ntohs(tcphdr->th_dport), tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, tcphdr->th_ack, iphdr->ttl, payload_len);
-        char* hex_str = hex_dump_str(thr_data->buf, thr_data->len);
+        char* hex_str = hex_dump_str((char*)thr_data->buf, thr_data->len);
         log_exp(hex_str);
         free(hex_str);
     }
