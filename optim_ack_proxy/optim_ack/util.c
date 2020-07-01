@@ -336,7 +336,7 @@ void human_dump(const unsigned char *packet, size_t size)
 char* hex_dump_str(const unsigned char *packet, size_t size)
 {
     char *buf = (char*) malloc(size*3);
-    char *byte = (unsigned char*)packet;
+    unsigned char *byte = (unsigned char*)packet;
     char tmp[2];
     int count = 0;
 
