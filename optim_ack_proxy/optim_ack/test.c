@@ -513,7 +513,7 @@ int process_tcp_packet(struct thread_data* thr_data){
 
             }
             else if(seq_rel != 1 && !subconn_infos[subconn_id].payload_len){
-                log_error("Not first data packet but subconn_info is not updated.");
+                log_error("Not first data packet but subconn_info is not updated.\n");
                 return -1;
             }
 
@@ -661,6 +661,9 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
                 log_error("cb: error during nfq_get_payload\n");
                 return -1;
         }
+        char* hex_str = hex_dump_str(thr_data->buf, thr_data->len);
+        log_exp(hex_str);
+        free(hex_str);
 
         if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
                 log_error("cb: error during thr_pool_queue\n");
