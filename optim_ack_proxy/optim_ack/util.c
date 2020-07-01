@@ -333,15 +333,15 @@ void human_dump(const unsigned char *packet, size_t size)
     printf("\n\n");
 }
 
-char* hex_dump_str(const char *packet, size_t size)
+char* hex_dump_str(const unsigned char *packet, size_t size)
 {
     char *buf = (char*) malloc(size*3);
-    char *byte = (char*)packet;
+    char *byte = (unsigned char*)packet;
     char tmp[2];
     int count = 0;
 
     strncat(buf, "\n\n\t\t", 4);
-    for (; byte < ((char*)packet)+size; byte++) {
+    for (; byte < ((unsigned char*)packet)+size; byte++) {
         count++;
         snprintf(tmp, 2, "%02x ", *byte);
         strncat(buf, tmp, 2);
