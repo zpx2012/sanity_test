@@ -17,7 +17,7 @@ int cmp_ip(char* ip_str, u_int32_t ip_inaddr);
 
 char* tcp_flags_str(u_int8_t flags);
 
-unsigned char* hex_dump_str(const unsigned char *packet, size_t size);
+char* hex_dump_str(const unsigned char *packet, size_t size);
 void hex_dump(const unsigned char *packet, size_t size);
 void human_dump(const unsigned char *packet, size_t size);
 timespec diff(timespec end, timespec start);
