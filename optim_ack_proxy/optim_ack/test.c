@@ -647,6 +647,7 @@ void* pool_handler(void* arg){
 
 static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
 {
+        unsigned char* packet;
         struct thread_data* thr_data = (struct thread_data*)malloc(sizeof(struct thread_data));
         if (!thr_data)
         {
@@ -656,14 +657,16 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         memset(thr_data, 0, sizeof(struct thread_data));
         // log_exp("cb: id %d, protocol 0x%04x", ntohl(nfq_get_msg_packet_hdr(nfa)->packet_id), nfq_get_msg_packet_hdr(nfa)->hw_protocol);
         thr_data->id_rvs = nfq_get_msg_packet_hdr(nfa)->packet_id;
-        thr_data->len = nfq_get_payload(nfa, &thr_data->buf);
+        thr_data->len = nfq_get_payload(nfa, &packet);
+        thr_data->buf = (unsigned char *)malloc(packet_len);
         if (!thr_data->buf){
-                log_error("cb: error during nfq_get_payload\n");
+                log_error("cb: error during malloc\n");
                 return -1;
         }
-        char* hex_str = hex_dump_str(thr_data->buf, thr_data->len);
-        log_exp(hex_str);
-        free(hex_str);
+        memcpy(thr_data->buf, packet, thr_data->len);
+        // char* hex_str = hex_dump_str(thr_data->buf, thr_data->len);
+        // log_exp(hex_str);
+        // free(hex_str);
 
         if(thr_pool_queue(pool, pool_handler, (void *)thr_data) < 0){
                 log_error("cb: error during thr_pool_queue\n");
