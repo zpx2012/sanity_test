@@ -38,7 +38,9 @@
 
 
 
-
+/* Todo
+ * 1. Multiple request?
+*/
 
 
 
@@ -82,6 +84,7 @@ int iptable_rules_len = 0;
 std::set<unsigned int> seq_gaps;
 int optim_ack_stop = 1;
 char hostname_pair_path[64], result_path[64];
+int server_payload_len = 0;
 
 //Multithread
 struct thread_data{
@@ -430,7 +433,7 @@ int process_tcp_packet(struct thread_data* thr_data){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
         return -1;
     }
-    log_exp("Subconn %d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
+    log_exp("S%d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
 
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
@@ -445,11 +448,7 @@ int process_tcp_packet(struct thread_data* thr_data){
         {
             send_ACK("", seq+1, ack, dport);
             subconn_infos[subconn_id].ini_seq_rem = seq;
-            subconn_infos[subconn_id].ini_seq_loc = ack-1;
-            subconn_infos[subconn_id].cur_seq_rem = seq;
-            subconn_infos[subconn_id].cur_seq_loc = ack;
             subconn_infos[subconn_id].ack_sent = 1;            
-            // send_ACK(payload_sk, seq+1, ack, dport);
             log_exp("%d: Received SYN/ACK. Sent ACK", subconn_id);
             
             //check if all subconns receive syn/ack
@@ -463,7 +462,7 @@ int process_tcp_packet(struct thread_data* thr_data){
             pthread_mutex_unlock(&mutex_subconn_infos);
             if (all_ack_sent){
                 for (int i = 0; i < SUBCONN_NUM; i++){
-                    send_ACK(payload_sk, subconn_infos[i].cur_seq_rem+1, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
+                    send_ACK(payload_sk, subconn_infos[i].ini_seq_rem+1, subconn_infos[i].ini_seq_loc+1, subconn_infos[i].local_port);
                 }
                 log_exp("All ACK sent, sent request");
             }
@@ -483,39 +482,50 @@ int process_tcp_packet(struct thread_data* thr_data){
                 return -1;
             }
             unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
-            if (seq_rel == 1 && !subconn_infos[subconn_id].payload_len){
-                subconn_infos[subconn_id].cur_seq_loc = ack;
-                subconn_infos[subconn_id].cur_seq_rem = seq;
-                subconn_infos[subconn_id].payload_len = payload_len;
-                log_exp("subconn_info updated");
 
-                pthread_mutex_lock(&mutex_optim_ack_stop);
-                if (optim_ack_stop) {
-                    // check if all subconns received 
-                    int all_data_recv = 1;
-                    for (int i = 0; i < SUBCONN_NUM; i++)
-                        if (!subconn_infos[i].payload_len){
-                            all_data_recv = 0;
-                            break;
-                        }
-                    if (all_data_recv){
-                        // Create outgoing connections
-                        optim_ack_stop = 0;
-                        pthread_t thread;
-                        if (pthread_create(&thread, NULL, optimistic_ack, NULL) != 0){
-                            log_error("Fail to create optimistic_ack thread.");
-                            exit(EXIT_FAILURE);
-                        }
-                        log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
-                    }
+            pthread_mutex_lock(&mutex_optim_ack_stop);
+            if (!optim_ack_stop){
+                optim_ack_stop = 0;
+                pthread_t thread;
+                if (pthread_create(&thread, NULL, optimistic_ack, (void *)(intptr_t)payload_len) != 0){
+                    log_error("Fail to create optimistic_ack thread.");
+                    pthread_mutex_unlock(&mutex_optim_ack_stop);
+                    exit(EXIT_FAILURE);
                 }
-                pthread_mutex_unlock(&mutex_optim_ack_stop);
+                log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
+            }
+            pthread_mutex_unlock(&mutex_optim_ack_stop);
 
-            }
-            else if(seq_rel != 1 && !subconn_infos[subconn_id].payload_len){
-                log_error("Not first data packet but subconn_info is not updated.\n");
-                return -1;
-            }
+            // if (seq_rel == 1 && !subconn_infos[subconn_id].payload_len){
+            //     subconn_infos[subconn_id].payload_len = payload_len;
+            //     log_exp("subconn_info updated");
+
+            //     pthread_mutex_lock(&mutex_optim_ack_stop);
+            //     if (optim_ack_stop) {
+            //         // check if all subconns received 
+            //         int all_data_recv = 1;
+            //         for (int i = 0; i < SUBCONN_NUM; i++)
+            //             if (!subconn_infos[i].payload_len){
+            //                 all_data_recv = 0;
+            //                 break;
+            //             }
+            //         if (all_data_recv){
+            //             // Create outgoing connections
+            //             optim_ack_stop = 0;
+            //             pthread_t thread;
+            //             if (pthread_create(&thread, NULL, optimistic_ack, NULL) != 0){
+            //                 log_error("Fail to create optimistic_ack thread.");
+            //                 exit(EXIT_FAILURE);
+            //             }
+            //             log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
+            //         }
+            //     }
+            //     pthread_mutex_unlock(&mutex_optim_ack_stop);
+            // }
+            // else if(seq_rel != 1 && !subconn_infos[subconn_id].payload_len){
+            //     log_error("Not first data packet but subconn_info is not updated.\n");
+            //     return -1;
+            // }
 
             /* if seq > seq_global and seq-seq_global % payload_len == 0
             *      add all seq in between to the vector
@@ -524,6 +534,7 @@ int process_tcp_packet(struct thread_data* thr_data){
             *      if found, send the data, erase the seq from the vector
             *
             */
+
             pthread_mutex_lock(&mutex_seq_next_global);
 
             int offset = seq_rel - seq_next_global;
@@ -804,11 +815,12 @@ int wait_for_connection(int s)
 }
 
 void* optimistic_ack(void* threadid){
+    unsigned int payload_len = (long) threadid;
 
     log_exp("Optim ack starts");
     for (int k = 1; !optim_ack_stop ; k++){
         for (int i = 0; i < SUBCONN_NUM; i++)
-            send_ACK("",subconn_infos[i].ini_seq_rem+1+k*subconn_infos[i].payload_len, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
+            send_ACK("",subconn_infos[i].ini_seq_rem+1+k*payload_len, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
         usleep(ack_pacing);
     }
     log_exp("Optim ack ends");
@@ -976,6 +988,8 @@ int main(int argc, char *argv[])
             int local_port = rand() % 20000 + 30000; 
             subconn_infos[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
             subconn_infos[i].ini_seq_rem = 0;
+            subconn_infos[i].ini_seq_loc = rand();
+            subconn_infos[i].cur_seq_loc = rand() + read_size;
             log_exp("%d: local port = %d", i, local_port);
 
             // Add iptables rules
@@ -984,7 +998,8 @@ int main(int argc, char *argv[])
             log_exp("%d: iptables rules added", i);
 
             // Send SYN
-            send_SYN("", 0, rand(), local_port);
+
+            send_SYN("", 0, subconn_infos[i].ini_seq_loc, local_port);
             log_exp("%d: Sent SYN", i);
         }
 
