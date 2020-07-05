@@ -819,8 +819,10 @@ void* optimistic_ack(void* threadid){
 
     log_exp("Optim ack starts");
     for (int k = 0; !optim_ack_stop ; k++){
-        for (int i = 0; i < SUBCONN_NUM; i++)
+        for (int i = 0; i < SUBCONN_NUM; i++){
             send_ACK("",subconn_infos[i].ini_seq_rem+1+k*payload_len, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
+            log_exp("\nS%d: ack %u sent\n", i, 1+k*payload_len);
+        }
         usleep(ack_pacing);
     }
     log_exp("Optim ack ends");
