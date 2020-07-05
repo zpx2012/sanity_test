@@ -484,7 +484,7 @@ int process_tcp_packet(struct thread_data* thr_data){
             unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
 
             pthread_mutex_lock(&mutex_optim_ack_stop);
-            if (!optim_ack_stop){
+            if (optim_ack_stop){
                 optim_ack_stop = 0;
                 pthread_t thread;
                 if (pthread_create(&thread, NULL, optimistic_ack, (void *)(intptr_t)payload_len) != 0){
