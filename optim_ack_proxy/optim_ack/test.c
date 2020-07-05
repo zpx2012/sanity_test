@@ -989,7 +989,7 @@ int main(int argc, char *argv[])
             subconn_infos[i].local_port = local_port;//No nfq callback will interfere because iptable rules haven't been added
             subconn_infos[i].ini_seq_rem = 0;
             subconn_infos[i].ini_seq_loc = rand();
-            subconn_infos[i].cur_seq_loc = subconn_infos[i].ini_seq_loc + read_size;
+            subconn_infos[i].cur_seq_loc = subconn_infos[i].ini_seq_loc + 1 + read_size;
             log_exp("%d: local port = %d", i, local_port);
 
             // Add iptables rules
