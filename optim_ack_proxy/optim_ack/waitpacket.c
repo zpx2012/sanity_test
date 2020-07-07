@@ -328,7 +328,8 @@ int wait_packet_ipid(const char* localIP, const char* remoteIP, int dst_port)
 	int match = 0;
 	long long seq = -1;
 	linkhdr_size = 14;
-	unsigned int size, iphdr_size, enc_size;
+	int size;
+	unsigned int iphdr_size, enc_size;
 	char packet [IP_MAX_SIZE+linkhdr_size];
 	char *ip_packet, *enc_packet;
 
