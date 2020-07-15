@@ -395,7 +395,7 @@ int process_tcp_packet(struct thread_data* thr_data){
     struct myiphdr *iphdr = ip_hdr(thr_data->buf);
     struct mytcphdr *tcphdr = tcp_hdr(thr_data->buf);
     unsigned char *payload = tcp_payload(thr_data->buf);
-    unsigned int payload_len = thr_data->len - iphdr->ihl*4 - tcphdr->th_off*4;
+    unsigned int payload_len = htons(iphdr->tot_len) - iphdr->ihl*4 - tcphdr->th_off*4;
 
 
     char sip[16], dip[16];
@@ -434,7 +434,7 @@ int process_tcp_packet(struct thread_data* thr_data){
         return -1;
     }
     log_exp("S%d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
-
+    log_exp("tot_len %d, thr_data->len %d", htons(iphdr->tot_len), thr_data->len);
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
     * 2. Received data packet: send it to client
