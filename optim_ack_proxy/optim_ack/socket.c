@@ -13,8 +13,19 @@
 void send_SYN(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128)
 {
     struct tcphdr_opts opts;
-    opts.size = 0;
-
+    unsigned char* bytes = tcp_opts->bytes;
+    /* Maximum segment size*/
+    bytes[0] = 2;
+    bytes[1] = 4;
+    bytes[2] = 5;
+    bytes[3] = 0xb4;
+    /*Window scale: 7*/
+    bytes[4] = 1;
+    bytes[5] = 3;
+    bytes[6] = 3;
+    bytes[7] = 7;
+    opts.size = 8;
+    
     struct tcphdr_bsd header;
     header.th_flags = TH_SYN;
     header.th_seq = seq;
