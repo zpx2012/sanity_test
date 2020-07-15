@@ -13,7 +13,7 @@
 void send_SYN(char* payload, unsigned int ack, unsigned int seq = 1, unsigned short local_port = 8000, unsigned char ttl = 128)
 {
     struct tcphdr_opts opts;
-    unsigned char* bytes = tcp_opts->bytes;
+    unsigned char* bytes = opts.bytes;
     /* Maximum segment size*/
     bytes[0] = 2;
     bytes[1] = 4;
@@ -25,7 +25,7 @@ void send_SYN(char* payload, unsigned int ack, unsigned int seq = 1, unsigned sh
     bytes[6] = 3;
     bytes[7] = 7;
     opts.size = 8;
-    
+
     struct tcphdr_bsd header;
     header.th_flags = TH_SYN;
     header.th_seq = seq;
