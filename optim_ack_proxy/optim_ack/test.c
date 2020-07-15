@@ -167,7 +167,7 @@ int setup_nfq()
     log_debug("nfq queue handler: %p", g_nfq_qh);
 
     log_debug("setting copy_packet mode");
-    if (nfq_set_mode(g_nfq_qh, NFQNL_COPY_PACKET, 0x0400) < 0) {
+    if (nfq_set_mode(g_nfq_qh, NFQNL_COPY_PACKET, 0x0fff) < 0) {
         log_error("can't set packet_copy mode");
         return -1;
     }
