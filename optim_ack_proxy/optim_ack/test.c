@@ -500,7 +500,6 @@ int process_tcp_packet(struct thread_data* thr_data){
                 return -1;
             }
             unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
-
             if (seq_rel == 1 && subconn_infos[subconn_id].optim_ack_stop){
                 start_optim_ack(subconn_id, seq, ack);
             }
@@ -510,7 +509,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 subconn_infos[subconn_id].optim_ack_stop = 1;
                 subconn_infos[subconn_id].ack_pacing -= 10;
                 while(subconn_infos[subconn_id].optim_ack_stop);
-                log_exp("S%d: Restart optim ack", id);
+                log_exp("S%d: Restart optim ack", subconn_id);
                 start_optim_ack(id, seq, ack);
             }
             else {
@@ -856,8 +855,8 @@ void* optimistic_ack(void* threadid){
     unsigned int ack_step = subconn_infos[id].win_size / 4;
     log_exp("S%d: Optim ack starts", id);
     for (int k = 0; !subconn_infos[id].optim_ack_stop; k++){
-        send_ACK("",subconn_infos[i].opa_ack_start+k*ack_step, subconn_infos[i].opa_seq_start, subconn_infos[i].local_port);
-        usleep(subconn_infos[i].ack_pacing);
+        send_ACK("",subconn_infos[id].opa_ack_start+k*ack_step, subconn_infos[id].opa_seq_start, subconn_infos[id].local_port);
+        usleep(subconn_infos[id].ack_pacing);
     }
     subconn_infos[id].optim_ack_stop = 0;
     log_exp("S%d: Optim ack ends", id);
@@ -1043,7 +1042,7 @@ int main(int argc, char *argv[])
             subconn_infos[i].cur_seq_loc = subconn_infos[i].ini_seq_loc + 1 + read_size;
             subconn_infos[i].win_size = 29200*128;
             subconn_infos[i].ack_pacing = ack_pacing;
-            subconn_infos[id].optim_ack_stop = 1;
+            subconn_infos[i].optim_ack_stop = 1;
             log_exp("%d: local port = %d", i, local_port);
 
             // Add iptables rules
