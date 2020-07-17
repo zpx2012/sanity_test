@@ -65,14 +65,19 @@ int opt_measure = 0;
 struct subconn_info
 {
     unsigned short local_port;
-    unsigned int ini_seq_rem;//remote sequence number
-    unsigned int ini_seq_loc;//local sequence number
+    unsigned int ini_seq_rem;  //remote sequence number
+    unsigned int ini_seq_loc;  //local sequence number
+    unsigned int cur_seq_rem;
+    unsigned int cur_seq_loc;
+    short ack_sent;
 
     pthread_t thread;
-    short ack_sent;
-    unsigned int cur_seq_rem;// local sequence number for optim ack to start
-    unsigned int cur_seq_loc;// local ack number for optim ack to start
-    unsigned int payload_len;
+    unsigned int optim_ack_stop;
+    unsigned int opa_seq_start;  // local sequence number for optim ack to start
+    unsigned int opa_ack_start;  // local ack number for optim ack to start
+    unsigned int win_size;
+    int ack_pacing;
+    // unsigned int payload_len;
 };
 struct subconn_info subconn_infos[SUBCONN_NUM];
 int ack_pacing;
@@ -88,9 +93,9 @@ int server_payload_len = 0;
 
 //Multithread
 struct thread_data{
-        unsigned int  id_rvs;
-        unsigned int  len;
-        unsigned char *buf;
+    unsigned int  id_rvs;
+    unsigned int  len;
+    unsigned char *buf;
 };
 thr_pool_t* pool;
 pthread_mutex_t mutex_seq_next_global = PTHREAD_MUTEX_INITIALIZER;
@@ -257,7 +262,6 @@ void cleanup()
     pthread_mutex_destroy(&mutex_subconn_infos);
     pthread_mutex_destroy(&mutex_optim_ack_stop);
 
-
     exec_iptables_rules(iptable_rules, 0, iptable_rules_len, 'D');
     for(int i = 0; i < iptable_rules_len; i++)
         free(iptable_rules[i]);
@@ -380,6 +384,18 @@ void save_seq_gaps_to_file(){
     std::copy(seq_gaps.begin(), seq_gaps.end(), output_iterator);
 }
 
+int start_optim_ack(int id, unsigned int seq, unsigned int ack){
+    subconn_infos[id].opa_seq_start = ack;
+    subconn_infos[id].opa_ack_start = seq + 1;
+    subconn_infos[id].optim_ack_stop = 0;
+    pthread_t thread;
+    if (pthread_create(&thread, NULL, optimistic_ack, (void *)(intptr_t)id) != 0){
+        log_error("Fail to create optimistic_ack thread.");
+        return -1;
+    }
+    log_exp("S%d: optimistic ack thread created", id);   
+}
+
 /* Bug: sub connections are not syncronized; one is way ahead, the others fall behind
  * Solution: 
  *      1. Wait until all connections finishe threeway handshake, then send request all together
@@ -390,6 +406,7 @@ void save_seq_gaps_to_file(){
 /* Process TCP packets
  * Return 0 to accept packet, otherwise to drop packet 
  */
+
 int process_tcp_packet(struct thread_data* thr_data){
 
     log_exp("process_tcp_packet: id %d", htonl(thr_data->id_rvs));
@@ -448,7 +465,7 @@ int process_tcp_packet(struct thread_data* thr_data){
         case TH_SYN|TH_ACK:
         {
             send_ACK("", seq+1, ack, dport);
-            subconn_infos[subconn_id].ini_seq_rem = seq;
+            subconn_infos[subconn_id].ini_seq_rem = subconn_infos[subconn_id].cur_seq_rem = seq;
             subconn_infos[subconn_id].ack_sent = 1;            
             log_exp("%d: Received SYN/ACK. Sent ACK", subconn_id);
             
@@ -484,18 +501,35 @@ int process_tcp_packet(struct thread_data* thr_data){
             }
             unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
 
-            pthread_mutex_lock(&mutex_optim_ack_stop);
-            if (optim_ack_stop){
-                optim_ack_stop = 0;
-                pthread_t thread;
-                if (pthread_create(&thread, NULL, optimistic_ack, (void *)(intptr_t)payload_len) != 0){
-                    log_error("Fail to create optimistic_ack thread.");
-                    pthread_mutex_unlock(&mutex_optim_ack_stop);
-                    exit(EXIT_FAILURE);
-                }
-                log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
+            if (seq_rel == 1 && subconn_infos[subconn_id].optim_ack_stop){
+                start_optim_ack(subconn_id, seq, ack);
             }
-            pthread_mutex_unlock(&mutex_optim_ack_stop);
+
+            if(seq < subconn_infos[subconn_id].cur_seq_rem){
+                // Retrnx
+                subconn_infos[subconn_id].optim_ack_stop = 1;
+                subconn_infos[subconn_id].ack_pacing -= 10;
+                while(subconn_infos[subconn_id].optim_ack_stop);
+                log_exp("S%d: Restart optim ack", id);
+                start_optim_ack(id, seq, ack);
+            }
+            else {
+                subconn_infos[subconn_id].cur_seq_rem = seq;
+            }
+
+
+            // pthread_mutex_lock(&mutex_optim_ack_stop);
+            // if (optim_ack_stop){
+            //     optim_ack_stop = 0;
+            //     pthread_t thread;
+            //     if (pthread_create(&thread, NULL, optimistic_ack, (void *)(intptr_t)payload_len) != 0){
+            //         log_error("Fail to create optimistic_ack thread.");
+            //         pthread_mutex_unlock(&mutex_optim_ack_stop);
+            //         exit(EXIT_FAILURE);
+            //     }
+            //     log_exp("\n-------------------\n\noptimistic ack thread created\n\n-------------------");
+            // }
+            // pthread_mutex_unlock(&mutex_optim_ack_stop);
 
             // if (seq_rel == 1 && !subconn_infos[subconn_id].payload_len){
             //     subconn_infos[subconn_id].payload_len = payload_len;
@@ -815,21 +849,35 @@ int wait_for_connection(int s)
     return (newsock);
 }
 
-void* optimistic_ack(void* threadid){
-    unsigned int payload_len = (long) threadid;
 
-    log_exp("Optim ack starts");
-    for (int k = 0; !optim_ack_stop ; k++){
-        for (int i = 0; i < SUBCONN_NUM; i++){
-            send_ACK("",subconn_infos[i].ini_seq_rem+1+k*payload_len, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
-            // log_exp("\nS%d: ack %u sent\n", i, 1+k*payload_len);
-        }
-        usleep(ack_pacing);
+
+void* optimistic_ack(void* threadid){
+    int id = (long) threadid;
+    unsigned int ack_step = subconn_infos[id].win_size / 4;
+    log_exp("S%d: Optim ack starts", id);
+    for (int k = 0; !subconn_infos[id].optim_ack_stop; k++){
+        send_ACK("",subconn_infos[i].opa_ack_start+k*ack_step, subconn_infos[i].opa_seq_start, subconn_infos[i].local_port);
+        usleep(subconn_infos[i].ack_pacing);
     }
-    log_exp("Optim ack ends");
-    pthread_exit(NULL);
+    subconn_infos[id].optim_ack_stop = 0;
+    log_exp("S%d: Optim ack ends", id);
+    pthread_exit(NULL);        
 }
 
+// void* optimistic_ack_all(void* threadid){
+//     unsigned int payload_len = (long) threadid;
+
+//     log_exp("Optim ack starts");
+//     for (int k = 0; !optim_ack_stop ; k++){
+//         for (int i = 0; i < SUBCONN_NUM; i++){
+//             send_ACK("",subconn_infos[i].ini_seq_rem+1+k*payload_len, subconn_infos[i].cur_seq_loc, subconn_infos[i].local_port);
+//             // log_exp("\nS%d: ack %u sent\n", i, 1+k*payload_len);
+//         }
+//         usleep(ack_pacing);
+//     }
+//     log_exp("Optim ack ends");
+//     pthread_exit(NULL);
+// }
 
 // void* optimistic_ack_old(void* threadid)
 // {
@@ -993,6 +1041,9 @@ int main(int argc, char *argv[])
             subconn_infos[i].ini_seq_rem = 0;
             subconn_infos[i].ini_seq_loc = rand();
             subconn_infos[i].cur_seq_loc = subconn_infos[i].ini_seq_loc + 1 + read_size;
+            subconn_infos[i].win_size = 29200*128;
+            subconn_infos[i].ack_pacing = ack_pacing;
+            subconn_infos[id].optim_ack_stop = 1;
             log_exp("%d: local port = %d", i, local_port);
 
             // Add iptables rules
