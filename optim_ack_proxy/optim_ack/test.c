@@ -510,7 +510,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 subconn_infos[subconn_id].ack_pacing -= 10;
                 while(subconn_infos[subconn_id].optim_ack_stop);
                 log_exp("S%d: Restart optim ack", subconn_id);
-                start_optim_ack(id, seq, ack);
+                start_optim_ack(subconn_id, seq, ack);
             }
             else {
                 subconn_infos[subconn_id].cur_seq_rem = seq;
