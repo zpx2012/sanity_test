@@ -385,7 +385,7 @@ void save_seq_gaps_to_file(){
     std::copy(seq_gaps.begin(), seq_gaps.end(), output_iterator);
 }
 
-int start_optim_ack(int id, unsigned int seq, unsigned int ack, unsigned int win_size, unsigned int seq_max){
+int start_optim_ack(int id, unsigned int seq, unsigned int ack, unsigned int payload_len, unsigned int seq_max){
     subconn_infos[id].opa_seq_start = ack;
     subconn_infos[id].opa_ack_start = seq + 1;
     subconn_infos[id].opa_seq_max_restart = seq_max;
