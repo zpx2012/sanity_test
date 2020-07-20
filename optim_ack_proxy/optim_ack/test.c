@@ -75,9 +75,10 @@ struct subconn_info
     unsigned int optim_ack_stop;
     unsigned int opa_seq_start;  // local sequence number for optim ack to start
     unsigned int opa_ack_start;  // local ack number for optim ack to start
+    unsigned int opa_seq_max_restart;
     unsigned int win_size;
     int ack_pacing;
-    // unsigned int payload_len;
+    unsigned int payload_len;
 };
 struct subconn_info subconn_infos[SUBCONN_NUM];
 int ack_pacing;
@@ -384,9 +385,11 @@ void save_seq_gaps_to_file(){
     std::copy(seq_gaps.begin(), seq_gaps.end(), output_iterator);
 }
 
-int start_optim_ack(int id, unsigned int seq, unsigned int ack){
+int start_optim_ack(int id, unsigned int seq, unsigned int ack, unsigned int win_size, unsigned int seq_max){
     subconn_infos[id].opa_seq_start = ack;
     subconn_infos[id].opa_ack_start = seq + 1;
+    subconn_infos[id].opa_seq_max_restart = seq_max;
+    subconn_infos[id].payload_len = payload_len;
     subconn_infos[id].optim_ack_stop = 0;
     pthread_t thread;
     if (pthread_create(&thread, NULL, optimistic_ack, (void *)(intptr_t)id) != 0){
@@ -452,7 +455,7 @@ int process_tcp_packet(struct thread_data* thr_data){
         return -1;
     }
     log_exp("S%d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
-    log_exp("tot_len %d, thr_data->len %d", htons(iphdr->tot_len), thr_data->len);
+    // log_exp("tot_len %d, thr_data->len %d", htons(iphdr->tot_len), thr_data->len);
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
     * 2. Received data packet: send it to client
@@ -501,16 +504,17 @@ int process_tcp_packet(struct thread_data* thr_data){
             }
             unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
             if (seq_rel == 1 && subconn_infos[subconn_id].optim_ack_stop){
-                start_optim_ack(subconn_id, seq, ack);
+                start_optim_ack(subconn_id, seq, ack, payload_len, 0);
             }
 
-            if(seq < subconn_infos[subconn_id].cur_seq_rem){
+            if(seq < subconn_infos[subconn_id].cur_seq_rem && seq >= subconn_infos[subconn_id].opa_seq_max_restart){
                 // Retrnx
+                // add mutex
                 subconn_infos[subconn_id].optim_ack_stop = 1;
                 subconn_infos[subconn_id].ack_pacing -= 10;
                 while(subconn_infos[subconn_id].optim_ack_stop);
                 log_exp("S%d: Restart optim ack", subconn_id);
-                start_optim_ack(subconn_id, seq, ack);
+                start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
             }
             else {
                 subconn_infos[subconn_id].cur_seq_rem = seq;
@@ -852,11 +856,16 @@ int wait_for_connection(int s)
 
 void* optimistic_ack(void* threadid){
     int id = (long) threadid;
-    unsigned int ack_step = subconn_infos[id].win_size / 4;
+    unsigned int ack_step = subconn_infos[id].payload_len;
+    unsigned int opa_seq_start = subconn_infos[id].opa_seq_start;
+    unsigned int opa_ack_start = subconn_infos[id].opa_ack_start;
+    unsigned int local_port = subconn_infos[id].local_port;
+    unsigned int ack_pacing = subconn_infos[id].ack_pacing;
+
     log_exp("S%d: Optim ack starts", id);
     for (int k = 0; !subconn_infos[id].optim_ack_stop; k++){
-        send_ACK("",subconn_infos[id].opa_ack_start+k*ack_step, subconn_infos[id].opa_seq_start, subconn_infos[id].local_port);
-        usleep(subconn_infos[id].ack_pacing);
+        send_ACK("",opa_ack_start+k*ack_step, opa_seq_start, local_port);
+        usleep(ack_pacing);
     }
     subconn_infos[id].optim_ack_stop = 0;
     log_exp("S%d: Optim ack ends", id);
