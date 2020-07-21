@@ -507,23 +507,22 @@ int process_tcp_packet(struct thread_data* thr_data){
             }
             unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
             
-            pthread_mutex_lock(&subconn_infos[subconn_id].mutex_opa);
             if (seq_rel == 1 && subconn_infos[subconn_id].optim_ack_stop){
                 start_optim_ack(subconn_id, seq, ack, payload_len, 0);
 
             }
-            else if(seq < subconn_infos[subconn_id].cur_seq_rem && seq >= subconn_infos[subconn_id].opa_seq_max_restart){
-                // Retrnx
-                // add mutex
-                subconn_infos[subconn_id].opa_retrx_counter++;
-                if (subconn_infos[subconn_id].opa_retrx_counter > 6){
-                    subconn_infos[subconn_id].optim_ack_stop = 1;
-                    subconn_infos[subconn_id].ack_pacing -= 10;
-                    while(subconn_infos[subconn_id].optim_ack_stop);
-                    log_exp("S%d: Restart optim ack", subconn_id);
-                    start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
-                }
-            }
+            // else if(seq < subconn_infos[subconn_id].cur_seq_rem && seq >= subconn_infos[subconn_id].opa_seq_max_restart){
+            //     // Retrnx
+            //     // add mutex
+            //     subconn_infos[subconn_id].opa_retrx_counter++;
+            //     if (subconn_infos[subconn_id].opa_retrx_counter > 6){
+            //         subconn_infos[subconn_id].optim_ack_stop = 1;
+            //         subconn_infos[subconn_id].ack_pacing -= 10;
+            //         while(subconn_infos[subconn_id].optim_ack_stop);
+            //         log_exp("S%d: Restart optim ack", subconn_id);
+            //         start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
+            //     }
+            // }
             else {
                 subconn_infos[subconn_id].cur_seq_rem = seq;
             }
@@ -604,6 +603,21 @@ int process_tcp_packet(struct thread_data* thr_data){
                 if (!ret){
                     log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
                     pthread_mutex_unlock(&mutex_seq_next_global);
+                    
+                    pthread_mutex_lock(&subconn_infos[subconn_id].mutex_opa);
+                    if(seq < subconn_infos[subconn_id].cur_seq_rem){//Retrx  && seq >= subconn_infos[subconn_id].opa_seq_max_restart
+                        subconn_infos[subconn_id].opa_retrx_counter++;
+                        if (subconn_infos[subconn_id].opa_retrx_counter > 6){
+                            subconn_infos[subconn_id].optim_ack_stop = 1;
+                            subconn_infos[subconn_id].ack_pacing -= 10;
+                            while(subconn_infos[subconn_id].optim_ack_stop);
+                            log_exp("S%d: Restart optim ack", subconn_id);
+                            start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
+                        }
+                    }
+                    pthread_mutex_unlock(&subconn_infos[subconn_id].mutex_opa);
+            }
+
                     return -1;
                 }
                 // pthread_mutex_lock(&mutex_seq_gaps);
