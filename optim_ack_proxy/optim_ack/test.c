@@ -616,8 +616,6 @@ int process_tcp_packet(struct thread_data* thr_data){
                         }
                     }
                     pthread_mutex_unlock(&subconn_infos[subconn_id].mutex_opa);
-            }
-
                     return -1;
                 }
                 // pthread_mutex_lock(&mutex_seq_gaps);
