@@ -72,10 +72,12 @@ struct subconn_info
     short ack_sent;
 
     pthread_t thread;
+    pthread_mutex_t mutex_opa;
     unsigned int optim_ack_stop;
     unsigned int opa_seq_start;  // local sequence number for optim ack to start
     unsigned int opa_ack_start;  // local ack number for optim ack to start
     unsigned int opa_seq_max_restart;
+    unsigned int opa_retrx_counter;
     unsigned int win_size;
     int ack_pacing;
     unsigned int payload_len;
@@ -389,6 +391,7 @@ int start_optim_ack(int id, unsigned int seq, unsigned int ack, unsigned int pay
     subconn_infos[id].opa_seq_start = ack;
     subconn_infos[id].opa_ack_start = seq + 1;
     subconn_infos[id].opa_seq_max_restart = seq_max;
+    subconn_infos[id].opa_retrx_counter = 0;
     subconn_infos[id].payload_len = payload_len;
     subconn_infos[id].optim_ack_stop = 0;
     pthread_t thread;
@@ -503,22 +506,28 @@ int process_tcp_packet(struct thread_data* thr_data){
                 return -1;
             }
             unsigned int seq_rel = seq - subconn_infos[subconn_id].ini_seq_rem;
+            
+            pthread_mutex_lock(&subconn_infos[subconn_id].mutex_opa);
             if (seq_rel == 1 && subconn_infos[subconn_id].optim_ack_stop){
                 start_optim_ack(subconn_id, seq, ack, payload_len, 0);
-            }
 
-            if(seq < subconn_infos[subconn_id].cur_seq_rem && seq >= subconn_infos[subconn_id].opa_seq_max_restart){
+            }
+            else if(seq < subconn_infos[subconn_id].cur_seq_rem && seq >= subconn_infos[subconn_id].opa_seq_max_restart){
                 // Retrnx
                 // add mutex
-                subconn_infos[subconn_id].optim_ack_stop = 1;
-                subconn_infos[subconn_id].ack_pacing -= 10;
-                while(subconn_infos[subconn_id].optim_ack_stop);
-                log_exp("S%d: Restart optim ack", subconn_id);
-                start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
+                subconn_infos[subconn_id].opa_retrx_counte++;
+                if (subconn_infos[subconn_id].opa_retrx_counter > 6){
+                    subconn_infos[subconn_id].optim_ack_stop = 1;
+                    subconn_infos[subconn_id].ack_pacing -= 10;
+                    while(subconn_infos[subconn_id].optim_ack_stop);
+                    log_exp("S%d: Restart optim ack", subconn_id);
+                    start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
+                }
             }
             else {
                 subconn_infos[subconn_id].cur_seq_rem = seq;
             }
+            pthread_mutex_unlock(&subconn_infos[subconn_id].mutex_opa);
 
 
             // pthread_mutex_lock(&mutex_optim_ack_stop);
@@ -1052,6 +1061,7 @@ int main(int argc, char *argv[])
             subconn_infos[i].win_size = 29200*128;
             subconn_infos[i].ack_pacing = ack_pacing;
             subconn_infos[i].optim_ack_stop = 1;
+            subconn_infos[i].mutex_opa = PTHREAD_MUTEX_INITIALIZER;
             log_exp("%d: local port = %d", i, local_port);
 
             // Add iptables rules
