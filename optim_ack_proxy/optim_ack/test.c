@@ -610,9 +610,10 @@ int process_tcp_packet(struct thread_data* thr_data){
                         if (subconn_infos[subconn_id].opa_retrx_counter > 6){
                             subconn_infos[subconn_id].optim_ack_stop = 1;
                             subconn_infos[subconn_id].ack_pacing -= 10;
+                            subconn_infos[subconn_id].opa_retrx_counter = 0;
                             while(subconn_infos[subconn_id].optim_ack_stop);
-                            log_exp("S%d: Restart optim ack", subconn_id);
                             start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
+                            log_exp("S%d: Restart optim ack", subconn_id);
                         }
                     }
                     pthread_mutex_unlock(&subconn_infos[subconn_id].mutex_opa);
