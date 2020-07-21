@@ -515,7 +515,7 @@ int process_tcp_packet(struct thread_data* thr_data){
             else if(seq < subconn_infos[subconn_id].cur_seq_rem && seq >= subconn_infos[subconn_id].opa_seq_max_restart){
                 // Retrnx
                 // add mutex
-                subconn_infos[subconn_id].opa_retrx_counte++;
+                subconn_infos[subconn_id].opa_retrx_counter++;
                 if (subconn_infos[subconn_id].opa_retrx_counter > 6){
                     subconn_infos[subconn_id].optim_ack_stop = 1;
                     subconn_infos[subconn_id].ack_pacing -= 10;
