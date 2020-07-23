@@ -96,7 +96,7 @@ int server_payload_len = 0;
 
 //Multithread
 struct thread_data{
-    unsigned int  id_rvs;
+    unsigned int  pkt_id;
     unsigned int  len;
     unsigned char *buf;
 };
@@ -415,7 +415,7 @@ int start_optim_ack(int id, unsigned int seq, unsigned int ack, unsigned int pay
 
 int process_tcp_packet(struct thread_data* thr_data){
 
-    log_exp("process_tcp_packet: id %d", htonl(thr_data->id_rvs));
+    // log_exp("process_tcp_packet: id %d", htonl(thr_data->pkt_id));
     struct myiphdr *iphdr = ip_hdr(thr_data->buf);
     struct mytcphdr *tcphdr = tcp_hdr(thr_data->buf);
     unsigned char *payload = tcp_payload(thr_data->buf);
@@ -457,7 +457,7 @@ int process_tcp_packet(struct thread_data* thr_data){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
         return -1;
     }
-    log_exp("S%d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
+    log_exp("S%d, id %d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, thr_data->pkt_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
     // log_exp("tot_len %d, thr_data->len %d", htons(iphdr->tot_len), thr_data->len);
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
@@ -590,7 +590,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 //     log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
                 //     return -1;
                 // }
-                log_exp("Insert gaps: %d, to: %d.", seq_next_global, seq_rel);
+                log_exp("S%d, id %d: Insert gaps: %d, to: %d.", subconn_id, thr_data->pkt_id, seq_next_global, seq_rel);
                 // pthread_mutex_lock(&mutex_seq_gaps);
                 insert_seq_gaps(seq_next_global, seq_rel, payload_len);
                 // pthread_mutex_unlock(&mutex_seq_gaps);
@@ -601,7 +601,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 
                 int ret = find_seq_gaps(seq_rel);
                 if (!ret){
-                    log_exp("recv: %d < wanting: %d", seq_rel, seq_next_global);
+                    log_exp("S%d, id %d: recv %d < wanting %d", subconn_id, thr_data->pkt_id, seq_rel, seq_next_global);
                     pthread_mutex_unlock(&mutex_seq_next_global);
                     
                     pthread_mutex_lock(&subconn_infos[subconn_id].mutex_opa);
@@ -613,7 +613,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                             subconn_infos[subconn_id].opa_retrx_counter = 0;
                             while(subconn_infos[subconn_id].optim_ack_stop);
                             start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
-                            log_exp("S%d: Restart optim ack", subconn_id);
+                            log_exp("S%d, id %d: Restart optim ack", subconn_id, thr_data->pkt_id);
                         }
                     }
                     pthread_mutex_unlock(&subconn_infos[subconn_id].mutex_opa);
@@ -622,16 +622,16 @@ int process_tcp_packet(struct thread_data* thr_data){
                 // pthread_mutex_lock(&mutex_seq_gaps);
                 delete_seq_gaps(seq_rel);
                 // pthread_mutex_unlock(&mutex_seq_gaps);
-                log_exp("Found gap %u. Delete gap.", seq_rel);
+                log_exp("S%d, id %d: Found gap %u. Delete gap.", subconn_id, thr_data->pkt_id, seq_rel);
             }
             else {
                 append = payload_len;
-                log_exp("Found seg %u", seq_rel);
+                log_exp("S%d, id %d: Found seg %u", subconn_id, thr_data->pkt_id, seq_rel);
             }
 
             if(append){
                 seq_next_global += append;
-                log_exp("Update seq_global to %u", seq_next_global);
+                log_exp("S%d, id %d: Update seq_global to %u", subconn_id, thr_data->pkt_id, seq_next_global);
             }
 
             pthread_mutex_unlock(&mutex_seq_next_global);
@@ -641,7 +641,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 log_error("process_tcp_packet: send error %d", errno);
                 return -1;
             }
-            log_exp("Sent seg %d to client\n", seq_rel);
+            log_exp("S%d, id %d: Sent seg %d to client\n", subconn_id, thr_data->pkt_id, seq_rel);
 
             return -1;
             break;
@@ -678,7 +678,7 @@ int process_tcp_packet(struct thread_data* thr_data){
 
 void* pool_handler(void* arg){
     struct thread_data* thr_data = (struct thread_data*)arg;
-    u_int32_t id = ntohl(thr_data->id_rvs);
+    u_int32_t id = thr_data->pkt_id;
     int ret = -1;
 
     // log_exp("pool_handler: %d", id);
@@ -729,7 +729,7 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
         }
         memset(thr_data, 0, sizeof(struct thread_data));
         // log_exp("cb: id %d, protocol 0x%04x", ntohl(nfq_get_msg_packet_hdr(nfa)->packet_id), nfq_get_msg_packet_hdr(nfa)->hw_protocol);
-        thr_data->id_rvs = nfq_get_msg_packet_hdr(nfa)->packet_id;
+        thr_data->pkt_id = htonl(nfq_get_msg_packet_hdr(nfa)->packet_id);
         thr_data->len = packet_len;
         thr_data->buf = (unsigned char *)malloc(packet_len);
         if (!thr_data->buf){
