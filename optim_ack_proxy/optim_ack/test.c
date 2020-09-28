@@ -457,7 +457,7 @@ int process_tcp_packet(struct thread_data* thr_data){
         log_error("process_tcp_packet: couldn't find subconn with port %d", dport);
         return -1;
     }
-    log_exp("S%d, id %d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, thr_data->pkt_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
+    log_exp("S%d-%d: %s:%d -> %s:%d <%s> seq %x(%u) ack %x(%u) ttl %u plen %d", subconn_id, thr_data->pkt_id, sip, sport, dip, dport, tcp_flags_str(tcphdr->th_flags), tcphdr->th_seq, seq-subconn_infos[subconn_id].ini_seq_rem, tcphdr->th_ack, ack-subconn_infos[subconn_id].ini_seq_loc, iphdr->ttl, payload_len);
     // log_exp("tot_len %d, thr_data->len %d", htons(iphdr->tot_len), thr_data->len);
     /*
     * 1. Received SYN/ACK: find the local port, send ACK and request
@@ -590,7 +590,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 //     log_error("seq_rel %d-seq_next_global %d) % packet->payload_len %d != 0", seq_rel, seq_next_global, packet->payload_len);
                 //     return -1;
                 // }
-                log_exp("S%d, id %d: Insert gaps: %d, to: %d.", subconn_id, thr_data->pkt_id, seq_next_global, seq_rel);
+                log_exp("S%d-%d: Insert gaps: %d, to: %d.", subconn_id, thr_data->pkt_id, seq_next_global, seq_rel);
                 // pthread_mutex_lock(&mutex_seq_gaps);
                 insert_seq_gaps(seq_next_global, seq_rel, payload_len);
                 // pthread_mutex_unlock(&mutex_seq_gaps);
@@ -601,7 +601,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 
                 int ret = find_seq_gaps(seq_rel);
                 if (!ret){
-                    log_exp("S%d, id %d: recv %d < wanting %d", subconn_id, thr_data->pkt_id, seq_rel, seq_next_global);
+                    log_exp("S%d-%d: recv %d < wanting %d", subconn_id, thr_data->pkt_id, seq_rel, seq_next_global);
                     pthread_mutex_unlock(&mutex_seq_next_global);
                     
                     pthread_mutex_lock(&subconn_infos[subconn_id].mutex_opa);
@@ -613,7 +613,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                             subconn_infos[subconn_id].opa_retrx_counter = 0;
                             while(subconn_infos[subconn_id].optim_ack_stop);
                             start_optim_ack(subconn_id, seq, ack, payload_len, subconn_infos[subconn_id].cur_seq_rem);
-                            log_exp("S%d, id %d: Restart optim ack", subconn_id, thr_data->pkt_id);
+                            log_exp("S%d-%d: Restart optim ack", subconn_id, thr_data->pkt_id);
                         }
                     }
                     pthread_mutex_unlock(&subconn_infos[subconn_id].mutex_opa);
@@ -622,16 +622,16 @@ int process_tcp_packet(struct thread_data* thr_data){
                 // pthread_mutex_lock(&mutex_seq_gaps);
                 delete_seq_gaps(seq_rel);
                 // pthread_mutex_unlock(&mutex_seq_gaps);
-                log_exp("S%d, id %d: Found gap %u. Delete gap.", subconn_id, thr_data->pkt_id, seq_rel);
+                log_exp("S%d-%d: Found gap %u. Delete gap.", subconn_id, thr_data->pkt_id, seq_rel);
             }
             else {
                 append = payload_len;
-                log_exp("S%d, id %d: Found seg %u", subconn_id, thr_data->pkt_id, seq_rel);
+                log_exp("S%d-%d: Found seg %u", subconn_id, thr_data->pkt_id, seq_rel);
             }
 
             if(append){
                 seq_next_global += append;
-                log_exp("S%d, id %d: Update seq_global to %u", subconn_id, thr_data->pkt_id, seq_next_global);
+                log_exp("S%d-%d: Update seq_global to %u", subconn_id, thr_data->pkt_id, seq_next_global);
             }
 
             pthread_mutex_unlock(&mutex_seq_next_global);
@@ -641,7 +641,7 @@ int process_tcp_packet(struct thread_data* thr_data){
                 log_error("process_tcp_packet: send error %d", errno);
                 return -1;
             }
-            log_exp("S%d, id %d: Sent seg %d to client\n", subconn_id, thr_data->pkt_id, seq_rel);
+            log_exp("S%d-%d: Sent seg %d to client\n", subconn_id, thr_data->pkt_id, seq_rel);
 
             return -1;
             break;
