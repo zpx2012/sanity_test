@@ -12,7 +12,7 @@ while true; do
 		sudo /usr/local/squid/sbin/squid -k shutdown
 		echo $(date -u): Stop squid 2>&1 | tee -a $log
 		sudo iptables -F
-		sleep 29
+		sleep 35
 		echo $(date -u): Wait 29s for squid to stop 2>&1 | tee -a $log
 		ps -ef | grep squid 2>&1 | tee -a $log
 	done
