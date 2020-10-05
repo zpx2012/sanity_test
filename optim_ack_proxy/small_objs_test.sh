@@ -30,7 +30,7 @@ while true; do
 		
 		bash ~/sanity_test/ks.sh td
 		if ! cat $curl_singlerun | grep -q 'too slow'; then
-			rm -v $tcpdump_outfile | tee -a $log
+			rm -v ${tcpdump_outfile}* | tee -a $log
 		fi
 		
 		sudo iptables -F
