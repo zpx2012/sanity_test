@@ -29,7 +29,7 @@ while true; do
 		echo $(date -u --rfc-3339=ns): Stop squid 2>&1 | tee -a $log
 		
 		bash ~/sanity_test/ks.sh td
-		if ! cat $curl_singlerun | grep -q 'too slow'; then
+		if ! cat $curl_singlerun | grep -q 'curl: '; then
 			rm -v ${tcpdump_outfile}* | tee -a $log
 		fi
 		
